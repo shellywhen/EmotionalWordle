@@ -1,0 +1,12 @@
+@keyframes bop {
+    0% {
+      transform: scale(0.9);
+    }
+    20% {
+      transform: rotateZ(-3deg);
+    }
+    100% {
+      transform: scale(1) rotateZ(0);
+    }
+  }
+  
