@@ -1,4 +1,9 @@
 /* eslint-disable */
+/**
+ * This is the doc comment for color-picker.ts.
+ * It creates a color picker.
+ * @packageDocumentation
+ */
 import Pickr from "@simonwep/pickr"
 let swatches = [
     'rgba(244, 67, 54, 1)',

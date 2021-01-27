@@ -1,3 +1,8 @@
+/**
+ * This is the doc comment for color-preset.ts.
+ * It has the default variables for color.
+ * @packageDocumentation
+ */
 export const rainbow = [ 
     'rgba(244, 67, 54, 1)',
     'rgba(233, 30, 99, 0.95)',

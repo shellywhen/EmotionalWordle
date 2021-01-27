@@ -1,4 +1,11 @@
 /* eslint-disable */
+/**
+ * This is the doc comment for jump.ts.
+ * It is working in progress. It trys to tune the webgl program more subtlely.
+ * @packageDocumentation
+ */
+
+
 // Reads out a .ttf and triangulates the glyphs using OpenType and Earcut.
 // Code made By riv -> https://stackoverflow.com/questions/50554803/triangulate-path-data-from-opentype-js-using-earcut/50581183#50581183
 // Original here -> https://jsbin.com/gecakub/edit?html,js,output

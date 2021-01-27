@@ -1,4 +1,10 @@
 /* eslint-disable */
+/**
+ * This is the doc comment for plot.ts.
+ * It plots the wordle according to the layout spec and stylesheet on svg or canvas2d.
+ * @packageDocumentation
+ */
+
 import { Word, Style } from './cloud'
 import * as d3 from 'd3-selection'
 import * as d3Drag from 'd3-drag'

@@ -1,4 +1,9 @@
 /* eslint-disable */
+/**
+ * This is the doc comment for animation.ts.
+ * It controls the animation for the words.
+ * @packageDocumentation
+ */
 import * as d3Timer from 'd3-timer'
 import * as d3Ease from 'd3-ease'
 import * as d3Interpolate from 'd3-interpolate'
