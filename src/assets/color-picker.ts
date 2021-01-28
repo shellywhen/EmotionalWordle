@@ -1,7 +1,7 @@
 /* eslint-disable */
 /**
- * This is the doc comment for color-picker.ts.
- * It creates a color picker.
+ * doc comment for color-picker.ts.
+ * create a color picker.
  * @packageDocumentation
  */
 import Pickr from "@simonwep/pickr"

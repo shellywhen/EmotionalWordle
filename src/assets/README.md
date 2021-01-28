@@ -3,7 +3,10 @@
 - Generate wordle layout (x,y,rotation) for raw input data with only text and frequency.
 - Manage the animation handler and plot handler.
 
-### animation
+### animator
+- Control the animation with the key-frame unit.
+
+#### 🚧 (Old) animation
 - Control the animation for bubbles based on duration, ease type, and animation mode.
 
 ### plot

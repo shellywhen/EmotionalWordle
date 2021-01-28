@@ -1,7 +1,7 @@
 /* eslint-disable */
 /**
- * This is the doc comment for float.ts.
- * It simulates the force.
+ * doc comment for float.ts.
+ * force simulation
  * @packageDocumentation
  */
 import * as d3 from 'd3-selection'

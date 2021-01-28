@@ -1,7 +1,13 @@
 /* eslint-disable */
 /**
- * This is the doc comment for animation.ts.
- * It controls the animation for the words.
+ * doc comment for animation.ts.
+ * the script controls the animation for the words
+ * 
+ * @remarks
+ * Meta is the metadata for animation containing source (s) and target (s) position
+ * Animator mainly controls the animator type, duration, ease function, gif, start and end.
+ * To implement an animation effect, you may refer to `playFramework`.
+ * 
  * @packageDocumentation
  */
 import * as d3Timer from 'd3-timer'

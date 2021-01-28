@@ -1,7 +1,8 @@
 /* eslint-disable */
 /**
- * This is the doc comment for plot.ts.
- * It plots the wordle according to the layout spec and stylesheet on svg or canvas2d.
+ * doc comment for plot.ts.
+ * It plots the wordle according to the layout spec and stylesheet on svg or canvas2d
+ * 
  * @packageDocumentation
  */
 

@@ -1,7 +1,9 @@
 /* eslint-disable */
 /**
- * This is the doc comment for gl-helper.ts.
+ * doc comment for gl-helper.ts.
  * It has the utility function to create `webgl` applications, which might be faster.
+ * 
+ * @remarks 
  * Current code is for the waving effect. The core is on the fragmentString and vertexShader.
  * @packageDocumentation
  */

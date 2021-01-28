@@ -1,4 +1,9 @@
 /* eslint-disable */
+/**
+ * doc comment for cloud.ts
+ * control the layout for words based on their size and font
+ * @packageDocumentation
+ */
 import cloudGenerator from 'd3-cloud'
 import * as scale from 'd3-scale'
 import { PlotHandler } from './plot'

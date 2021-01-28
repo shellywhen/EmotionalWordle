@@ -1,6 +1,7 @@
 /* eslint-disable */
 /**
- * This is the doc comment for jump.ts.
+ * doc comment for jump.ts
+ * @remarks 
  * It is working in progress. It trys to tune the webgl program more subtlely.
  * @packageDocumentation
  */
