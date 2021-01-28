@@ -7,7 +7,7 @@
  * @packageDocumentation
  */
 import * as d3Ease from 'd3-ease'
-import { Word } from './cloud'
+import { Mode, Word } from './cloud'
 
 /** different strategies for assigning groups to words */
 enum GroupingMode {
@@ -69,6 +69,34 @@ interface KeyframeConfig {
      public duration: number = 1000
      public groups: Array<GroupManager>|undefined
      public divideGroup(mode: GroupingMode, groupNum: number) {
+        let func: (v: Meta, idx: number)=>number
+        if(mode === GroupingMode.random) {
+            func = (d: Meta, idx: number) => getRandomInt(0, groupNum - 1)
+        }
+        else if(mode === GroupingMode.y) {
+            func = (d: Meta, idx: number) => {
+                let height = this.plotHandler.height
+                return Math.ceil(((d.ty + height / 2 )/height + 0.5)* groupNum)
+                }
+        }
+        else if(mode === GroupingMode.x) {
+            func = (d: Meta, idx: number) => {
+                let width = this.plotHandler.width
+                return Math.ceil(((d.x + width / 2 )/width + 0.5)* groupNum)
+            }
+        }
+        else if(mode === GroupingMode.xy) {
+            func = (d: Meta, idx: number) => {
+                return Math.ceil(idx*groupNum/this.data.length + 0.5)
+            }
+        }
+        else {
+            console.log('wrong!')
+        }
+        this.data.forEach((v: Meta, idx: number) => { v.order = func(v, idx) })
+
+
+
      }
      public play() {
 
@@ -77,3 +105,7 @@ interface KeyframeConfig {
 
      }
  }
+
+function getRandomInt(min: number, max: number) {
+    return Math.floor(Math.random() * (max - min)) + min;
+}
