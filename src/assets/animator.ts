@@ -6,8 +6,13 @@
  * the logic is to use Animator to control GroupManager
  * @packageDocumentation
  */
+import * as d3Timer from 'd3-timer'
 import * as d3Ease from 'd3-ease'
 import { Mode, Word } from './cloud'
+import { Meta } from './animation'
+import { PlotHandler } from './plot'
+import { toHandlers } from 'vue'
+import { tsvFormatValue } from 'd3-dsv'
 
 /** different strategies for assigning groups to words */
 enum GroupingMode {
@@ -25,87 +30,189 @@ interface KeyframeConfig {
     scale: number,
     opacity: number,
     color: string,
-    stage: number    
+    stage: number
 }
 
 /** interface for animator configureation */
- interface AnimationConfig {
-     
-     
- }
-
- class KeyFrame implements KeyframeConfig {
-     public xoff: number = 0
-     public yoff: number = 0
-     public rotate: number = 0
-     public scale: number = 0
-     public opacity: number = 1
-     public color: string = 'black'
-     public stage: number = 0
-     constructor(configs: Partial<KeyframeConfig>) {
-         Object.assign(this, configs)
-     }
- }
-
- class GroupManager {
-     public delay: number = 0
-     public duration: number = 0
-     public ease: (a:number)=>(number) = d3Ease.easeCubic
-     public words: Array<Word> = []
-     constructor(configs: Partial<GroupManager>) {
-         Object.assign(this, configs)   
-     }
-     public play() {
-
-     }
-     public stop() {
-
-     }
- }
-
- /** obatin animating frames and control the groups */
- class WordleAnimator {
-     public words: Array<Word>=[]
-     public duration: number = 1000
-     public groups: Array<GroupManager>|undefined
-     public divideGroup(mode: GroupingMode, groupNum: number) {
-        let func: (v: Meta, idx: number)=>number
-        if(mode === GroupingMode.random) {
-            func = (d: Meta, idx: number) => getRandomInt(0, groupNum - 1)
-        }
-        else if(mode === GroupingMode.y) {
-            func = (d: Meta, idx: number) => {
-                let height = this.plotHandler.height
-                return Math.ceil(((d.ty + height / 2 )/height + 0.5)* groupNum)
-                }
-        }
-        else if(mode === GroupingMode.x) {
-            func = (d: Meta, idx: number) => {
-                let width = this.plotHandler.width
-                return Math.ceil(((d.x + width / 2 )/width + 0.5)* groupNum)
-            }
-        }
-        else if(mode === GroupingMode.xy) {
-            func = (d: Meta, idx: number) => {
-                return Math.ceil(idx*groupNum/this.data.length + 0.5)
-            }
-        }
-        else {
-            console.log('wrong!')
-        }
-        this.data.forEach((v: Meta, idx: number) => { v.order = func(v, idx) })
+interface AnimationConfig {
 
 
-
-     }
-     public play() {
-
-     }
-     public stop() {
-
-     }
- }
-
-function getRandomInt(min: number, max: number) {
-    return Math.floor(Math.random() * (max - min)) + min;
 }
+
+class KeyFrame implements KeyframeConfig {
+    public xoff: number = 0
+    public yoff: number = 0
+    public rotate: number = 0
+    public scale: number = 1
+    public opacity: number = 1
+    public color: string = 'black'
+    public stage: number = 0
+    constructor(configs: Partial<KeyframeConfig>) {
+        Object.assign(this, configs)
+    }
+}
+
+class GroupManager{ 
+    public delay: number = 0
+    public duration: number = 0
+    public ease: (a: number) => (number) = d3Ease.easeCubic
+    public words: Array<Word> = []
+    //  public plotHandler: PlotHandler | undefined
+    constructor(configs: Partial<GroupManager>) {
+        Object.assign(this, configs)
+    }
+    public updateWord(keyFrame: KeyFrame) {
+        const wordsCopy = this.words.map(obj => ({...obj}));
+        wordsCopy.forEach((word, idx) => {
+            word.x! += keyFrame.xoff
+            word.y! += keyFrame.yoff
+            word.size! *= keyFrame.scale
+            word.rotate = keyFrame.rotate
+            word.color = keyFrame.color
+        });
+        // let wordsCopy: Array<Word> = []
+        // wordsCopy.push({x: 0, frequency: 10, text: 'hi', size: 20})
+        return wordsCopy
+    }
+    public stop() {
+
+    }
+}
+
+/** obatin animating frames and control the groups */
+class WordleAnimator {
+    public data: Array<Meta> = []
+    public timer?: d3Timer.Timer
+    public words: Array<Word> = []
+    public duration: number = 1000
+    public groups: Array<GroupManager> = []
+    public plotHandler?: PlotHandler
+    public mode: Mode = Mode.chill
+    constructor(configs: Partial<WordleAnimator>) {
+        Object.assign(this, configs)
+    }
+    public divideGroup(mode: GroupingMode, groupNum: number) {
+        // 1. create groupNum group managers
+        // 2. assign words to each group manager according to the mode
+        let wordsCopy = this.words.slice()
+        let numWordsPerGroup = Math.ceil(this.words.length / groupNum)
+
+        wordsCopy = this.assignWords(wordsCopy, mode)
+
+        for (let i = 0; i < groupNum; i++) {
+            let gm = new GroupManager({})
+            let startIdx = numWordsPerGroup * i;
+            let endIdx = startIdx + numWordsPerGroup;
+            gm.words = wordsCopy.slice(startIdx, endIdx)
+            this.groups.push(gm)
+        }
+    }
+    public play() {
+        const keyFrames = this.getKeyFrames();
+        const numGroups = keyFrames.length;
+        this.divideGroup(GroupingMode.random, numGroups);
+        const frameDuration = 1; // each frame takes 100ms
+        let currentFrames: {[k: number]: number} = {}
+        currentFrames = keyFrames.map((_, idx)=> { return currentFrames[idx] = 0}); // keeps track of currentFrame of the group
+        
+        // let frameCounter: any = {0: 0, 1: 0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0}
+        let counter = 0;
+        let timer = d3Timer.timer((elapsed) => {
+            if (elapsed < this.duration) {
+                // change frame after frameDuration
+                counter += 1;
+                let totalWords = [] as Word[]
+                this.groups.forEach((group, idx) => {
+                    if (counter % frameDuration == 0) {
+                        // change the current frame of the group if the frame duration has paased
+                        currentFrames[idx] = currentFrames[idx] < keyFrames[idx].length - 1
+                            ? currentFrames[idx] + 1
+                            : 0
+                    }
+                    let currentFrame = currentFrames[idx]
+                    let words = group.updateWord(keyFrames[idx][currentFrame])
+                    totalWords.push(...words)
+                });
+                if (this.mode === Mode.chill) {
+                    this.playLikeShaking(totalWords)
+                }
+            }
+            else {
+                // console.log(frameCounter)
+                timer.stop()
+            }
+        })
+    }
+
+    public playLikeShaking(words: Word[]) {
+        // define keyframeconfigs to be used to animate
+        // requires all words to be placed
+        // console.log('drawing')
+        this.plotHandler?.plotOnCanvas(words)
+    }
+    public stop() {
+
+    }
+    public createGif() {
+
+    }
+    public update(mode: string, val: any) {
+
+    }
+    private assignWords(words: Word[], mode: GroupingMode) {
+        let assignedWords = [] as Word[]
+        if (mode === GroupingMode.random) {
+            assignedWords = shuffle(words)
+        } else if (mode === GroupingMode.x) {
+            assignedWords = words.sort((a, b) => a.x! - b.x!)
+        }
+        return assignedWords
+    }
+
+    private getKeyFrames() {
+        // logic to get keyframes, hard coded for now
+
+        let groupKeyFrames = [
+            [
+                new KeyFrame({ xoff: -1, yoff: -1 }),
+                new KeyFrame({ xoff: 1, yoff: -1 }),
+                new KeyFrame({ xoff: -1, yoff: 1 }),
+                new KeyFrame({ xoff: 1, yoff: 1 }),
+                new KeyFrame({ xoff: -1, yoff: 1 }),
+                new KeyFrame({ xoff: -1, yoff: -1 }),
+                new KeyFrame({ xoff: 1, yoff: -1 }),
+                new KeyFrame({ xoff: 0, yoff: 1 }),
+            ],
+            [
+                new KeyFrame({ xoff: 10, yoff: 1 }),
+                new KeyFrame({ xoff: 0, yoff: 1 }),
+                new KeyFrame({ xoff: -10, yoff: 0 }),
+            ],
+            [
+                new KeyFrame({ xoff: 1, yoff: 0, rotate: 2.5 }),
+                new KeyFrame({ xoff: 1, yoff: 0 , rotate: 2.5}),
+                new KeyFrame({ xoff: 1, yoff: -1, rotate: -2.5 }),
+                new KeyFrame({ xoff: -1, yoff: 1, rotate: 2.5 }),
+                new KeyFrame({ xoff: -1, yoff: 0, rotate: -2.5 }),
+                new KeyFrame({ xoff: 0, yoff: 1, rotate: -2.5 }),
+                new KeyFrame({ xoff: -1, yoff: -1, rotate: 2.5 }),
+                new KeyFrame({ xoff: 0, yoff: 0, rotate: -2.5 }),
+            ]
+        ]
+        return groupKeyFrames
+    }
+}
+
+function shuffle(array: any[]) {
+    let currIdx = array.length, tempVal, randIdx;
+    while (0 != currIdx) {
+        randIdx = Math.floor(Math.random() * currIdx);
+        currIdx -= 1;
+        tempVal = array[currIdx];
+        array[currIdx] = array[randIdx]
+        array[randIdx] = tempVal;
+    }
+    return array;
+}
+
+export { WordleAnimator }

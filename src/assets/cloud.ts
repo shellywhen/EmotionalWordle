@@ -8,6 +8,7 @@ import cloudGenerator from 'd3-cloud'
 import * as scale from 'd3-scale'
 import { PlotHandler } from './plot'
 import { Animator } from './animation'
+import { WordleAnimator } from './animator'
 
 interface Word extends cloudGenerator.Word {
     frequency: number
@@ -40,7 +41,8 @@ enum Mode {
 }
 class CloudManager {
     public canvasHandler: PlotHandler
-    public animator: Animator | undefined
+    // public animator: Animator | undefined
+    public animator: WordleAnimator | undefined
     constructor(data: Word[],
                 styleSheet: Style,
                 mode: Mode = Mode.bubble,
@@ -53,10 +55,15 @@ class CloudManager {
                 ) {
         this.canvasHandler = new PlotHandler(canvasid, svgid, styleSheet, loadCanvasFlag)
         let self = this
-        console.log(data, 'cloud data')
+        // console.log(data, 'cloud data')
         if(loadCanvasFlag) {
-            self.animator = new Animator(data, self.canvasHandler, duration, bgAnimator)
-            self.animator.play()
+            self.animator = new WordleAnimator({
+                words: data, 
+                plotHandler: self.canvasHandler, 
+                duration: duration
+            })
+            // self.animator = new Animator(data, self.canvasHandler, duration, bgAnimator)
+            // self.animator.play()
         }
         else if (loadSvgFlag) {
             testCloud(data, styleSheet)

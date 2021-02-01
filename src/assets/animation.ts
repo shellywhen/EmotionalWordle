@@ -179,7 +179,10 @@ class Animator {
                      }
                      animator.data.forEach((word: Meta) => {
                         let time = Math.max(0, t - 0.25 * word.order /(this.groupNum))
+                        // console.log(time)
                         word.update(this.ease(time - frame/frames), this.ease(time - frame/frames), 1, 1)
+
+                        // word.update(this.ease(time - frame/frames), this.ease(time - frame/frames), 1, 1)
                        })
                     animator.plotHandler.plotOnCanvas(animator.data)
                     break
@@ -217,9 +220,10 @@ class Animator {
             if(self.timer) self.timer.stop()
             let round = 0
             self.timer = d3Timer.timer((elapsed: number) => {
+                console.log('called!')
                 cnt += 1
                 const t = Math.min(1, elapsed / self.duration)
-                if (generateGif && t > frameCnt / frames) {
+                if (generateGif && t  > frameCnt / frames) {
                     frameCnt = Math.floor(frameCnt/frames) + 1
                     self.gif.addFrame(self.plotHandler.canvas, {copy: true,  delay: self.duration / frames});
                 }
