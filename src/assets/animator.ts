@@ -52,7 +52,7 @@ class KeyFrame implements KeyframeConfig {
     }
 }
 
-class GroupManager{ 
+class GroupManager {
     public delay: number = 0
     public duration: number = 0
     public ease: (a: number) => (number) = d3Ease.easeCubic
@@ -61,17 +61,16 @@ class GroupManager{
     constructor(configs: Partial<GroupManager>) {
         Object.assign(this, configs)
     }
-    public updateWord(keyFrame: KeyFrame) {
-        const wordsCopy = this.words.map(obj => ({...obj}));
+    public updateWord(keyFrame: KeyFrame, frameAt: number) {
+        // assign by value
+        const wordsCopy = this.words.map(obj => ({ ...obj }));
         wordsCopy.forEach((word, idx) => {
-            word.x! += keyFrame.xoff
-            word.y! += keyFrame.yoff
-            word.size! *= keyFrame.scale
-            word.rotate = keyFrame.rotate
+            word.x! += keyFrame.xoff * this.ease(frameAt)
+            word.y! += keyFrame.yoff * this.ease(frameAt)
+            word.size! += word.size! * (keyFrame.scale - 1) * this.ease(frameAt)
+            word.rotate! += keyFrame.rotate * this.ease(frameAt)
             word.color = keyFrame.color
         });
-        // let wordsCopy: Array<Word> = []
-        // wordsCopy.push({x: 0, frequency: 10, text: 'hi', size: 20})
         return wordsCopy
     }
     public stop() {
@@ -111,11 +110,10 @@ class WordleAnimator {
         const keyFrames = this.getKeyFrames();
         const numGroups = keyFrames.length;
         this.divideGroup(GroupingMode.random, numGroups);
-        const frameDuration = 1; // each frame takes 100ms
-        let currentFrames: {[k: number]: number} = {}
-        currentFrames = keyFrames.map((_, idx)=> { return currentFrames[idx] = 0}); // keeps track of currentFrame of the group
-        
-        // let frameCounter: any = {0: 0, 1: 0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0}
+        const frameDuration = 10; // each frame takes 100ms
+        let currentFrames: { [k: number]: number } = {}
+        currentFrames = keyFrames.map((_, idx) => { return currentFrames[idx] = 0 }); // keeps track of currentFrame of the group
+
         let counter = 0;
         let timer = d3Timer.timer((elapsed) => {
             if (elapsed < this.duration) {
@@ -129,8 +127,10 @@ class WordleAnimator {
                             ? currentFrames[idx] + 1
                             : 0
                     }
+                    let frameAt = (counter % frameDuration) / frameDuration
+                    // let frameAt = 1;
                     let currentFrame = currentFrames[idx]
-                    let words = group.updateWord(keyFrames[idx][currentFrame])
+                    let words = group.updateWord(keyFrames[idx][currentFrame], frameAt)
                     totalWords.push(...words)
                 });
                 if (this.mode === Mode.chill) {
@@ -138,7 +138,6 @@ class WordleAnimator {
                 }
             }
             else {
-                // console.log(frameCounter)
                 timer.stop()
             }
         })
@@ -147,7 +146,6 @@ class WordleAnimator {
     public playLikeShaking(words: Word[]) {
         // define keyframeconfigs to be used to animate
         // requires all words to be placed
-        // console.log('drawing')
         this.plotHandler?.plotOnCanvas(words)
     }
     public stop() {
@@ -189,15 +187,22 @@ class WordleAnimator {
                 new KeyFrame({ xoff: -10, yoff: 0 }),
             ],
             [
-                new KeyFrame({ xoff: 1, yoff: 0, rotate: 2.5 }),
-                new KeyFrame({ xoff: 1, yoff: 0 , rotate: 2.5}),
-                new KeyFrame({ xoff: 1, yoff: -1, rotate: -2.5 }),
-                new KeyFrame({ xoff: -1, yoff: 1, rotate: 2.5 }),
-                new KeyFrame({ xoff: -1, yoff: 0, rotate: -2.5 }),
-                new KeyFrame({ xoff: 0, yoff: 1, rotate: -2.5 }),
-                new KeyFrame({ xoff: -1, yoff: -1, rotate: 2.5 }),
-                new KeyFrame({ xoff: 0, yoff: 0, rotate: -2.5 }),
+                new KeyFrame({ xoff: 1, yoff: 0, rotate: 5 }),
+                new KeyFrame({ xoff: 1, yoff: 0 , rotate: 5}),
+                new KeyFrame({ xoff: 1, yoff: -1, rotate: -5 }),
+                new KeyFrame({ xoff: -1, yoff: 1, rotate: 5 }),
+                new KeyFrame({ xoff: -1, yoff: 0, rotate: -5 }),
+                new KeyFrame({ xoff: 0, yoff: 1, rotate: -5 }),
+                new KeyFrame({ xoff: -1, yoff: -1, rotate: 5 }),
+                new KeyFrame({ xoff: 0, yoff: 0, rotate: -5 }),
+            ],
+            [
+                new KeyFrame({ scale: 0.5 }),
+                new KeyFrame({ scale: 1.5 }),
+                new KeyFrame({ scale: 1.0 }),
+
             ]
+
         ]
         return groupKeyFrames
     }
