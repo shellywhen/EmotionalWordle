@@ -1,1 +1,1 @@
-declare module "@/assets/gif/gif"
+declare module "@/assets/lib/gif/gif"

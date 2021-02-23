@@ -1,7 +1,7 @@
 <template>
   <div
     class="canvas-container"
-    :style="{ height: styleScheme.height + 'px' }"
+    :style="{ height: styleScheme.height + 'px', 'text-align': 'center' }"
   >
     <canvas id="emotional-wordle-canvas"></canvas>
     <!-- <canvas id="emotional-wordle-bg-canvas"></canvas> -->
@@ -65,8 +65,8 @@ export default class ShakingView extends Vue {
                                             false,
                                             this.duration
                                             )
-                                          
-      this.cloudManager.animator?.play();
+      this.cloudManager.animator?.createGif()                 
+      this.cloudManager.animator?.play()
       }, (err: any) => {
       console.log(err)
     })
@@ -91,10 +91,6 @@ export default class ShakingView extends Vue {
 //     transform: translatey(0px);
 //   }
 // }
-canvas {
-  animation: float 6s ease-in-out infinite;
-}
-
 .text-canvas {
   stroke-width: 0;
   fill-opacity: 0;
@@ -106,20 +102,5 @@ canvas {
       }
   }
 }
-.canvas-container {
-  position: relative;
-  #emotional-wordle-canvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    // background:url(https://i.gifer.com/Sngz.gif); 
-    // background-size: 800px;
-  }
-  #emotional-wordle-bg-canvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    // visibility: hidden;
-  }
-}
+
 </style>

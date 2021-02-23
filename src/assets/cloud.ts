@@ -58,7 +58,7 @@ class CloudManager {
         // console.log(data, 'cloud data')
         if(loadCanvasFlag) {
             self.animator = new WordleAnimator({
-                words: data, 
+                words: assignColor(data), 
                 plotHandler: self.canvasHandler, 
                 duration: duration
             })
@@ -113,8 +113,10 @@ let testCloud = function (data: Word[], styleSheet: Style) {
         .start()
 }
 
-function assignColor(words: Word[], styleSheet: Style) {
-
+function assignColor(words: Word[]) {
+    words.forEach((word: Word, idx: number) => {
+        word.color = 'black'
+    })
     return words
 }
 
