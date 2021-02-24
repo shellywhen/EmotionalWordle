@@ -33,6 +33,7 @@ interface KeyframeConfig {
     scale: number,
     opacity: number,
     color: string,
+    duration: number,
     stage: number
 }
 
@@ -44,6 +45,7 @@ class KeyFrame implements KeyframeConfig {
     public opacity: number = 1
     public color: string = 'black'
     public stage: number = 0
+    public duration: number = 10
     constructor(configs: Partial<KeyframeConfig>) {
         Object.assign(this, configs)
     }
@@ -127,23 +129,33 @@ class WordleAnimator {
         this.divideGroup(GroupingMode.xy, numGroups)
         let currentFrames: { [k: number]: number } = {}
         currentFrames = keyFrames.map((_, idx) => { return currentFrames[idx] = 0 }) // keeps track of currentFrame of the group
-        let counter = 0;
+
+        let frameCounter: { [k: number]: number } = {}
+        frameCounter = keyFrames.map((_, idx) => { return frameCounter[idx] = 0 }) // keeps track of frame counter of the group
+        
         let timer = d3Timer.timer((elapsed) => {
             if (elapsed < this.duration) {
-                // change frame after frameDuration
-                counter += 1;
+                
+                // increment frame counter for each group
+                this.groups.forEach((_, idx) => {
+                    frameCounter[idx] += 1
+                })
+
                 let totalWords: Word[] = []
                 this.groups.forEach((group, idx) => {
-                    if (counter % frameDuration == 0) {
+                    let currentFrame = currentFrames[idx]
+                    const currentFrameDuration = keyFrames[idx][currentFrame].duration
+                    if (frameCounter[idx] == currentFrameDuration) {
                         // change the current frame of the group if the frame duration has passed
                         currentFrames[idx] = currentFrames[idx] < keyFrames[idx].length - 1
                             ? currentFrames[idx] + 1
                             : 0
+                        // reset the counter frame when frame is changed
+                        frameCounter[idx] = 0
                     }
-                    let frameAt = (counter % frameDuration) / frameDuration
-                    // let frameAt = 1;
-                    let currentFrame = currentFrames[idx]
-                    let words = group.updateWord(keyFrames[idx][currentFrame], keyFrames[idx][Math.max(0, currentFrame-1)], frameAt)
+                    let frameAt = frameCounter[idx] / currentFrameDuration
+                    let prevFrame = Math.max(0, currentFrame - 1)
+                    let words = group.updateWord(keyFrames[idx][currentFrame], keyFrames[idx][prevFrame], frameAt)
                     totalWords.push(...words)
                 })
                 this.plotHandler?.plotOnCanvas(totalWords)
@@ -215,14 +227,14 @@ class WordleAnimator {
         // logic to get keyframes, hard coded for now
         let groupKeyFrames = [
             [
-                new KeyFrame({ xoff: -1, yoff: -1, color: 'red' }),
-                new KeyFrame({ xoff: 1, yoff: -1, color: 'yellow' }),
-                new KeyFrame({ xoff: -1, yoff: 1, color: 'yellow'}),
-                new KeyFrame({ xoff: 1, yoff: 1, color: 'blue' }),
-                new KeyFrame({ xoff: -1, yoff: 1 }),
-                new KeyFrame({ xoff: -1, yoff: -1 }),
-                new KeyFrame({ xoff: 1, yoff: -1 }),
-                new KeyFrame({ xoff: 0, yoff: 1 }),
+                new KeyFrame({ xoff: -1, yoff: -1, color: 'red', duration: 60 }),
+                new KeyFrame({ xoff: 1, yoff: -1, color: 'yellow', duration: 30 }),
+                new KeyFrame({ xoff: -1, yoff: 1, color: 'yellow', duration: 20 }),
+                new KeyFrame({ xoff: 1, yoff: 1, color: 'blue', duration: 10 }),
+                // new KeyFrame({ xoff: -1, yoff: 1 }),
+                // new KeyFrame({ xoff: -1, yoff: -1 }),
+                // new KeyFrame({ xoff: 1, yoff: -1 }),
+                // new KeyFrame({ xoff: 0, yoff: 1 }),
             ]
             ,
             [
