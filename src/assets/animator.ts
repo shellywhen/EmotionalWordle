@@ -36,7 +36,7 @@ interface KeyframeConfig {
     stage: number
 }
 
-class KeyFrame implements KeyframeConfig {
+export class KeyFrame implements KeyframeConfig {
     public xoff: number = 0
     public yoff: number = 0
     public rotate: number = 0

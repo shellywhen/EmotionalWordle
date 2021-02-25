@@ -23,23 +23,33 @@ export const rainbow = [
 ]
 
 export const calm = [
-    '#A2CCC0',
-    '#83B3E3',
+    '#6E746A',
+    '#478F8D',
     '#00BEB9',
-    '#D4D4D4',
+    '#83B3E3',
+    '#AAD2E0',
+    '#A2CCC0',
     '#ADD9A1',
+    '#DDD8BA',
+    '#EAC793',
     '#F1D9CA',
-    '#DFB0C7'
+    '#DFB0C7',
+    '#A857AA',
+    '#9796BB',
+    '#D4D4D4'
 ]
 
 export const negative = [
-    '#3C3C3C',
-    '#6E746A',
     '#D8D8D8',
+    '#899390',
+    '#6E746A',
+    '#3C3C3C',
     '#9796BB',
+    '#30355F',
     '#335671',
     '#51692B',
     '#69301D',
+    '#845145',
     '#920000',
     '#C91E11'
 ]
@@ -51,20 +61,85 @@ export const positive = [
     '#FFAB1C',
     '#F3D027',
     '#23BF0C',
+    '#5A922D',
     '#B7DE55',
     '#8AD2F1',
+    '#32BFF2',
     '#00BEB9'
+]
+
+export const exciting = [
+    '#AAD2E0',
+    '#478F8D',
+    '#23BF0C',
+    '#F3D027',
+    '#FFAB1C',
+    '#FF8000',
+    '#F80F19',
+    '#920000',
+    '#C91E11',
+    '#F9468C',
+    '#863E85',
+    '#6D6EB9',
+    '#423FA8',
+    '#0073AA'
 ]
 
 export const disturbing = [
     '#30355F',
     '#3C3C3C',
-    '#69301D',
+    '#899390',
     '#845145',
+    '#69301D',
     '#920000',
+    '#C91E11',
     '#F80F19',
     '#FF8000',
-    '#F3D027'
+    '#F3D027',
+    '#23BF0C'
+]
+
+export const serious = [
+    '#899390',
+    '#335671',
+    '#116160',
+    '#A5B34B',
+    '#5A922D',
+    '#1B4C79',
+    '#30355F',
+    '#2F2F2F',
+    '#3C3C3C',
+    '#8A594E',
+    '#69301D',
+    '#920000',
+    '#F80F19',
+]
+
+export const playful = [
+    '#A857AA',
+    '#F9468C',
+    '#F80F19',
+    '#FF8000',
+    '#FFAB1C',
+    '#F3D027',
+    '#25C00F',
+    '#00BEB9',
+    '#32BFF2'
+]
+
+export const trustworthy = [
+    '#FF8000',
+    '#FFAB1C',
+    '#F3D027',
+    '#B7DE55',
+    '#23BF0C',
+    '#ADD9A1',
+    '#A2CCC0',
+    '#478F8D',
+    '#96D7F2',
+    '#32BFF2',
+    '#0572CD',
+    '#9796BB'
 ]
 
 export const black = ['#000000']
