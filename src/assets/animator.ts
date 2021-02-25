@@ -14,12 +14,13 @@ import { Meta } from './animation'
 import { PlotHandler } from './plot'
 import * as Gif from "@/assets/lib/gif/gif"
 import { kmeans } from './lib/kmeans'
+import { throwStatement } from '@babel/types'
 
 const frameDuration = 10   // each frame takes 100ms
 
 /** different strategies for assigning groups to words */
 enum GroupingMode {
-    y = 'y',    
+    y = 'y',
     x = 'x',
     xy = 'xy',  // kmeans for 2d adjacent words
     random = 'random'
@@ -44,6 +45,7 @@ export class KeyFrame implements KeyframeConfig {
     public opacity: number = 1
     public color: string = 'black'
     public stage: number = 0
+    public duration: number = 10
     constructor(configs: Partial<KeyframeConfig>) {
         Object.assign(this, configs)
     }
@@ -51,9 +53,10 @@ export class KeyFrame implements KeyframeConfig {
 
 class GroupManager {
     public delay: number = 0
-    public duration: number = 0
+    public duration: number = 1000
     public ease: (a: number) => (number) = d3Ease.easeCubic
     public words: Array<Word> = []
+    public keyFrames: Array<KeyFrame> = []
     constructor(configs: Partial<GroupManager>) {
         Object.assign(this, configs)
     }
@@ -69,6 +72,7 @@ class GroupManager {
         })
         return wordsCopy
     }
+
 }
 
 /** obatin animating frames and control the groups */
@@ -76,7 +80,7 @@ class WordleAnimator {
     public data: Array<Meta> = []
     public timer?: d3Timer.Timer | undefined
     public words: Array<Word> = new Array()
-    public duration: number = 1000
+    public duration: number = 5000
     public groups: Array<GroupManager> = []
     public plotHandler?: PlotHandler
     public mode: Mode = Mode.chill
@@ -91,14 +95,14 @@ class WordleAnimator {
         let numWordsPerGroup = Math.ceil(this.words.length / groupNum)
         let assignedWords = [] as Word[]
         this.groups = []
-        if( mode !== GroupingMode.xy) {
+        if (mode !== GroupingMode.xy) {
             if (mode === GroupingMode.random) {
                 assignedWords = shuffle(wordsCopy)
             } else if (mode === GroupingMode.x) {
                 assignedWords = wordsCopy.sort((a, b) => a.x! - b.x!)
             } else if (mode == GroupingMode.y) {
                 assignedWords = wordsCopy.sort((a, b) => a.y! - b.y!)
-            } 
+            }
             this.assignWords(groupNum, numWordsPerGroup, assignedWords)
         }
         else {
@@ -109,8 +113,8 @@ class WordleAnimator {
                 wordBags[d].push(wordsCopy[idx])
             })
             wordBags.forEach((wordbag: Array<Word>) => {
-                this.groups.push(new GroupManager({'words': wordbag}))
-            })           
+                this.groups.push(new GroupManager({ 'words': wordbag }))
+            })
         }
     }
 
@@ -124,31 +128,41 @@ class WordleAnimator {
     public play(gifFlag: boolean = false) {
         const keyFrames = this.getKeyFrames()
         const numGroups = keyFrames.length
+
+        // divide the words into groups according to the grouping mode
         this.divideGroup(GroupingMode.xy, numGroups)
+
+        // assign keyframes to the group
+        this.groups.forEach((group, idx) => {
+            group.keyFrames = keyFrames[idx]
+        })
         let currentFrames: { [k: number]: number } = {}
         currentFrames = keyFrames.map((_, idx) => { return currentFrames[idx] = 0 }) // keeps track of currentFrame of the group
-        let counter = 0;
+        
         let timer = d3Timer.timer((elapsed) => {
             if (elapsed < this.duration) {
-                // change frame after frameDuration
-                counter += 1;
+                
                 let totalWords: Word[] = []
-                this.groups.forEach((group, idx) => {
-                    if (counter % frameDuration == 0) {
-                        // change the current frame of the group if the frame duration has passed
-                        currentFrames[idx] = currentFrames[idx] < keyFrames[idx].length - 1
-                            ? currentFrames[idx] + 1
-                            : 0
+                this.groups.forEach((group, idx) => { 
+                    const groupDuration = group.duration
+                    let rep = ~~(elapsed / groupDuration)
+                    let currentFrameIdx = currentFrames[idx]
+                    let isLastFrame = currentFrameIdx == group.keyFrames.length - 1
+                    let frameDuration = group.keyFrames[currentFrameIdx].stage * groupDuration / 100
+                    let changeFrameAt = rep * groupDuration + frameDuration
+                    if(elapsed > changeFrameAt - 10) {
+                        currentFrames[idx] = isLastFrame
+                            ? 0
+                            : currentFrames[idx] + 1
                     }
-                    let frameAt = (counter % frameDuration) / frameDuration
-                    // let frameAt = 1;
-                    let currentFrame = currentFrames[idx]
-                    let words = group.updateWord(keyFrames[idx][currentFrame], keyFrames[idx][Math.max(0, currentFrame-1)], frameAt)
+                    let frameAt = (frameDuration - changeFrameAt + elapsed) / frameDuration
+                    let prevFrameIdx = Math.max(0, currentFrameIdx - 1)
+                    let words = group.updateWord(group.keyFrames[currentFrameIdx], group.keyFrames[prevFrameIdx], frameAt)
                     totalWords.push(...words)
                 })
                 this.plotHandler?.plotOnCanvas(totalWords)
                 if (gifFlag) {
-                    this.gif.addFrame(this.plotHandler?.canvas, {copy: true, delay: this.duration / 256 })
+                    this.gif.addFrame(this.plotHandler?.canvas, { copy: true, delay: this.duration / 256 })
                 }
             }
             else {
@@ -173,26 +187,26 @@ class WordleAnimator {
      * Reference: https://github.com/jnordberg/gif.js
     @param quality the sampling rate
     */
-   public createGif(quality: number=5) {
+    public createGif(quality: number = 5) {
         this.gif = new Gif({
             quality: quality
-        }) 
+        })
         let param = this.getKeyFrames()
-        this.gif.on('finished', function(blob: any) {
+        this.gif.on('finished', function (blob: any) {
             let wlink = document.createElement('a')
             wlink.setAttribute('target', '_blank')
             wlink.setAttribute('href', URL.createObjectURL(blob))
             wlink.setAttribute('download', "animation.gif")
-            wlink.addEventListener('click', function() {
+            wlink.addEventListener('click', function () {
                 this.remove()
             })
             wlink.click()
-            
+
             let plink = document.createElement('a')
             plink.setAttribute('target', '_blank')
             plink.setAttribute('href', "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(param)))
             plink.setAttribute('download', "param.json")
-            plink.addEventListener('click', function() {
+            plink.addEventListener('click', function () {
                 this.remove()
             })
             plink.click()
@@ -215,21 +229,23 @@ class WordleAnimator {
         // logic to get keyframes, hard coded for now
         let groupKeyFrames = [
             [
-                new KeyFrame({ xoff: -1, yoff: -1, color: 'red' }),
-                new KeyFrame({ xoff: 1, yoff: -1, color: 'yellow' }),
-                new KeyFrame({ xoff: -1, yoff: 1, color: 'yellow'}),
-                new KeyFrame({ xoff: 1, yoff: 1, color: 'blue' }),
-                new KeyFrame({ xoff: -1, yoff: 1 }),
-                new KeyFrame({ xoff: -1, yoff: -1 }),
-                new KeyFrame({ xoff: 1, yoff: -1 }),
-                new KeyFrame({ xoff: 0, yoff: 1 }),
+                new KeyFrame({ xoff: -1, yoff: -1, color: 'red', stage: 0 }),
+                new KeyFrame({ xoff: 1, yoff: -1, color: 'yellow', stage: 20 }),
+                new KeyFrame({ xoff: -1, yoff: 1, color: 'blue', stage: 60 }),
+                new KeyFrame({ xoff: 1, yoff: 1, color: 'grey', stage: 80 }),
+                new KeyFrame({ xoff: 1, yoff: 1, color: 'green', stage: 100 }),
+
+                // new KeyFrame({ xoff: -1, yoff: 1 }),
+                // new KeyFrame({ xoff: -1, yoff: -1 }),
+                // new KeyFrame({ xoff: 1, yoff: -1 }),
+                // new KeyFrame({ xoff: 0, yoff: 1 }),
             ]
             ,
-            [
-                new KeyFrame({ xoff: 10, yoff: 1 }),
-                new KeyFrame({ xoff: 0, yoff: 1 }),
-                new KeyFrame({ xoff: -10, yoff: 0 }),
-            ]//,
+            // [
+            //     new KeyFrame({ xoff: 10, yoff: 1 }),
+            //     new KeyFrame({ xoff: 0, yoff: 1 }),
+            //     new KeyFrame({ xoff: -10, yoff: 0 }),
+            // ]//,
             // [
             //     new KeyFrame({ xoff: 1, yoff: 0, rotate: 5 }),
             //     new KeyFrame({ xoff: 1, yoff: 0 , rotate: 5}),
@@ -251,7 +267,7 @@ class WordleAnimator {
     }
 }
 
-let shuffle = function<T>(array: T[]) {
+let shuffle = function <T>(array: T[]) {
     let currIdx = array.length, tempVal, randIdx
     while (0 != currIdx) {
         randIdx = Math.floor(Math.random() * currIdx)
@@ -263,16 +279,16 @@ let shuffle = function<T>(array: T[]) {
     return array
 }
 
-let getMatrix = function<T>(row: number, col: number) {
+let getMatrix = function <T>(row: number, col: number) {
     let matrix = [] as Array<Array<T>>
-    for (let i = 0; i < row; i ++) {
+    for (let i = 0; i < row; i++) {
         if (col !== 0) {
             matrix.push(new Array(col).fill(0))
         }
-       else {
-           let slot = [] as Array<T>
-           matrix.push(slot)
-       }
+        else {
+            let slot = [] as Array<T>
+            matrix.push(slot)
+        }
     }
     return matrix
 }
