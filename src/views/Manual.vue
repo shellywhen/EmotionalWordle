@@ -133,6 +133,7 @@ import { createBackground, fragment } from "@/assets/gl-helper"
 import * as ColorPreset from "@/assets/color-preset"
 import { createColorPicker } from "@/assets/color-picker"
 import Slider from "@/components/ui/Slider.vue"
+import { FontConfig } from "@/assets/variable-font"
 import "bootstrap"
 import * as d3 from "d3"
 import * as dsv from "d3-dsv"
@@ -153,8 +154,8 @@ export default class Manual extends Vue {
   public uploadFilename: string = ""
   public animationModes: Array<Mode> = [Mode.bubble, Mode.colorful, Mode.chill, Mode.glisten, Mode.electric]
   public animationMode: Mode = Mode.bubble
-  public fontFamilies = ['NotoSans', 'serif', 'Arial', 'fantasy', 'sans serif', 'monospace']
-  public fontFamily = 'NotoSans'
+  public fontFamilies = ['Flexa', 'NotoSans', 'serif', 'Arial', 'fantasy', 'sans serif', 'monospace']
+  public fontFamily = 'Flexa'
   public fontStyles = ['normal', 'oblique', 'italic']
   public fontStyle = 'normal'
   public fontWeights = ['normal', 'bold']
@@ -182,7 +183,8 @@ export default class Manual extends Vue {
       rotation: this.rotation,
       spiralType: this.spiralType,
       height: 520,
-      width: 800
+      width: 800,
+      font: new FontConfig().update({'name': 'NotoSans'})
     }
   }
   created() {

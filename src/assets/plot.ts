@@ -162,19 +162,18 @@ class PlotHandler {
         .attr('class', `wordcloud ${this.styleSheet.font.name}`)
         .style('font-family', this.styleSheet.font.name)
         .style('font-style', this.styleSheet.fontStyle!)
-        .style('font-variation-settings', this.styleSheet.font.getCss())
         .attr('transform', 'translate(' + this.width / 2 + ',' + this.height / 2 + ')')
         .selectAll('g')
         .data(data)
         .enter()
         .append('g')
         .attr('transform', getGTransform)
-
         let texts = basic.append('text')
         .datum((d: Word) => d)
         .attr('class', 'word')
         .style('text-anchor', 'middle')
         .style('fill', (d: Word) => d.color || this.styleSheet.colorScheme!)
+        .style('font-variation-settings', this.styleSheet.font.getCss())
         .style('font-size', (d: Word) => d.size! + 'px' )
         .text((d: Word, idx: number)=> {
             return d.text || ''
@@ -184,9 +183,11 @@ class PlotHandler {
     public updateOnSvg(data: Word[]) {
         let container = d3.select('.wordcloud')
             .selectAll('g') as d3.Selection<SVGGElement, Word, SVGElement, unknown>
-        container.attr('transform', getGTransform)
+        container.data(data)
+            .attr('transform', getGTransform)
             .select('text')
             .style('fill', (d: Word) => d.color || this.styleSheet.colorScheme!)
+            .style('font-variation-settings', (d: Word) => d.fontString!)
             .style('font-size', (d: Word) => d.size! + 'px' )
     }
     public showAnnotationWidget(d: Word, flag: boolean) {
@@ -203,7 +204,6 @@ class PlotHandler {
 }
 
 let getGTransform = function (d: Word) {
-    console.log(d)
     return `translate(${d.x!}, ${d.y!}) rotate(${d.rotate})`
 }
 
@@ -225,7 +225,6 @@ let getRotationDragHandle = function(width: number, height: number) {
         const e = event as d3Drag.D3DragEvent<SVGCircleElement, Word, any | d3Drag.SubjectPosition>
         let theta = Math.atan2(e.y - d.height! / 2, e.x) * 180 / Math.PI
         d.rotate! = theta
-        console.log(theta, e.dy, e.dx)
         this.parentElement?.setAttribute('transform', getGTransform(d))
     })
     return drag

@@ -1,7 +1,6 @@
 <template>
   <div>
     <nav id="nav">
-      <router-link to="/">Home</router-link> |
       <router-link to="/manual">Manual</router-link> |
       <router-link to="/playground">Playground</router-link> |
       <router-link to="/wave">Wave</router-link> |

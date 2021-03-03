@@ -83,7 +83,7 @@ interface Dataset {
   }
 })
 
-export default class Variable extends Vue {
+export default class Interface extends Vue {
   public wordleData: Dataset | null = null
   public collection: Dataset[] = []
   public fileReader = new FileReader()
@@ -225,7 +225,7 @@ export default class Variable extends Vue {
     document.getElementById("wordleUpload")!.click()
   }
 }
-function assignColor(words: Word[]) {
+let assignColor = function (words: Word[]) {
     words.forEach((word: Word, idx: number) => {
         word.color = 'black'
     })

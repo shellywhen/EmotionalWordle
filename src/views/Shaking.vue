@@ -33,7 +33,7 @@ export default class ShakingView extends Vue {
   public easeType = 'ElasticIn'
   public strokeWidth = '2px'
   public rotation: number = 0
-  public duration: number = 5000
+  public duration: number = 10000
   public cloudManager: CloudManager | undefined
   public customColor = "#000000"
   public presetColors = ColorPreset.rainbow

@@ -15,6 +15,8 @@ interface Word extends cloudGenerator.Word {
     width?: number
     height?: number
     color?: string
+    class?: string
+    fontString?: string
 }
 interface Style {
     colorScheme?: string
@@ -70,7 +72,7 @@ class CloudManager {
             testCloud(data, styleSheet)
             .on('end', function (words: cloudGenerator.Word[]) {
                 let finalData = words as Word[]
-                  self.canvasHandler.plotOnSvg(finalData)
+                  self.canvasHandler.plotOnSvgWithConfig(finalData)
             })
         }
     }

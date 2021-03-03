@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
 import Home from "../views/Home.vue";
 
@@ -40,10 +41,10 @@ const routes: Array<RouteRecordRaw> = [
     component: () =>
       import("../views/Shaking.vue")
   }, {
-    path: "/Interface",
-    name: "interface",
+    path: "/interface",
+    name: "Interface",
     component: () =>
-      import("../views/Variable.vue")
+      import("../views/Interface.vue")
   }
 ];
 

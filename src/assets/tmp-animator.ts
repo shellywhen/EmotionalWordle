@@ -9,11 +9,11 @@
 import * as d3Timer from 'd3-timer'
 import * as d3Ease from 'd3-ease'
 import * as d3Itpl from 'd3-interpolate'
-import { Mode, Word } from '@/assets/cloud'
-import { Meta } from '@/assets/animation'
+import { Mode, Word } from './cloud'
+import { Meta } from './animation'
 import { PlotHandler } from './plot'
 import * as Gif from "@/assets/lib/gif/gif"
-import { kmeans } from '@/assets/lib/kmeans'
+import { kmeans } from './lib/kmeans'
 import { FontConfig } from "@/assets/variable-font"
 import { throwStatement } from "@babel/types"
 import * as Manual from "@/assets/manual"
@@ -35,11 +35,10 @@ interface KeyframeConfig {
     opacity: number,
     color: string,
     stage: number,
-    font: FontConfig,
-    duration: number
+    font: FontConfig
 }
 
-class KeyFrame implements KeyframeConfig {
+export class KeyFrame implements KeyframeConfig {
     public xoff: number = 0
     public yoff: number = 0
     public rotate: number = 0
@@ -79,7 +78,7 @@ class GroupManager {
             word.y! += curFrame.yoff * this.ease(frameAt)
             word.size! += word.size! * (curFrame.scale - 1) * this.ease(frameAt)
             word.rotate! += curFrame.rotate * this.ease(frameAt)
-            word.color = color
+            word.color = color //keyFrame.color
             word.fontString = fontString
         })
         return wordsCopy
@@ -94,7 +93,7 @@ class WordleAnimator {
     public data: Array<Meta> = []
     public timer?: d3Timer.Timer | undefined
     public words: Array<Word> = new Array()
-    public duration: number = 2000
+    public duration: number = 10000
     public groups: Array<GroupManager> = []
     public plotHandler?: PlotHandler
     public mode: Mode = Mode.chill
@@ -114,6 +113,7 @@ class WordleAnimator {
         let numGroup = this.groups.length
         let numWordsPerGroup = Math.ceil(this.words.length / numGroup)
         let assignedWords = [] as Word[]
+        this.groups = []
         if (mode !== GroupingMode.xy) {
             if (mode === GroupingMode.random) {
                 assignedWords = shuffle(wordsCopy)
@@ -140,12 +140,18 @@ class WordleAnimator {
      * Create group managers.
      */
     public getGroups() {
-        let keyframes = this.getKeyFrames()
-        this.groups = keyframes.map((kf, idx)=> new GroupManager({
+        let keyFrames = this.getKeyFrames()
+        this.groups = keyFrames.map((kf, idx)=> {
+            return new GroupManager({
                 'keyFrames': kf
-            }))
+            })
+        })
         this.divideGroup(GroupingMode.xy) // divide the words into groups according to the grouping mode
         this.plotHandler?.plotOnSvg(this.getTotalWords())
+    }
+
+    public getFrameList() {
+        return 
     }
 
     public update(field: string, value: any) {
@@ -190,7 +196,7 @@ class WordleAnimator {
                 if (gifFlag) {
                     this.gif.render()
                 }
-                //this.play()
+                this.play()
             }
         })
     }
@@ -253,7 +259,43 @@ class WordleAnimator {
 
     private getKeyFrames() {
         // logic to get keyframes, hard coded for now
-        return [ Manual.colorTransition()]
+        let groupKeyFrames = [
+            [
+                new KeyFrame({ xoff: -1, yoff: -1, color: 'red', stage: 0 }),
+                new KeyFrame({ xoff: 1, yoff: -1, color: 'yellow', stage: 20 }),
+                new KeyFrame({ xoff: -1, yoff: 1, color: 'blue', stage: 60 }),
+                new KeyFrame({ xoff: 1, yoff: 1, color: 'grey', stage: 80 }),
+                new KeyFrame({ xoff: 1, yoff: 1, color: 'green', stage: 100 }),
+
+                // new KeyFrame({ xoff: -1, yoff: 1 }),
+                // new KeyFrame({ xoff: -1, yoff: -1 }),
+                // new KeyFrame({ xoff: 1, yoff: -1 }),
+                // new KeyFrame({ xoff: 0, yoff: 1 }),
+            ]
+            ,
+            // [
+            //     new KeyFrame({ xoff: 10, yoff: 1 }),
+            //     new KeyFrame({ xoff: 0, yoff: 1 }),
+            //     new KeyFrame({ xoff: -10, yoff: 0 }),
+            // ]//,
+            // [
+            //     new KeyFrame({ xoff: 1, yoff: 0, rotate: 5 }),
+            //     new KeyFrame({ xoff: 1, yoff: 0 , rotate: 5}),
+            //     new KeyFrame({ xoff: 1, yoff: -1, rotate: -5 }),
+            //     new KeyFrame({ xoff: -1, yoff: 1, rotate: 5 }),
+            //     new KeyFrame({ xoff: -1, yoff: 0, rotate: -5 }),
+            //     new KeyFrame({ xoff: 0, yoff: 1, rotate: -5 }),
+            //     new KeyFrame({ xoff: -1, yoff: -1, rotate: 5 }),
+            //     new KeyFrame({ xoff: 0, yoff: 0, rotate: -5 }),
+            // ],
+            // [
+            //     new KeyFrame({ scale: 0.5 }),
+            //     new KeyFrame({ scale: 1.5 }),
+            //     new KeyFrame({ scale: 1.0 }),
+            // ]
+
+        ]
+        return Manual.colorTransition()
     }
 }
 
@@ -283,4 +325,4 @@ let getMatrix = function <T>(row: number, col: number) {
     return matrix
 }
 
-export { WordleAnimator, KeyframeConfig, KeyFrame, GroupManager }
+export { WordleAnimator }
