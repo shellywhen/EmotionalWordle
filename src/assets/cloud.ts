@@ -30,6 +30,7 @@ interface Style {
     spiralType?: string
     width: number
     height: number
+    font?: any
 }
 enum Mode {
     bubble = 'bubble',

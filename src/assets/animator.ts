@@ -126,9 +126,10 @@ class WordleAnimator {
      * @param {boolean} gifFlag whether to produce Gif
      */
     public play(gifFlag: boolean = false) {
+        this.timer?.stop()
         const keyFrames = this.getKeyFrames()
         const numGroups = keyFrames.length
-
+        console.log('fuck', this.words)
         // divide the words into groups according to the grouping mode
         this.divideGroup(GroupingMode.xy, numGroups)
 
@@ -138,7 +139,7 @@ class WordleAnimator {
         })
         let currentFrames: { [k: number]: number } = {}
         currentFrames = keyFrames.map((_, idx) => { return currentFrames[idx] = 0 }) // keeps track of currentFrame of the group
-        
+        this.plotHandler?.plotOnSvg(this.words)
         let timer = d3Timer.timer((elapsed) => {
             if (elapsed < this.duration) {
                 
@@ -160,7 +161,7 @@ class WordleAnimator {
                     let words = group.updateWord(group.keyFrames[currentFrameIdx], group.keyFrames[prevFrameIdx], frameAt)
                     totalWords.push(...words)
                 })
-                this.plotHandler?.plotOnCanvas(totalWords)
+                this.plotHandler?.updateOnSvg(totalWords)
                 if (gifFlag) {
                     this.gif.addFrame(this.plotHandler?.canvas, { copy: true, delay: this.duration / 256 })
                 }
@@ -181,7 +182,7 @@ class WordleAnimator {
     }
 
     public stop() {
-
+        this.timer?.stop()
     }
     /**Generate Gif for a round
      * Reference: https://github.com/jnordberg/gif.js
@@ -211,6 +212,7 @@ class WordleAnimator {
             })
             plink.click()
         })
+        return this
     }
 
     /** Group the words according to position.

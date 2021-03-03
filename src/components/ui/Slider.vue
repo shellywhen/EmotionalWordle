@@ -23,7 +23,7 @@ import * as d3 from "d3";
 type Callback = (x: number) => void;
 export default class Slider extends Vue {
   @Prop({ default: 0 }) public min: number = 0;
-  @Prop({ default: 1 }) public max: number = 100;
+  @Prop({ default: 1 }) public max: number = 1;
   @Prop({ default: 0.1 }) public step: number = 0.1;
   @Prop({ default: (a: number) => {} }) public callback: Callback = (a: number) => {};
   @Prop({ default: "" }) public label: string = "";

@@ -4,3 +4,17 @@
     font-weight: normal;
     font-style: normal;
 }
+
+@font-face {
+    font-family: 'Flexa';
+    src: url('../../../public/font/GTFlexaVARTrial.woff2') format("woff2-variations"), url('../../../public/font/GTFlexaVARTrial.ttf') format("truetype-variations");
+}
+
+.flexa {
+    -webkit-font-smoothing: antialiased;
+    font-kerning: normal;
+    font-feature-settings: "kern" 1, "liga" 1, "onum" 1;
+    font-family: 'Flexa';
+    white-space: initial;
+    margin:0;
+}

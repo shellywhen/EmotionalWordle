@@ -34,12 +34,16 @@ const routes: Array<RouteRecordRaw> = [
     name: "Particle",
     component: () =>
       import("../views/Particle.vue")
-  },
-  {
+  }, {
     path: "/Shaking",
     name: "Shaking",
     component: () =>
       import("../views/Shaking.vue")
+  }, {
+    path: "/Interface",
+    name: "interface",
+    component: () =>
+      import("../views/Variable.vue")
   }
 ];
 

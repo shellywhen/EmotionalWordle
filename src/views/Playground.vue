@@ -59,7 +59,7 @@
           </div>
         </div>
         <div class="wrapper-mid row">
-          <div class="col-4">
+          <div class="col-10">
             <i
               id="pauseButton"
               @click="pause()"
@@ -140,7 +140,7 @@
         >
           <canvas id="emotional-wordle-canvas"></canvas>
           <canvas id="emotional-wordle-bg-canvas"></canvas>
-       </div>
+        </div>
 
         <div>
           <div id="annotation-wrapper">

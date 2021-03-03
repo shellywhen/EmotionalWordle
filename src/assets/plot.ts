@@ -84,7 +84,7 @@ class PlotHandler {
             ctx.restore()
         })
     }
-    public plotOnSvg(data: Word[]) {
+    public plotOnSvgWithConfig(data: Word[]) {
         let plotHandler = this
         let translationDrag = getTranslationDragHandle(this.width, this.height)
         let rotationDrag = getRotationDragHandle(this.width, this.height)
@@ -156,6 +156,39 @@ class PlotHandler {
               })
         })
     }
+    public plotOnSvg(data: Word[]) {
+        this.svg.selectAll('g').remove()
+        let basic = this.svg.append('g')
+        .attr('class', `wordcloud ${this.styleSheet.font.name}`)
+        .style('font-family', this.styleSheet.font.name)
+        .style('font-style', this.styleSheet.fontStyle!)
+        .style('font-variation-settings', this.styleSheet.font.getCss())
+        .attr('transform', 'translate(' + this.width / 2 + ',' + this.height / 2 + ')')
+        .selectAll('g')
+        .data(data)
+        .enter()
+        .append('g')
+        .attr('transform', getGTransform)
+
+        let texts = basic.append('text')
+        .datum((d: Word) => d)
+        .attr('class', 'word')
+        .style('text-anchor', 'middle')
+        .style('fill', (d: Word) => d.color || this.styleSheet.colorScheme!)
+        .style('font-size', (d: Word) => d.size! + 'px' )
+        .text((d: Word, idx: number)=> {
+            return d.text || ''
+        })
+
+    }
+    public updateOnSvg(data: Word[]) {
+        let container = d3.select('.wordcloud')
+            .selectAll('g') as d3.Selection<SVGGElement, Word, SVGElement, unknown>
+        container.attr('transform', getGTransform)
+            .select('text')
+            .style('fill', (d: Word) => d.color || this.styleSheet.colorScheme!)
+            .style('font-size', (d: Word) => d.size! + 'px' )
+    }
     public showAnnotationWidget(d: Word, flag: boolean) {
         let offset = 30
         d3.select('#text-style-config')
@@ -170,6 +203,7 @@ class PlotHandler {
 }
 
 let getGTransform = function (d: Word) {
+    console.log(d)
     return `translate(${d.x!}, ${d.y!}) rotate(${d.rotate})`
 }
 
