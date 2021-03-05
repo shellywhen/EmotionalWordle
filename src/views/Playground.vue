@@ -160,7 +160,7 @@
 /* eslint-disable */
 import { Options, Vue } from "vue-class-component"
 import { Prop, Watch } from "vue-property-decorator"
-import { Word, Mode, CloudManager, Style } from "@/assets/cloud"
+import { CloudManager } from "@/assets/cloud"
 import { createBackground, fragment } from "@/assets/gl-helper"
 import * as ColorPreset from "@/assets/color-preset"
 import { createColorPicker } from "@/assets/color-picker"
@@ -168,10 +168,7 @@ import Slider from "@/components/ui/Slider.vue"
 import "bootstrap"
 import * as d3 from "d3"
 import * as dsv from "d3-dsv"
-interface Dataset {
-  data: Word[]
-  tag: string
-}
+import { Word, Mode, Style, Dataset } from "@/assets/types"
 
 @Options({
   components: {

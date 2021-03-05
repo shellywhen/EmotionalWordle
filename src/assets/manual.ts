@@ -7,16 +7,17 @@
  */
 
 import * as Color from "@/assets/color-preset"
-import { KeyFrame, GroupManager, KeyframeConfig } from "@/assets/animator"
+import { GroupManager, KeyFrame } from "@/assets/animator"
+import { KeyframeConfig } from "@/assets/types"
 import * as d3Ease from "d3-ease"
 
 export let colorTransition = function () {
      let keyframes = [] as Array<KeyframeConfig>
-     let colors = Color.negative
+     let colors = Color.rainbow
      colors.forEach((c, idx) => {
         keyframes.push(new KeyFrame({
             'color': c,
-            'stage': Math.ceil((idx) * 100/colors.length)
+            'stage': Math.ceil((idx) * 100/(colors.length-1))
         }))
      })
      return keyframes

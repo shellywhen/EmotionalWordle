@@ -9,35 +9,13 @@
 import * as d3Timer from 'd3-timer'
 import * as d3Ease from 'd3-ease'
 import * as d3Itpl from 'd3-interpolate'
-import { Mode, Word } from '@/assets/cloud'
-import { Meta } from '@/assets/animation'
 import { PlotHandler } from './plot'
 import * as Gif from "@/assets/lib/gif/gif"
 import { kmeans } from '@/assets/lib/kmeans'
 import { FontConfig } from "@/assets/variable-font"
 import { throwStatement } from "@babel/types"
 import * as Manual from "@/assets/manual"
-
-/** different strategies for assigning groups to words */
-enum GroupingMode {
-    y = 'y',
-    x = 'x',
-    xy = 'xy',  // kmeans for 2d adjacent words
-    random = 'random'
-}
-
-/** interface for key frame configureation */
-interface KeyframeConfig {
-    xoff: number,
-    yoff: number,
-    rotate: number,
-    scale: number,
-    opacity: number,
-    color: string,
-    stage: number,
-    font: FontConfig,
-    duration: number
-}
+import { KeyframeConfig, GroupingMode, Word, Mode, MetaConfig, GroupManagerConfig } from "@/assets/types"
 
 class KeyFrame implements KeyframeConfig {
     public xoff: number = 0
@@ -54,7 +32,7 @@ class KeyFrame implements KeyframeConfig {
     }
 }
 
-class GroupManager {
+class GroupManager implements GroupManagerConfig {
     public delay: number = 0
     public duration: number = 2000
     public ease: (a: number) => (number) = (a:number) => a //d3Ease.easeCubic
@@ -66,10 +44,11 @@ class GroupManager {
         Object.assign(this, configs)
         this.origin = configs.words?.map(obj => ({ ... obj })) || []
     }
+
     public updateWord(curFrame: KeyFrame, prevFrame: KeyFrame, frameAt: number, phase: number) {
         const wordsCopy = this.words.map(obj => ({ ...obj }))
         this.font.setValWithRatio('width', 1)
-        this.font.setValWithRatio('italic', Math.sin(Date.now()/1000))
+        this.font.setValWithRatio('italic', Math.abs(Math.sin(Date.now()/1000)))
         this.font.setValWithRatio('weight', phase)
         let color = d3Itpl.interpolateHcl(prevFrame.color, curFrame.color)(frameAt) 
         let fontString = this.font.getCss()
@@ -91,10 +70,10 @@ class GroupManager {
 
 /** obatin animating frames and control the groups */
 class WordleAnimator {
-    public data: Array<Meta> = []
+    public data: Array<MetaConfig> = []
     public timer?: d3Timer.Timer | undefined
     public words: Array<Word> = new Array()
-    public duration: number = 2000
+    public duration: number = 30000
     public groups: Array<GroupManager> = []
     public plotHandler?: PlotHandler
     public mode: Mode = Mode.chill
@@ -190,7 +169,7 @@ class WordleAnimator {
                 if (gifFlag) {
                     this.gif.render()
                 }
-                //this.play()
+                this.play()
             }
         })
     }
@@ -200,9 +179,6 @@ class WordleAnimator {
             res = res.concat(group.words)
         })
         return res
-    }
-    private getPlayMode() {
-
     }
 
     public stop() {
@@ -253,7 +229,7 @@ class WordleAnimator {
 
     private getKeyFrames() {
         // logic to get keyframes, hard coded for now
-        return [ Manual.colorTransition()]
+        return [Manual.colorTransition(), Manual.coloredShake(), Manual.coloredShake(), Manual.smallShake()]
     }
 }
 
@@ -283,4 +259,4 @@ let getMatrix = function <T>(row: number, col: number) {
     return matrix
 }
 
-export { WordleAnimator, KeyframeConfig, KeyFrame, GroupManager }
+export { WordleAnimator, KeyFrame, GroupManager }

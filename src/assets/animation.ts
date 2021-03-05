@@ -14,13 +14,9 @@ import * as d3Timer from 'd3-timer'
 import * as d3Ease from 'd3-ease'
 import * as d3Interpolate from 'd3-interpolate'
 import * as Gif from "@/assets/gif/gif"
-import { Word, Mode } from './cloud'
+import { Direction, MetaConfig, Word, Mode } from "@/assets/types"
 
-enum Direction {
-    left, right
-}
-
-class Meta implements Word {
+class Meta implements MetaConfig {
     public text: string
     public size: number
     public sx: number

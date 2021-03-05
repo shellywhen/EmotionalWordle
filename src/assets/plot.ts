@@ -6,7 +6,7 @@
  * @packageDocumentation
  */
 
-import { Word, Style } from './cloud'
+import { Word, Style } from '@/assets/types'
 import * as d3 from 'd3-selection'
 import * as d3Drag from 'd3-drag'
 import * as tinycolor from 'tinycolor2'

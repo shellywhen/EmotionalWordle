@@ -7,41 +7,9 @@
 import cloudGenerator from 'd3-cloud'
 import * as scale from 'd3-scale'
 import { PlotHandler } from './plot'
-import { Animator } from './animation'
 import { WordleAnimator } from './animator'
+import { Word, Style, Mode } from "@/assets/types"
 
-interface Word extends cloudGenerator.Word {
-    frequency: number
-    width?: number
-    height?: number
-    color?: string
-    class?: string
-    fontString?: string
-}
-interface Style {
-    colorScheme?: string
-    fontStyle?: string
-    fontWeight?: string
-    fontFamily?: string
-    easeType?: string
-    strokeWidth?: string
-    rotation?: number
-    rotationTotal?: number
-    rotationMin?: number
-    rotationMax?: number
-    spiralType?: string
-    width: number
-    height: number
-    font?: any
-}
-enum Mode {
-    bubble = 'bubble',
-    glisten = 'glisten',
-    vapor = 'vapor',
-    colorful = 'colorful',
-    chill = 'chill',
-    electric = 'electric'
-}
 class CloudManager {
     public canvasHandler: PlotHandler
     // public animator: Animator | undefined
@@ -124,8 +92,5 @@ function assignColor(words: Word[]) {
 }
 
 export {
-    CloudManager,
-    Mode,
-    Word,
-    Style
+    CloudManager
 }

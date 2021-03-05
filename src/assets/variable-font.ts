@@ -6,7 +6,7 @@ import * as ColorPreset from "@/assets/color-preset";
 
 export class FontConfig {
     public name: string = 'Flexa'
-    public widthRange: [number, number] = [95, 105] //[0, 200]
+    public widthRange: [number, number] = [45, 65] //[0, 200]
     public italicRange: [number, number] = [0, 50] //[0, 200]
     public weightRange: [number, number] = [120, 350] //[0, 700]
     public width: number = 100

@@ -7,7 +7,7 @@
 import * as d3 from 'd3-selection'
 import * as d3Force from 'd3-force'
 import * as d3File from 'd3-fetch'
-import { Word } from './cloud'
+import { Word } from '@/assets/types'
 const ALPHAMIN = 0.1
 interface SimulationData {
     ox: number,

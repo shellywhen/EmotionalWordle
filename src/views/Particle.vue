@@ -9,7 +9,7 @@
 import { Vue } from "vue-class-component"
 import * as d3 from "d3-fetch"
 import { simulate } from "@/assets/float"
-import { Word } from "@/assets/cloud"
+import { Word } from "@/assets/types"
 export default class ParticleView extends Vue {
   public readonly width = 800
   public readonly height = 520

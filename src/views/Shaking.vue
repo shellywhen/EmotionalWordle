@@ -11,8 +11,8 @@
 /* eslint-disable */
 
 import { Vue } from "vue-class-component"
-import { CloudManager, Mode, Style, Word } from "@/assets/cloud"
-import Dataset from './Playground.vue'
+import { CloudManager } from "@/assets/cloud"
+import { Dataset, Mode, Style, Word } from '@/assets/types'
 import * as ColorPreset from "@/assets/color-preset"
 import * as d3 from "d3-fetch"
 
