@@ -30,7 +30,7 @@ export default class Wave extends Vue {
     transform: translatey(0px);
   }
 }
-canvas {
-  animation: float 6s ease-in-out infinite;
-}
+// canvas {
+//   animation: float 6s ease-in-out infinite;
+// }
 </style>

@@ -1,10 +1,18 @@
 <template>
+<div>
+  <svg id="emotional-wordle-edit-svg"
+             :height="styleScheme.height"
+            :width="styleScheme.width"
+            :viewBox="`0 0 ${styleScheme.width} ${styleScheme.height}`"
+            preserveAspectRatio="xMidYMid meet"
+            ></svg>
   <div
     class="canvas-container"
     :style="{ height: styleScheme.height + 'px', 'text-align': 'center' }"
   >
     <canvas id="emotional-wordle-canvas"></canvas>
     <!-- <canvas id="emotional-wordle-bg-canvas"></canvas> -->
+  </div>
   </div>
 </template>
 <script lang="ts">

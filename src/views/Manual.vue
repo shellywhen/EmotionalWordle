@@ -113,7 +113,12 @@
       <div class="col-8 major">
         <div>
           <div class="annotation-wrapper">
-            <svg id="emotional-wordle-edit-svg"></svg>
+            <svg id="emotional-wordle-edit-svg"
+             :height="styleScheme.height"
+            :width="styleScheme.width"
+            :viewBox="`0 0 ${styleScheme.width} ${styleScheme.height}`"
+            preserveAspectRatio="xMidYMid meet"
+            ></svg>
             <div class="text-style-config">
               <div class="color-picker"></div>
             </div>

@@ -34,11 +34,11 @@
         <br />
         <div class="wrapper">
           <Slider
-            max="8000"
-            min="1000"
-            init="5000"
+            max="5000"
+            min="200"
+            init="2000"
             step="500"
-            label="Speed"
+            label="Duration"
             className="speed"
             :callback="speedCallback"
           ></Slider>
@@ -59,7 +59,7 @@
           </div>
         </div>
         <div class="wrapper-mid row">
-          <div class="col-10">
+          <div class="col-4">
             <i
               id="pauseButton"
               @click="pause()"
@@ -144,7 +144,13 @@
 
         <div>
           <div id="annotation-wrapper">
-            <svg id="emotional-wordle-svg"></svg>
+            <svg
+              id="emotional-wordle-svg"
+              :height="styleScheme.height"
+              :width="styleScheme.width"
+              :viewBox="`${-styleScheme.width/2} ${-styleScheme.height/2} ${styleScheme.width*2} ${styleScheme.height*2}`"
+              preserveAspectRatio="xMidYMid meet"
+            ></svg>
             <div id="text-style-config">
               <div class="color-picker"></div>
             </div>
@@ -161,6 +167,9 @@
 import { Options, Vue } from "vue-class-component"
 import { Prop, Watch } from "vue-property-decorator"
 import { CloudManager } from "@/assets/cloud"
+import { Animator } from "@/assets/animation"
+import { PlotHandler } from "@/assets/plot"
+import { FontConfig } from "@/assets/variable-font"
 import { createBackground, fragment } from "@/assets/gl-helper"
 import * as ColorPreset from "@/assets/color-preset"
 import { createColorPicker } from "@/assets/color-picker"
@@ -180,7 +189,7 @@ export default class Playground extends Vue {
   public collection: Dataset[] = []
   public fileReader = new FileReader()
   public uploadFilename: string = ""
-  public animationModes: Array<Mode> = [Mode.bubble, Mode.colorful, Mode.chill, Mode.glisten, Mode.electric]
+  public animationModes: Array<Mode> = [Mode.bubble, Mode.split, Mode.electric]
   public animationMode: Mode = Mode.bubble
   public fontFamily = 'NotoSans'
   public fontStyle = 'normal'
@@ -188,7 +197,7 @@ export default class Playground extends Vue {
   public colorSchemes = ['red', 'black', 'Viridis', 'Plasma', 'rainbow']
   public colorScheme = 'red'
   public easeTypes = ['Cubic', 'ElasticIn', 'ElasticOut', 'BounceIn', 'BounceOut', 'BounceInOut']
-  public easeType = 'ElasticIn'
+  public easeType = 'BounceIn'
   public strokeWidth = '2px'
   public rotation: number = 0
   public duration: number = 5000
@@ -196,12 +205,14 @@ export default class Playground extends Vue {
   public customColor = "#000000"
   public presetColors = ColorPreset.rainbow
   public bgAnimator: any
+  public animator: null | Animator = null
   get styleScheme ():Style {
     return {
       colorScheme: this.colorScheme,
       fontStyle: this.fontStyle,
       fontWeight: this.fontWeight,
       fontFamily: this.fontFamily,
+      font: new FontConfig(),
       strokeWidth: this.strokeWidth,
       rotation: this.rotation,
       height: 520,
@@ -214,11 +225,10 @@ export default class Playground extends Vue {
     // test function only
     this.testFunc()
     this.fileReader.addEventListener("load", this.parseFile, false)
-    let fileNames = ["2020_search", "xmas", "xmas-emoji", "thx", "Poe", "creep", "creep_emoji", "creep_mask"]
-    //let fileNames = ["creep"]
+    //let fileNames = ["2020_search", "xmas", "xmas-emoji", "thx", "Poe", "creep", "creep_emoji", "creep_mask"]
+    let fileNames = ["xmas"]
     let tasks = fileNames.map((tag: string) => d3.json(`./dataset/layout/layout_${tag}.json`))
     Promise.all(tasks).then((dataList: any) => {
-      console.log("fuck", dataList)
       this.collection = dataList.map((data: Word[], idx: number) => {
         return {
           tag: fileNames[idx],
@@ -240,22 +250,19 @@ export default class Playground extends Vue {
     if(this.cloudManager) {
       this.cloudManager.stop()
     }
-    this.cloudManager = new CloudManager(this.wordleData!.data, 
-                                         this.styleScheme, 
-                                         this.animationMode,
-                                         'emotional-wordle-svg',
-                                         'emotional-wordle-canvas',
-                                         this.bgAnimator,
-                                         true,
-                                         false,
-                                         this.duration
-                                        )
+    this.animator = new Animator(
+      assignColor(this.wordleData!.data),
+      new PlotHandler("", "emotional-wordle-svg", this.styleScheme, false),
+      this.duration,
+      this.bgAnimator,
+    )
+    this.animator.play()
   }
   @Watch('easeType')
   easeTypeChanged() {
-    if(!this.cloudManager) return
-    this.cloudManager.animator!.update('ease', this.easeType)
-    this.cloudManager.animator!.play()
+    if(!this.animator) return
+    this.animator.update('ease', this.easeType)
+    this.animator!.play()
   }
   @Watch('styleScheme')
   schemeChanged() {
@@ -263,8 +270,10 @@ export default class Playground extends Vue {
   }
   @Watch('animationMode')
   animationModeChanged() {
+    if (!this.animator) return
     if( this.animationMode === Mode.bubble ) this.easeType = 'elasticIn'
-    this.cloudManager!.updateMode(this.animationMode)
+    this.animator.update('mode', this.animationMode)
+    this.animator.play()
   }
   async testFunc() {
     // createBackground(`#emotional-wordle-bg-canvas`, this.styleScheme.width, this.styleScheme.height)
@@ -276,8 +285,9 @@ export default class Playground extends Vue {
   }
   speedCallback(v: number) {
     this.duration = v
-    if(!this.cloudManager) return
-    this.cloudManager!.play(this.duration)
+    if(!this.animator) return
+    this.animator.update('duration', v)
+    this.animator.play()
   }
   rotateCallback(v: number) {
     this.rotation = v
@@ -306,12 +316,12 @@ export default class Playground extends Vue {
     let state = !d3.select(ele).classed("active")
     d3.select(ele).classed("active", state)
     d3.select("#pauseButton").classed("active", !state)
-    if(!this.cloudManager) return
-    this.cloudManager!.play(this.duration)
+    if(!this.animator) return
+    this.animator!.play()
   }
   replay() {
-    if(!this.cloudManager) return
-    this.cloudManager!.play(this.duration)
+    if(!this.animator) return
+    this.animator!.play()
   }
   parseFile() {
     let res = this.fileReader.result
@@ -349,6 +359,12 @@ export default class Playground extends Vue {
     document.getElementById("wordleUpload")!.click()
   }
 }
+let assignColor = function (words: Word[]) {
+  words.forEach((word: Word, idx: number) => {
+    word.color = "black";
+  });
+  return words;
+};
 </script>
 
 <style lang="scss" scoped>
@@ -366,6 +382,7 @@ export default class Playground extends Vue {
 }
 .canvas-container {
   position: relative;
+  display: none;
   #emotional-wordle-canvas {
     position: absolute;
     top: 0;
@@ -377,7 +394,6 @@ export default class Playground extends Vue {
     position: absolute;
     top: 0;
     left: 0;
-    // visibility: hidden;
   }
 }
 

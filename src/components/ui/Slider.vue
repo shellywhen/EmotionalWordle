@@ -46,6 +46,8 @@ export default class Slider extends Vue {
 </script>
 
 <style lang="scss" scoped>
+$deep-gray: #aaaeb3;
+$light-gray: #e2e6ea;
 .slider-container {
   width: 100%;
   text-align: left;
@@ -64,7 +66,7 @@ export default class Slider extends Vue {
   width: 100%;
   height: 0.8vh;
   border-radius: 0.8vh;
-  background: #e2e6ea;
+  background: $light-gray;
   outline: none;
   opacity: 0.7;
   -webkit-transition: 0.2s;
@@ -76,14 +78,14 @@ export default class Slider extends Vue {
   width: 2vh;
   height: 2vh;
   border-radius: 50%;
-  background: #aaaeb3;
+  background: $deep-gray;
   cursor: pointer;
 }
 .slider::-moz-range-thumb {
   width: 2vh;
   height: 2vh;
   border-radius: 50%;
-  background: #aaaeb3;
+  background: $deep-gray;
   cursor: pointer;
 }
 </style>

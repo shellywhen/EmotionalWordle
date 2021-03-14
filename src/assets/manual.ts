@@ -73,6 +73,9 @@ export let xmas = () =>   [
     new KeyFrame({ xoff: 1, yoff: 0, color: '#FF8F39', stage: 100})
 ]
 
+export let split = function () {
+    
+}
 
 export let hardCodeGroups = function () {
      let groupManager: GroupManager[] = [

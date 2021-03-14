@@ -9,6 +9,7 @@
 import { Word, Style } from '@/assets/types'
 import * as d3 from 'd3-selection'
 import * as d3Drag from 'd3-drag'
+import { kmeans } from '@/assets/lib/kmeans'
 import * as tinycolor from 'tinycolor2'
 
 // import { Bubble } from './animation' 
@@ -25,7 +26,7 @@ class PlotHandler {
         this.styleSheet = styleSheet
         this.width = styleSheet.width
         this.height = styleSheet.height
-        this.svg = d3.select(`#${svgId}`).attr('height', styleSheet.height).attr('width', styleSheet.width)
+        this.svg = d3.select(`#${svgId}`)
         if(handleCanvas) {
             this.canvas = d3.select(`#${canvasId}`).node() as HTMLCanvasElement
             this.bgCanvas =  d3.select('#emotional-wordle-bg-canvas').node() as HTMLCanvasElement
@@ -88,7 +89,7 @@ class PlotHandler {
         let plotHandler = this
         let translationDrag = getTranslationDragHandle(this.width, this.height)
         let rotationDrag = getRotationDragHandle(this.width, this.height)
-        this.svg.html('').attr('width', this.width).attr('height', this.height)
+        this.svg.html('')
         let basic = this.svg.append('g')
         .attr('class', 'wordcloud')
         .style('font-family', this.styleSheet.fontFamily!)
@@ -163,14 +164,14 @@ class PlotHandler {
         .style('font-family', this.styleSheet.font.name)
         .style('font-style', this.styleSheet.fontStyle!)
         .attr('transform', 'translate(' + this.width / 2 + ',' + this.height / 2 + ')')
-        .selectAll('g')
+        let gs= basic.selectAll('g')
         .data(data)
         .enter()
         .append('g')
-        .attr('transform', getGTransform)
-        let texts = basic.append('text')
-        .datum((d: Word) => d)
-        .attr('class', 'word')
+        .attr('transform', getGTransform) 
+        let texts = gs.append('text')
+        .datum(d => d) as d3.Selection<SVGTextElement, Word, SVGGElement, Word>
+        texts.attr('class', 'word')
         .style('text-anchor', 'middle')
         .style('fill', (d: Word) => d.color || this.styleSheet.colorScheme!)
         .style('font-variation-settings', this.styleSheet.font.getCss())
@@ -181,7 +182,7 @@ class PlotHandler {
 
     }
     public updateOnSvg(data: Word[]) {
-        let container = d3.select('.wordcloud')
+        let container = this.svg.select('.wordcloud')
             .selectAll('g') as d3.Selection<SVGGElement, Word, SVGElement, unknown>
         container.data(data)
             .attr('transform', getGTransform)
