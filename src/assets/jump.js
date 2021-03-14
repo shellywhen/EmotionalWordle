@@ -233,10 +233,10 @@ let drawOnCanvas = function (vertexData, indices) {
         varying vec4 fragColor;
         void main() {
         vec2 pos = position;
-        // pos.y += pow(sin( (pos.x) / 250.+ uTime *4.),2.) * 20.;
-        // pos.x += sin( pos.x/ 100. + uTime *1.) * 5.;
+        pos.y += pow(sin( (pos.x) / 250.+ uTime *4.),2.) * 20.;
+        pos.x += sin( pos.x/ 100. + uTime *1.) * 5.;
         gl_Position = vec4(pos * uScale + uOffset, 0.0, 1.0);
-        fragColor = vec4(0., 0., 0., 1.5 + 2.*sin(uTime));
+        fragColor = vec4(sin(uTime*.5)*.5+.5, cos(uTime*.2)*.5+.5, 0., 1. );//+ 2.*sin(uTime));
         }`)
     const ps = createShader(gl, gl.FRAGMENT_SHADER,
         `precision mediump float;

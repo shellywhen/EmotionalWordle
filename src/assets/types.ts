@@ -21,6 +21,11 @@ interface Dataset {
 interface GroupManagerConfig {
     words: Array<Word>,
     duration: number,
+    delay: number,
+    ease: (a: number) => number,
+    keyFrames: Array<KeyFrame>,
+    font: FontConfig,
+    origin: Array<Word>,
     updateWord: (cur: KeyFrame, prev: KeyFrame, fid: number, stage: number) => void
 }
 
@@ -75,7 +80,6 @@ interface MetaConfig extends Word {
     selected: boolean,
     order: number,
     direction: Direction,
-    constructor: (t: Word, w: number, h: number) => MetaConfig,
     update: (tx: number, ty: number, ts: number, tc: number) => void,
     setframe: (tx: number, ty: number, ts: number, tc: string) => void
 }
@@ -99,7 +103,8 @@ enum Mode {
     vapor = 'vapor',
     colorful = 'colorful',
     chill = 'chill',
-    electric = 'electric'
+    electric = 'electric',
+    split = 'split'
 }
 
 export {

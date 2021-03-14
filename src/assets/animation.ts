@@ -13,7 +13,8 @@
 import * as d3Timer from 'd3-timer'
 import * as d3Ease from 'd3-ease'
 import * as d3Interpolate from 'd3-interpolate'
-import * as Gif from "@/assets/gif/gif"
+import * as Gif from "@/assets/lib/gif/gif"
+import { kmeans } from '@/assets/lib/kmeans'
 import { Direction, MetaConfig, Word, Mode } from "@/assets/types"
 
 class Meta implements MetaConfig {
@@ -62,6 +63,7 @@ class Meta implements MetaConfig {
         this.frequency = word.frequency
         this.direction = Direction.left
         this.rotate = word.rotate!
+        return this
     }
     update(tx:number=1, ty:number=1, ts:number=1, tc:number=1) {
         this.x = this.sx + (this.tx - this.sx) * tx
@@ -90,7 +92,7 @@ class Animator {
     public gif: any
     public bgAnimator: Generator<any, void, any>
     public bgCanvas: any
-    public mode: Mode = Mode.bubble
+    public mode: Mode = Mode.split
     public groupNum: number = 1
     constructor (data: Word[],
                  plotHandler: any,
@@ -128,8 +130,31 @@ class Animator {
                 animator.bgAnimator.next()
             }, false)
     }
+
+    public playLikeSplit() {
+        let groupNum = 7
+        this.assignOrder('xy', groupNum)
+        let a = this.plotHandler.width / 10
+        let b = this.plotHandler.height / 10
+        this.data.forEach((v: Meta) => {
+            v.sy = v.truey
+            v.sx = v.truex
+            v.ss = v.trues * 0.9
+            v.ty = v.sy + b * Math.sin(Math.PI * 2 * v.order / groupNum)
+            v.tx = v.sx + a * Math.cos(Math.PI * 2 * v.order / groupNum)
+        })
+        return this.playFramework(
+            (animator: Animator, t: number) => {
+                animator.data.forEach((word: Meta) => {
+                    let time = Math.max(0, t)
+                    word.update(1, this.ease(time), this.ease(time), 1)
+                })
+                animator.plotHandler.updateOnSvg(animator.data)
+            }, true)
+    }
     public playLikeBubbles() {
-        this.assignOrder('position-y', 15)
+        //this.assignOrder('position-y', 15)
+        this.assignOrder('xy', 8)
         this.data.forEach((v: Meta) => {
             v.sy = -this.plotHandler.height + v.ty - 0.5 * v.ts // this.plotHandler.height * 0.8 + v.ty
             v.ss = v.ts //> 20 ? v.ts*0.2 : v.ts * 0.5//Math.min(0.2 * v.ts, 15)
@@ -140,7 +165,7 @@ class Animator {
                     let time = Math.max(0, t - 0.1 * word.order /(this.groupNum))
                     word.update(1, this.ease(time), this.ease(time), 1)
                 })
-                animator.plotHandler.plotOnCanvas(animator.data)
+                animator.plotHandler.updateOnSvg(animator.data)
             }, true)
     }
     public playLikeShaking() {
@@ -188,6 +213,7 @@ class Animator {
     }
 
     public play(generateGif: boolean=false) {
+        console.log(this)
         if(this.mode === Mode.bubble) {
             return this.playLikeBubbles()(generateGif)
         }
@@ -196,6 +222,9 @@ class Animator {
         }
         if(this.mode === Mode.chill) {
             return this.playLikeShaking()(generateGif)
+        }
+        if(this.mode === Mode.split) {
+            return this.playLikeSplit()(generateGif)
         }
     }
     public stop() {
@@ -209,6 +238,8 @@ class Animator {
     */
     public playFramework(plotCanvasCallback: any, stopFlag=true) {
         let self = this
+        console.log(this.data, this.plotHandler, 'fucl')
+        this.plotHandler.plotOnSvg(this.data)
         return function(generateGif: boolean=false) {
             const frames = 128 // #frames in the Gif
             let frameCnt = 0
@@ -216,7 +247,6 @@ class Animator {
             if(self.timer) self.timer.stop()
             let round = 0
             self.timer = d3Timer.timer((elapsed: number) => {
-                console.log('called!')
                 cnt += 1
                 const t = Math.min(1, elapsed / self.duration)
                 if (generateGif && t  > frameCnt / frames) {
@@ -287,6 +317,24 @@ class Animator {
                 return Math.ceil(((d.x + width / 2 )/width + 0.5)* groupNum)
             }
         }
+        else if (type === 'xy') {
+            let positions = this.data.map((word: Meta) => [word.truex!, word.truey!])
+            let centers: Array<[number, number]> = []
+            let a = this.plotHandler.width / 4, b = this.plotHandler.height / 4
+            for (let idx = 0; idx < groupNum; idx ++) {
+                let theta = idx * 2 * Math.PI / groupNum
+                let x = a * Math.cos(theta)
+                let y = b * Math.sin(theta)
+                centers.push([x, y])
+                //console.log('center', idx, x, y)
+            }
+            let result = kmeans(positions, groupNum, centers)
+            result.indexes.forEach((d: number, idx: number) => {
+                this.data[idx].order = d
+                //console.log(this.data[idx].text, this.data[idx].truex, this.data[idx].truey, this.data[idx].order)
+            })
+            return
+        }
         else if(type === 'size') {
             func = (d: Meta, idx: number) => {
                 return Math.ceil(idx*groupNum/this.data.length + 0.5)
@@ -325,6 +373,21 @@ function getBubbleInitialLayout(words: Word[], width: number, height: number) {
 
 function getRandomInt(min: number, max: number) {
     return Math.floor(Math.random() * (max - min)) + min;
+}
+
+
+let getMatrix = function <T>(row: number, col: number) {
+    let matrix = [] as Array<Array<T>>
+    for (let i = 0; i < row; i++) {
+        if (col !== 0) {
+            matrix.push(new Array(col).fill(0))
+        }
+        else {
+            let slot = [] as Array<T>
+            matrix.push(slot)
+        }
+    }
+    return matrix
 }
 
 export {
