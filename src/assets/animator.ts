@@ -53,7 +53,7 @@ class GroupManager implements GroupManagerConfig {
         let color = d3Itpl.interpolateHcl(prevFrame.color, curFrame.color)(frameAt) 
         let fontString = this.font.getCss()
         // assign by value
-        wordsCopy.forEach((word, idx) => {
+        wordsCopy.forEach((word, _) => {
             word.x! += curFrame.xoff * this.ease(frameAt)
             word.y! += curFrame.yoff * this.ease(frameAt)
             word.size! += word.size! * (curFrame.scale - 1) * this.ease(frameAt)

@@ -2,13 +2,120 @@ const fs = require('fs');
 const GIFEncoder = require('gifencoder');
 // const fabric = require('fabric').fabric;
 
+const { kmeans } = require('./lib/kmeans.js');
+
 const d3Timer = require('d3-timer');
 const d3Ease = require('d3-ease');
 // const d3Select = require('d3-selection');
 const d3Itpl = require('d3-interpolate');
 
 const { createCanvas } = require('canvas');
+const { assert } = require('console');
 // const { JSDOM } = require('jsdom');
+
+class AnimatorWordle {
+    groupManagers;
+    constructor(data) {
+        this.data = data;
+    }
+    createManagers(numGroups) {
+        this.groupManagers = new Array(numGroups);
+        for (var i = 0; i < numGroups; ++i) {
+          this.groupManagers[i] = new GroupManager()
+        }
+    }
+
+    divideGroup(mode) {
+        let wordsCopy = this.data;
+        let numGroup = this.groupManagers.length;
+        let numWordsPerGroup = Math.ceil(this.data.length / numGroup)
+        let assignedWords = []
+        let shuffle = function(array) {
+            let currIdx = array.length, tempVal, randIdx
+            while (0 != currIdx) {
+                randIdx = Math.floor(Math.random() * currIdx)
+                currIdx -= 1
+                tempVal = array[currIdx]
+                array[currIdx] = array[randIdx]
+                array[randIdx] = tempVal
+            }
+            return array
+        }
+        
+        let getMatrix = function (row, col) {
+            let matrix = [];
+            for (let i = 0; i < row; i++) {
+                if (col !== 0) {
+                    matrix.push(new Array(col).fill(0))
+                }
+                else {
+                    let slot = [];
+                    matrix.push(slot)
+                }
+            }
+            return matrix
+        }
+        if (mode !== 'xy') {
+            if (mode === GroupingMode.random) {
+                assignedWords = shuffle(wordsCopy)
+            } else if (mode === 'x') {
+                assignedWords = wordsCopy.sort((a, b) => a.x - b.x)
+            } else if (mode == 'y') {
+                assignedWords = wordsCopy.sort((a, b) => a.y - b.y)
+            }
+            this.assignWords(numGroup, numWordsPerGroup, assignedWords)
+        }
+        else {
+            let positions = wordsCopy.map((word) => [word.x, word.y])
+            let result = kmeans(positions, numGroup, "kmeans")
+            let wordBags = getMatrix(numGroup, 0)
+            result.indexes.forEach((d, idx) => {
+                wordBags[d].push(wordsCopy[idx])
+            })
+            this.groupManagers.forEach((group, idx) => {
+                group.words = wordBags[idx]
+            })
+        }
+    }
+    assignWords(groupNum, numWordsPerGroup, wordsCopy) {
+        for (let i = 0; i < groupNum; i++) {
+            let startIdx = numWordsPerGroup * i;
+            let endIdx = startIdx + numWordsPerGroup;
+            this.groupManagers[i].words = wordsCopy.slice(startIdx, endIdx);
+        }
+    }
+    assignKeyFrames(kf){
+        assert(kf.length == this.groupManagers.length);
+        this.groupManagers.forEach((gm, idx) => {
+            gm.keyFrames = kf[idx];
+        });
+    }
+}
+
+class GroupManager {
+    words;
+    keyFrames;
+    constructor() {
+        this.fc = 0;
+    }
+    setFrameCounter(fc) {
+        this.fc = fc;
+    }
+    updateWords(ckf, nkf, frameAt) {
+        let color = d3Itpl.interpolateHcl(ckf.color, nkf.color)(frameAt);
+        this.words.forEach((d) => {
+            const xoff = (nkf.x - ckf.x) * d3Ease.easeCubicOut(frameAt);
+            const yoff = (nkf.y - ckf.y) * d3Ease.easeCubicOut(frameAt);
+            const scale = (nkf.scale - ckf.scale) * d3Ease.easeLinear(frameAt);
+            const rotate = (nkf.rotate - ckf.rotate) * d3Ease.easeLinear(frameAt);
+            d.x = d.x + xoff;
+            d.y = d.y + yoff;
+            d.rotate = parseFloat(d.rotate) + rotate;
+            d.size = d.size * (1 + scale);
+            d.color = color;
+        });
+    }
+}
 
 class FontConfig {
     name = 'Flexa';
@@ -57,7 +164,6 @@ class Style {
 }
 
 class GifBase {
-    data;
     ctx;
     constructor(width, height, styleSheet) {
         this.width = width;
@@ -70,23 +176,8 @@ class GifBase {
         this.ctx = gifCanvas.getContext('2d');
     }
 
-    addData(data) {
+    setData(data) {
         this.data = data;
-    }
-
-    transform(ckf, nkf, frameAt) {
-        let color = d3Itpl.interpolateHcl(ckf.color, nkf.color)(frameAt);
-        this.data.forEach((d) => {
-            const xoff = (nkf.x - ckf.x) * d3Ease.easeCubicOut(frameAt);
-            const yoff = (nkf.y - ckf.y) * d3Ease.easeCubicOut(frameAt);
-            const scale = (nkf.scale - ckf.scale) * d3Ease.easeLinear(frameAt);
-            const rotate = (nkf.rotate - ckf.rotate) * d3Ease.easeLinear(frameAt);
-            d.x = d.x + xoff;
-            d.y = d.y + yoff;
-            d.rotate = parseFloat(d.rotate) + rotate;
-            d.size = d.size * (1 + scale);
-            d.color = color;
-        });
     }
 }
 
@@ -153,15 +244,15 @@ class GifBase {
 //     }
 // }
 class GifCanvas extends GifBase {
-    plot(styleSheet) {
+    plot(data) {
         if (!this.ctx) return
         this.ctx.clearRect(0, 0, this.width, this.height);
         this.ctx.fillStyle = "rgba(255, 255, 255, 1)";
         this.ctx.globalCompositeOperation = 'source-over';
         this.ctx.fillRect(0, 0, this.width, this.height);
-        this.data.forEach((d) => {
+        data.forEach((d) => {
             this.ctx.save()
-            this.ctx.fillStyle = d.color || styleSheet.colorScheme
+            this.ctx.fillStyle = d.color || this.styleSheet.colorScheme;
             this.ctx.translate(this.width / 3 + d.x, this.height / 2 + d.y);
             this.ctx.rotate((d.rotate * Math.PI / 180) / this.data.length);
             this.ctx.font = `${this.styleSheet.fontWeight} ${d.size}px ${this.styleSheet.fontFamily}`;
@@ -171,13 +262,26 @@ class GifCanvas extends GifBase {
     }
 }
 
+class FileHandler {
+    INPUT_DIR_NAME = '../../public/dataset/layout/';
+    OUTPUT_DIR_NAME = './';
+    constructor(ifn, ofn) {
+        this.ifn = ifn;
+        this.ofn = ofn;
+    }
+    getData() {
+        return JSON.parse(fs.readFileSync(this.INPUT_DIR_NAME + this.ifn));
+    }
+    getOutputFileName() {
+        return this.OUTPUT_DIR_NAME + this.ofn;
+    }
+}
+
 function run() {
     // FS constants
-    const INPUT_DIR_NAME = '../../public/dataset/layout/'; // let user select the input file
-    const INPUT_FILE_NAME = 'layout_thx.json';
-    const data = JSON.parse(fs.readFileSync(INPUT_DIR_NAME + INPUT_FILE_NAME));
-    const OUTPUT_DIR_NAME = './';
-    const OUTPUT_FILE_NAME = `animation_${Date.now()}.gif`;
+    fh = new FileHandler('layout_thx.json', `animation_${Date.now()}.gif`);
+    const data = fh.getData();
+    const ofn = fh.getOutputFileName();
 
     // GIF constants
     const GIF_DURATION = 10000;
@@ -188,10 +292,18 @@ function run() {
 
     // TODO: get keyframes from the client
     const keyFrames = [
-        { x: 0, y: -5, rotate: 0, color: 'red', scale: 1, stage: 0 },
-        { x: 0, y: -7, rotate: 60, color: 'yellow', scale: 1.0, stage: 50 },
-        { x: 0, y: -5, rotate: 30, color: 'green', scale: 1, stage: 100 },
+        [
+            { x: 0, y: -5, rotate: 0, color: 'red', scale: 1, stage: 0 },
+            { x: 0, y: -7, rotate: 60, color: 'yellow', scale: 1.0, stage: 50 },
+            { x: 0, y: -5, rotate: 30, color: 'green', scale: 1, stage: 100 },
+        ],
+        [
+            { x: 0, y: -2, rotate: 0, color: 'red', scale: 1, stage: 0 },
+            { x: 0, y: -10, rotate: 60, color: 'yellow', scale: 1.0, stage: 50 },
+            { x: 0, y: -15, rotate: 30, color: 'green', scale: 1, stage: 100 },
+        ]
     ];
+    const numGroups = keyFrames.length;
 
     const font = new FontConfig();
 
@@ -206,11 +318,17 @@ function run() {
         width: 800,
         font: font
     });
-
     
+    const divideMode = "xy";
+    wordle = new AnimatorWordle(data);
+    wordle.createManagers(numGroups);
+    wordle.divideGroup(divideMode);
+    wordle.assignKeyFrames(keyFrames);
+    const gms = wordle.groupManagers;
+
     const gifEncoder = new GIFEncoder(CANVAS_WIDTH, CANVAS_HEIGHT);
     
-    gifEncoder.createWriteStream().pipe(fs.createWriteStream(OUTPUT_DIR_NAME + OUTPUT_FILE_NAME));
+    gifEncoder.createWriteStream().pipe(fs.createWriteStream(ofn));
     gifEncoder.start();
     gifEncoder.setRepeat(0);
     gifEncoder.setDelay(1);
@@ -222,27 +340,33 @@ function run() {
     ? new GifSVG(CANVAS_WIDTH, CANVAS_HEIGHT, styleSheet)
     : new GifCanvas(CANVAS_WIDTH, CANVAS_HEIGHT, styleSheet);
     
-    gifDrawer.addData(data);
+    // initial data
+    gifDrawer.setData(data);
     gifDrawer.init();
     
     // repeat this process for animation
-    let fc = 0; // frame counter
     let timer = d3Timer.timer((elapsed) => {
         if (elapsed > GIF_DURATION) {
             timer.stop()
             gifEncoder.finish();
             console.log('done');
         }
-        const ckf = keyFrames[fc];
-        const nkf = keyFrames[fc + 1];
-        const cfa = nkf.stage / 100 * GIF_DURATION;
-        if (elapsed >= cfa) {
-            fc += 1;
-        }
-        const fs = ckf.stage / 100 * GIF_DURATION;
-        const frameAt = (elapsed - fs) / (cfa - fs);
-        gifDrawer.transform(ckf, nkf, frameAt);
-        gifDrawer.plot();
+        updatedData = [];
+        gms.forEach((gm) => {
+            let fc = gm.fc; // frame counter
+            const keyFrames = gm.keyFrames;
+            const ckf = keyFrames[fc]; // current key frame
+            const nkf = keyFrames[fc + 1]; // next key frame
+            const cfa = nkf.stage / 100 * GIF_DURATION; // change frame at
+            if (elapsed >= cfa) { 
+                gm.setFrameCounter(fc+=1);
+            }
+            const fs = ckf.stage / 100 * GIF_DURATION; // frame stage
+            const frameAt = (elapsed - fs) / (cfa - fs); 
+            gm.updateWords(ckf, nkf, frameAt);
+            updatedData.push(...gm.words);
+        })
+        gifDrawer.plot(updatedData);
         if (is_svg) {
             gifDrawer.toCanvas();    
         }
