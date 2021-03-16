@@ -13,11 +13,12 @@ import { PlotHandler } from './plot'
 import * as Gif from "@/assets/lib/gif/gif"
 import { kmeans } from '@/assets/lib/kmeans'
 import { FontConfig } from "@/assets/variable-font"
-import { throwStatement } from "@babel/types"
 import * as Manual from "@/assets/manual"
 import { KeyframeConfig, GroupingMode, Word, Mode, MetaConfig, GroupManagerConfig } from "@/assets/types"
 
 class KeyFrame implements KeyframeConfig {
+    public x: number = 0
+    public y: number = 0
     public xoff: number = 0
     public yoff: number = 0
     public rotate: number = 0
@@ -28,60 +29,82 @@ class KeyFrame implements KeyframeConfig {
     public duration: number = 10
     public font: FontConfig = new FontConfig()
     constructor(configs: Partial<KeyframeConfig>) {
-        Object.assign(this, configs)
+        Object.assign(this, configs);
     }
 }
 
 class GroupManager implements GroupManagerConfig {
-    public delay: number = 0
-    public duration: number = 2000
-    public ease: (a: number) => (number) = (a:number) => a //d3Ease.easeCubic
-    public words: Array<Word> = []
-    public keyFrames: Array<KeyFrame> = []
-    public font: FontConfig = new FontConfig()
-    public origin: Array<Word>
+    public order: number = 0;
+    public delay: number = 0;
+    public duration: number = 2000;
+    public ease: (a: number) => (number) = (a:number) => a; //d3Ease.easeCubic
+    public words: Array<Word> = [];
+    public origin: Array<Word> = [];
+    public keyFrames: Array<KeyFrame> = [];
+    public frameCounter: number = 0;
+    public font: FontConfig = new FontConfig();
     constructor(configs: Partial<GroupManager>) {
-        Object.assign(this, configs)
-        this.origin = configs.words?.map(obj => ({ ... obj })) || []
+        Object.assign(this, configs);
     }
 
-    public updateWord(curFrame: KeyFrame, prevFrame: KeyFrame, frameAt: number, phase: number) {
-        const wordsCopy = this.words.map(obj => ({ ...obj }))
-        this.font.setValWithRatio('width', 1)
-        this.font.setValWithRatio('italic', Math.abs(Math.sin(Date.now()/1000)))
-        this.font.setValWithRatio('weight', phase)
-        let color = d3Itpl.interpolateHcl(prevFrame.color, curFrame.color)(frameAt) 
-        let fontString = this.font.getCss()
-        // assign by value
-        wordsCopy.forEach((word, _) => {
-            word.x! += curFrame.xoff * this.ease(frameAt)
-            word.y! += curFrame.yoff * this.ease(frameAt)
-            word.size! += word.size! * (curFrame.scale - 1) * this.ease(frameAt)
-            word.rotate! += curFrame.rotate * this.ease(frameAt)
-            word.color = color
-            word.fontString = fontString
-        })
-        return wordsCopy
+    public updateWord(ckf: KeyFrame, nkf: KeyFrame, frameAt: number, phase: number) {
+        this.font.setValWithRatio('width', 1);
+        this.font.setValWithRatio('italic', Math.abs(Math.sin(Date.now()/1000)));
+        this.font.setValWithRatio('weight', phase);
+        const color = d3Itpl.interpolateHcl(ckf.color, nkf.color)(frameAt);
+        const fontString = this.font.getCss();
+        // assign by value  
+        this.words.forEach((d) => {
+            const xoff = (nkf.xoff - ckf.xoff) * this.ease(frameAt);
+            const yoff = (nkf.yoff - ckf.yoff) * this.ease(frameAt);
+            const scale = (nkf.scale - ckf.scale) * this.ease(frameAt);
+            const rotate = (nkf.rotate - ckf.rotate) * this.ease(frameAt);
+            d.x = d.x! + xoff;
+            d.y = d.y! + yoff;
+            d.rotate = +d.rotate! + rotate;
+            d.size = d.size! * (1 + scale);
+            d.color = color;
+            d.fontString = fontString;
+        });
     }
+
+    public setFrameCounter(fc: number) {
+        this.frameCounter = fc;
+    }
+
     public reset() {
-        this.words = this.origin.map(obj => ({ ... obj }))
+        this.words = this.origin.map(a => ({...a}));
+        this.frameCounter = 0;
     }
 }
 
 /** obatin animating frames and control the groups */
 class WordleAnimator {
-    public data: Array<MetaConfig> = []
-    public timer?: d3Timer.Timer | undefined
-    public words: Array<Word> = new Array()
-    public duration: number = 30000
-    public groups: Array<GroupManager> = []
-    public plotHandler?: PlotHandler
-    public mode: Mode = Mode.chill
-    public gif: any
+    public data: Array<MetaConfig> = [];
+    public timer?: d3Timer.Timer | undefined;
+    readonly words: Array<Word> = new Array();
+    public duration: number = 30000;
+    public groupManagers: Array<GroupManager> = [];
+    public plotHandler?: PlotHandler;
+    public mode: Mode = Mode.chill;
+    public gif: any;
 
     constructor(configs: Partial<WordleAnimator>) {
-        Object.assign(this, configs)
-        this.getGroups()
+        Object.assign(this, configs);
+    }
+
+
+    public createManagers(numGroups: number) {
+        this.groupManagers = new Array(numGroups);
+        for(var i = 0; i < numGroups; ++i) {
+            this.groupManagers[i] = new GroupManager({});
+        }
+    }
+
+    public assignKeyFrame(keyFrames: KeyFrame[][]) {
+        this.groupManagers.forEach((gm, idx) => {
+            gm.keyFrames = keyFrames[idx];
+        });
     }
 
     /** Devide the words into groups
@@ -89,43 +112,53 @@ class WordleAnimator {
      *  2. assign words to each group manager according to the mode
      */
     public divideGroup(mode: GroupingMode) {
-        let wordsCopy = this.words
-        let numGroup = this.groups.length
-        let numWordsPerGroup = Math.ceil(this.words.length / numGroup)
-        let assignedWords = [] as Word[]
+        let numGroup = this.groupManagers.length;
+        let numWordsPerGroup = Math.ceil(this.words.length / numGroup);
+        let assignedWords = [] as Word[];
         if (mode !== GroupingMode.xy) {
             if (mode === GroupingMode.random) {
-                assignedWords = shuffle(wordsCopy)
+                assignedWords = shuffle(this.words);
             } else if (mode === GroupingMode.x) {
-                assignedWords = wordsCopy.sort((a, b) => a.x! - b.x!)
+                assignedWords = this.words.sort((a, b) => a.x! - b.x!);
             } else if (mode == GroupingMode.y) {
-                assignedWords = wordsCopy.sort((a, b) => a.y! - b.y!)
+                assignedWords = this.words.sort((a, b) => a.y! - b.y!);
             }
-            this.assignWords(numGroup, numWordsPerGroup, assignedWords)
+            this.groupManagers.forEach((group, i) => {
+                const startIdx = numWordsPerGroup * i;
+                const endIdx = startIdx + numWordsPerGroup;
+                const words = this.words.slice(startIdx, endIdx);
+                group.words = words;
+                group.origin = words.map(x => ({...x}));
+            })
         }
         else {
-            let positions = wordsCopy.map((word: Word) => [word.x, word.y])
-            let result = kmeans(positions, numGroup, "kmeans")
-            let wordBags = getMatrix(numGroup, 0) as Array<Array<Word>>
+            let positions = this.words.map((word: Word) => [word.x, word.y]);
+            let result = kmeans(positions, numGroup, "kmeans");
+            let wordBags = getMatrix(numGroup, 0) as Array<Array<Word>>;
             result.indexes.forEach((d: number, idx: number) => {
-                wordBags[d].push(wordsCopy[idx])
-            })
-            this.groups.forEach((group, idx) => {
-                group.words = wordBags[idx]
-            })
+                wordBags[d].push(this.words[idx]);
+            });
+            this.groupManagers.forEach((group, idx) => {
+                const words = wordBags[idx];
+                group.words = words;
+                group.origin = this.copyByValue(words);
+            });
         }
     }
-    /**
-     * Create group managers.
-     */
-    public getGroups() {
-        let keyframes = this.getKeyFrames()
-        this.groups = keyframes.map((kf, idx)=> new GroupManager({
-                'keyFrames': kf
-            }))
-        this.divideGroup(GroupingMode.xy) // divide the words into groups according to the grouping mode
-        this.plotHandler?.plotOnSvg(this.getTotalWords())
+
+    public reset() {
+        this.groupManagers.forEach(gm => {
+            const copy = this.copyByValue(gm.origin);
+            gm.words = copy;
+            gm.frameCounter = 0;
+        })
     }
+
+    public copyByValue(val: any) {
+        const copy = val.map((x: any) => ({...x}));
+        return copy;
+    }
+
 
     public update(field: string, value: any) {
         if (field === 'duration') this.duration = (value as number)
@@ -134,31 +167,43 @@ class WordleAnimator {
     /** Play the animated wordle.
      * @param {boolean} gifFlag whether to produce Gif
      */
-    public play(gifFlag: boolean = false) {
-        this.timer?.stop()
-        let currentFrames: { [k: number]: number } = {}
-        currentFrames = this.groups.map((_, idx) => { return currentFrames[idx] = 0 }) // keeps track of currentFrame of the group
+    public play(gifFlag: boolean = false, replay: boolean = false) {
+        const keyFrames = getKeyFrames();
+        const numGroups = keyFrames.length;
+        const mode = getDivideMode();
+        
+        if (!replay) {
+            this.createManagers(numGroups);
+            this.assignKeyFrame(keyFrames);
+            this.divideGroup(mode);
+        } else {
+            this.reset();
+        }
+        const gms = this.groupManagers;
+        
+        this.plotHandler?.plotOnSvg(this.words);
+        this.timer?.stop();
         this.timer = d3Timer.timer((elapsed) => {
             if (elapsed < this.duration) {      
-                let totalWords: Word[] = []
-                this.groups.forEach((group, idx) => { 
-                    const groupDuration = group.duration
-                    let rep = ~~(elapsed / groupDuration)
-                    let currentFrameIdx = currentFrames[idx]
-                    let isLastFrame = currentFrameIdx == group.keyFrames.length - 1
-                    let frameDuration = group.keyFrames[currentFrameIdx].stage * groupDuration / 100
-                    let changeFrameAt = rep * groupDuration + frameDuration
-                    if( elapsed > changeFrameAt - 10) {
-                        currentFrames[idx] = isLastFrame ? 0 : currentFrames[idx] + 1
+                let totalWords: Word[] = [];
+                gms.forEach((gm, _) => { 
+                    let fc = gm.frameCounter;
+                    const keyFrames = gm.keyFrames;
+                    const ckf = keyFrames[fc];
+                    const nkf = keyFrames[fc + 1];
+                    const cfa = nkf.stage / 100 * this.duration;
+                    if( elapsed >= cfa ) {
+                        gm.setFrameCounter(fc + 1);
                     }
-                    let frameAt = frameDuration == 0 ? 0 : (frameDuration - changeFrameAt + elapsed) / frameDuration
-                    let prevFrameIdx = Math.max(0, currentFrameIdx - 1)
-                    let words = group.updateWord(group.keyFrames[currentFrameIdx], group.keyFrames[prevFrameIdx], frameAt, elapsed/group.duration)
-                    totalWords.push(...words)
+                    const fs = ckf.stage / 100 * this.duration; 
+                    const frameAt = (elapsed - fs) / (cfa - fs);
+                    const phase = elapsed / gm.duration;
+                    gm.updateWord(ckf, nkf, frameAt, phase);
+                    totalWords.push(...gm.words);
                 })
-                this.plotHandler?.updateOnSvg(totalWords)
+                this.plotHandler?.plotOnSvg(totalWords);
                 if (gifFlag) {
-                    this.gif.addFrame(this.plotHandler?.canvas, { copy: true, delay: this.duration / 256 })
+                    this.gif.addFrame(this.plotHandler?.canvas, { copy: true, delay: this.duration / 256 });
                 }
             }
             else {
@@ -169,13 +214,13 @@ class WordleAnimator {
                 if (gifFlag) {
                     this.gif.render()
                 }
-                this.play()
+                this.play(gifFlag, true);
             }
         })
     }
     private getTotalWords() {
         let res = [] as Array<Word>;
-        this.groups.forEach((group: GroupManager, idx: number) => {
+        this.groupManagers.forEach((group: GroupManager, idx: number) => {
             res = res.concat(group.words)
         })
         return res
@@ -192,7 +237,7 @@ class WordleAnimator {
         this.gif = new Gif({
             quality: quality
         })
-        let param = this.getKeyFrames()
+        let param = getKeyFrames();
         this.gif.on('finished', function (blob: any) {
             let wlink = document.createElement('a')
             wlink.setAttribute('target', '_blank')
@@ -219,19 +264,24 @@ class WordleAnimator {
      */
     private assignWords(groupNum: number, numWordsPerGroup: number, wordsCopy: Word[]) {
         for (let i = 0; i < groupNum; i++) {
-            let gm = new GroupManager({})
             let startIdx = numWordsPerGroup * i;
             let endIdx = startIdx + numWordsPerGroup;
-            gm.words = wordsCopy.slice(startIdx, endIdx)
-            this.groups.push(gm)
+            this.groupManagers[i].words = wordsCopy.slice(startIdx, endIdx);
         }
     }
 
-    private getKeyFrames() {
-        // logic to get keyframes, hard coded for now
-        return [Manual.colorTransition(), Manual.coloredShake(), Manual.coloredShake(), Manual.smallShake()]
-    }
 }
+
+function getDivideMode() {
+    return GroupingMode.xy;
+}
+
+// separate key frame getter logic from wordle class
+function getKeyFrames() {
+    // logic to get keyframes, hard coded for now
+    return [Manual.smallShake(), Manual.colorTransition(), Manual.shakeNRotate()];
+}
+
 
 let shuffle = function <T>(array: T[]) {
     let currIdx = array.length, tempVal, randIdx

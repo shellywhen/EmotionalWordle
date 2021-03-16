@@ -12,8 +12,8 @@ import { KeyframeConfig } from "@/assets/types"
 import * as d3Ease from "d3-ease"
 
 export let colorTransition = function () {
-     let keyframes = [] as Array<KeyframeConfig>
-     let colors = Color.rainbow
+     let keyframes = [] as Array<KeyFrame>
+     let colors = Color.calm;
      colors.forEach((c, idx) => {
         keyframes.push(new KeyFrame({
             'color': c,
@@ -26,9 +26,9 @@ export let colorTransition = function () {
 // I found it only works as a function or there will be import error
 export let coloredShake = () => [
         new KeyFrame({ xoff: -1, yoff: -1, color: 'red', stage: 0 }),
-        new KeyFrame({ xoff: 1, yoff: -1, color: 'yellow', stage: 20 }),
+        new KeyFrame({ xoff: 0, yoff: 0, color: 'yellow', stage: 20 }),
         new KeyFrame({ xoff: -1, yoff: 1, color: 'blue', stage: 60 }),
-        new KeyFrame({ xoff: 1, yoff: 1, color: 'grey', stage: 80 }),
+        new KeyFrame({ xoff: 0, yoff: 0, color: 'grey', stage: 80 }),
         new KeyFrame({ xoff: 1, yoff: 1, color: 'green', stage: 100 })
         // new KeyFrame({ xoff: -1, yoff: 1 }),
         // new KeyFrame({ xoff: -1, yoff: -1 }),
@@ -37,20 +37,24 @@ export let coloredShake = () => [
     ]
 
 export let smallShake = () => [
-        new KeyFrame({ xoff: 10, yoff: 1 }),
-        new KeyFrame({ xoff: 0, yoff: 1 }),
-        new KeyFrame({ xoff: -10, yoff: 0 })
+        new KeyFrame({ xoff: 0, yoff: 0, stage: 0 }),
+        new KeyFrame({ xoff: 0.5, yoff: 0.5, stage: 5 }),
+        new KeyFrame({ xoff: 0, yoff: 0, stage: 10 }),
+        new KeyFrame({ xoff: -0.5, yoff: 0, stage: 15 }),
+        new KeyFrame({ xoff: 0, yoff: 0, stage: 20 }),
+        new KeyFrame({ xoff: 0.5, yoff: -0.5, stage: 25 }),
+        new KeyFrame({ xoff: 1, yoff: 0, stage: 100 })
     ]
 
 export let shakeNRotate = () => [
-        new KeyFrame({ xoff: 1, yoff: 0, rotate: 5 }),
-        new KeyFrame({ xoff: 1, yoff: 0 , rotate: 5}),
-        new KeyFrame({ xoff: 1, yoff: -1, rotate: -5 }),
-        new KeyFrame({ xoff: -1, yoff: 1, rotate: 5 }),
-        new KeyFrame({ xoff: -1, yoff: 0, rotate: -5 }),
-        new KeyFrame({ xoff: 0, yoff: 1, rotate: -5 }),
-        new KeyFrame({ xoff: -1, yoff: -1, rotate: 5 }),
-        new KeyFrame({ xoff: 0, yoff: 0, rotate: -5 })
+        new KeyFrame({ xoff: 1, yoff: 0, rotate: 5, stage: 0 }),
+        new KeyFrame({ xoff: 1, yoff: 0 , rotate: 5, stage: 10}),
+        new KeyFrame({ xoff: 0, yoff: 0, rotate: -5, stage: 20 }),
+        new KeyFrame({ xoff: -1, yoff: 1, rotate: 5, stage: 30 }),
+        new KeyFrame({ xoff: -1, yoff: 0, rotate: -5, stage: 40 }),
+        new KeyFrame({ xoff: 0, yoff: 0, rotate: -5, stage: 50 }),
+        new KeyFrame({ xoff: -1, yoff: -1, rotate: 5, stage: 60 }),
+        new KeyFrame({ xoff: 0, yoff: 0, rotate: -5, stage: 100 })
     ]
 
 export let scale = () => [

@@ -186,7 +186,7 @@ export default class Interface extends Vue {
   public tendancy: string = 'positive'
   get groups() {
     if(!this.animator) return [] as Array<GroupManagerConfig>
-    return this.animator.groups
+    return this.animator.groupManagers;
   }
   get styleScheme() {
     return {

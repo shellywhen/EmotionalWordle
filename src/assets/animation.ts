@@ -137,11 +137,11 @@ class Animator {
         let a = this.plotHandler.width / 10
         let b = this.plotHandler.height / 10
         this.data.forEach((v: Meta) => {
-            v.sy = v.truey
-            v.sx = v.truex
-            v.ss = v.trues * 0.9
-            v.ty = v.sy + b * Math.sin(Math.PI * 2 * v.order / groupNum)
-            v.tx = v.sx + a * Math.cos(Math.PI * 2 * v.order / groupNum)
+            v.sy = v.truey;
+            v.sx = v.truex;
+            v.ss = v.trues * 0.9;
+            v.ty = v.sy + b * Math.sin(Math.PI * 2 * v.order / groupNum);
+            v.tx = v.sx + a * Math.cos(Math.PI * 2 * v.order / groupNum);
         })
         return this.playFramework(
             (animator: Animator, t: number) => {
@@ -179,8 +179,8 @@ class Animator {
             [0, 1],
             [-1, 0]
         ]
-        let frames = movement.length
-        let frameDuration = 1 / frames
+        let frames = movement.length;
+        let frameDuration = 1 / frames;
         let flags = new Array(frames).fill(false)
         this.data.forEach((v: Meta) => v.update(1,1,1,1))
         this.assignOrder('random', 5)

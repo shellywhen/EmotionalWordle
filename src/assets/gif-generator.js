@@ -351,7 +351,7 @@ function run() {
             gifEncoder.finish();
             console.log('done');
         }
-        updatedData = [];
+        let updatedData = [];
         gms.forEach((gm) => {
             let fc = gm.fc; // frame counter
             const keyFrames = gm.keyFrames;
