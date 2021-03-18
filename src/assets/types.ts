@@ -3,6 +3,15 @@ import * as cloudGenerator from "d3-cloud"
 import { FontConfig } from "@/assets/variable-font"
 import { KeyFrame } from "./animator"
 
+interface AnimatorPlayParams {
+    replay?: boolean,
+    mode?: string,
+    gifFlag?: boolean,
+    extent?: number,
+    speed?: number,
+    entropy?: number
+}
+
 interface SimulationData {
     ox: number,
     oy: number,
@@ -117,5 +126,6 @@ export {
     Mode,
     Direction,
     MetaConfig,
-    GroupManagerConfig
+    GroupManagerConfig,
+    AnimatorPlayParams
 }

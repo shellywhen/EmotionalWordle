@@ -14,7 +14,8 @@ import * as Gif from "@/assets/lib/gif/gif"
 import { kmeans } from '@/assets/lib/kmeans'
 import { FontConfig } from "@/assets/variable-font"
 import * as Manual from "@/assets/manual"
-import { KeyframeConfig, GroupingMode, Word, Mode, MetaConfig, GroupManagerConfig } from "@/assets/types"
+import { KeyframeConfig, GroupingMode, Word, Mode, MetaConfig, GroupManagerConfig, AnimatorPlayParams } from "@/assets/types"
+import { KeyFrameHandler } from './keyframe-handler'
 
 class KeyFrame implements KeyframeConfig {
     public x: number = 0
@@ -27,7 +28,7 @@ class KeyFrame implements KeyframeConfig {
     public color: string = 'black'
     public stage: number = 0
     public duration: number = 10
-    public font: FontConfig = new FontConfig()
+    public font: FontConfig = new FontConfig() 
     constructor(configs: Partial<KeyframeConfig>) {
         Object.assign(this, configs);
     }
@@ -87,6 +88,9 @@ class WordleAnimator {
     public groupManagers: Array<GroupManager> = [];
     public plotHandler?: PlotHandler;
     public mode: Mode = Mode.chill;
+    public extent: number = 0.5;
+    public speed: number = 0.5;
+    public entropy: number = 0.5;
     public gif: any;
 
     constructor(configs: Partial<WordleAnimator>) {
@@ -152,6 +156,7 @@ class WordleAnimator {
             gm.words = copy;
             gm.frameCounter = 0;
         })
+        console.log(this.groupManagers[0].words[0].x);
     }
 
     public copyByValue(val: any) {
@@ -167,15 +172,16 @@ class WordleAnimator {
     /** Play the animated wordle.
      * @param {boolean} gifFlag whether to produce Gif
      */
-    public play(gifFlag: boolean = false, replay: boolean = false) {
-        const keyFrames = getKeyFrames();
+    public play({gifFlag = false, replay = false, mode = "disco"} : AnimatorPlayParams = {}) {
+        const keyFrameHandler =  new KeyFrameHandler();
+        const wordLength = this.words.length;
+        const keyFrames = keyFrameHandler.getKeyFrames(mode, wordLength, this.extent , this.speed, this.entropy);
         const numGroups = keyFrames.length;
-        const mode = getDivideMode();
-        
+        const divideMode = getDivideMode();
         if (!replay) {
             this.createManagers(numGroups);
             this.assignKeyFrame(keyFrames);
-            this.divideGroup(mode);
+            this.divideGroup(divideMode);
         } else {
             this.reset();
         }
@@ -214,7 +220,7 @@ class WordleAnimator {
                 if (gifFlag) {
                     this.gif.render()
                 }
-                this.play(gifFlag, true);
+                this.play({gifFlag: gifFlag, replay: true});
             }
         })
     }

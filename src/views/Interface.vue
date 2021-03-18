@@ -32,7 +32,7 @@
               />
             </div>
           </div>
-          <br>
+          <br />
           <div class="wrapper">
             <p class="config-tag">Emotion</p>
             <select
@@ -60,21 +60,17 @@
           </div>
           <div class="slider-wrapper">
             <Slider
-              max="8000"
-              min="1000"
-              init="5000"
-              step="500"
+              init="0.5"
+              step="0.1"
               label="Speed"
-              className="duration"
-              :callback="durationCallback"
+              className="speed"
+              :callback="speedCallback"
             ></Slider>
           </div>
           <div class="slider-wrapper">
             <Slider
-              max="8000"
-              min="1000"
-              init="5000"
-              step="500"
+              init="0.5"
+              step="0.1"
               label="Entropy"
               className="entropy"
               :callback="entropyCallback"
@@ -101,15 +97,15 @@
             :callback="italCallback"
           ></Slider>
         </div> -->
-        <br>
-        <button type="button" class="button" @click="getGif">
+          <br />
+          <button type="button" class="button" @click="getGif">
             <i class="fas fa-check light"></i>
             <span class="code">&nbsp;&nbsp;Generate</span>
-        </button>
-        <button type="button" class="button" @click="showGroup">
+          </button>
+          <button type="button" class="button" @click="showGroup">
             <i class="fas fa-search light"></i>
             <span class="code">&nbsp;&nbsp;Config</span>
-        </button>
+          </button>
         </div>
       </div>
       <div class="col-10">
@@ -144,17 +140,18 @@ import { Prop, Watch } from "vue-property-decorator";
 import { createColorPicker } from "@/assets/color-picker";
 import Slider from "@/components/ui/Slider.vue";
 import GroupPanel from "@/components/GroupPanel.vue";
-import { Dataset, Word, Mode, Style, GroupManagerConfig } from "@/assets/types"
+import { Dataset, Word, Mode, Style, GroupManagerConfig } from "@/assets/types";
 import * as ColorPreset from "@/assets/color-preset";
 import * as d3 from "d3";
 import * as dsv from "d3-dsv";
 import { FontConfig } from "@/assets/variable-font";
 import { PlotHandler } from "@/assets/plot";
 import { WordleAnimator } from "@/assets/animator";
+
 @Options({
   components: {
     Slider,
-    GroupPanel
+    GroupPanel,
   },
 })
 export default class Interface extends Vue {
@@ -177,15 +174,16 @@ export default class Interface extends Vue {
   public strokeWidth = "2px";
   public rotation: number = 0;
   public duration: number = 5000;
-  public entropy: number = 5;
+  public speed: number = 0.5;
+  public entropy: number = 0.5;
   public customColor = "#000000";
   public presetColors = ColorPreset.rainbow;
   public animator: null | WordleAnimator = null;
-  public extent: number = 1;
-  public tendancies: Array<string> = ['positive', 'negative'];
-  public tendancy: string = 'positive'
+  public extent: number = 0.5;
+  public tendancies: Array<string> = ["positive", "negative"];
+  public tendancy: string = "positive";
   get groups() {
-    if(!this.animator) return [] as Array<GroupManagerConfig>
+    if (!this.animator) return [] as Array<GroupManagerConfig>;
     return this.animator.groupManagers;
   }
   get styleScheme() {
@@ -203,7 +201,12 @@ export default class Interface extends Vue {
   }
   public plotHandler: undefined | PlotHandler = undefined;
   mounted() {
-    this.plotHandler = new PlotHandler("", "emo-wordle", this.styleScheme, false);
+    this.plotHandler = new PlotHandler(
+      "",
+      "emo-wordle",
+      this.styleScheme,
+      false
+    );
     this.fileReader.addEventListener("load", this.parseFile, false);
     //let fileNames = ["2020_search", "xmas", "xmas-emoji", "thx", "Poe", "creep", "creep_emoji", "creep_mask"]
     let fileNames = ["xmas"];
@@ -238,14 +241,26 @@ export default class Interface extends Vue {
   }
   @Watch("easeType")
   easeTypeChanged() {}
-  extentCallback(v: number) {
-    this.extent = v
-  } 
-  durationCallback(v: number) {
-    this.duration = v;
+  extentCallback(v: string) {
+    if (!this.wordleData) return;
+    const pv = parseFloat(v);
+    this.extent = pv;
+    this.animator!.extent = pv;
+    this.animator!.play({ mode: "disco" });
   }
-  entropyCallback(v: number) {
-    this.entropy = v;
+  speedCallback(v: string) {
+    if (!this.wordleData) return;
+    const pv = parseFloat(v);
+    this.speed = pv;
+    this.animator!.speed = pv;
+    this.animator!.play({ mode: "disco" });
+  }
+  entropyCallback(v: string) {
+    if (!this.wordleData) return;
+    const pv = parseFloat(v);
+    this.entropy = pv;
+    this.animator!.entropy = pv;
+    this.animator!.play({ mode: "disco" });
   }
   handleUpload(event: any) {
     let file = event.target.files[0];
@@ -254,15 +269,16 @@ export default class Interface extends Vue {
     this.uploadFilename = file.name.split(".csv")[0];
     this.collection.forEach((dataset: Dataset) => {
       if (dataset.tag == this.uploadFilename) {
-        this.uploadFilename += Math.random().toString() + Math.random.toString();
+        this.uploadFilename +=
+          Math.random().toString() + Math.random.toString();
       }
     });
   }
   showGroup() {
-    let ele  = '.group-configs'
+    let ele = ".group-configs";
     let state = !d3.select(ele).classed("active");
     d3.select(ele).classed("active", state);
-    console.log(state)
+    console.log(state);
   }
   pause() {
     let ele = "#pauseButton";
@@ -303,7 +319,7 @@ export default class Interface extends Vue {
   }
   downloadGif() {
     if (!this.animator) return;
-    this.animator.createGif().play(true);
+    this.animator.createGif().play({ gifFlag: true });
   }
   downloadJson() {
     if (!this.wordleData) return;
@@ -330,7 +346,7 @@ let assignColor = function (words: Word[]) {
 @import "@/assets/scss/_ui.scss";
 .group-configs {
   display: none;
-    &.active {
+  &.active {
     display: flex;
     flex-wrap: wrap; /* | wrap-reverse;*/
     -webkit-flex-wrap: wrap;

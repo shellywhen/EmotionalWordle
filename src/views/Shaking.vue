@@ -74,7 +74,7 @@ export default class ShakingView extends Vue {
                                             this.duration
                                             )
       this.cloudManager.animator?.createGif()                 
-      this.cloudManager.animator?.play()
+      this.cloudManager.animator?.play();
       }, (err: any) => {
       console.log(err)
     })
