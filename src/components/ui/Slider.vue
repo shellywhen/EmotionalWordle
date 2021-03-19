@@ -47,7 +47,9 @@ export default class Slider extends Vue {
 
 <style lang="scss" scoped>
 $deep-gray: #aaaeb3;
+$gray: #7a7a7a;
 $light-gray: #e2e6ea;
+$normal: #2c3e50;
 .slider-container {
   width: 100%;
   text-align: left;
@@ -55,6 +57,7 @@ $light-gray: #e2e6ea;
   .slider-tag {
     position: relative;
     margin-bottom: -2vh;
+    color: black;
     span:nth-child(2) {
       position: absolute;
       right: 0;
@@ -80,6 +83,9 @@ $light-gray: #e2e6ea;
   border-radius: 50%;
   background: $deep-gray;
   cursor: pointer;
+  &:hover {
+      background: $gray;
+    }
 }
 .slider::-moz-range-thumb {
   width: 2vh;

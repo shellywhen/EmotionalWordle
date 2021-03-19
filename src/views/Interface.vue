@@ -35,13 +35,25 @@
           <br />
           <div class="wrapper">
             <p class="config-tag">Emotion</p>
-            <select
-              name="emotion-select"
-              id="emotion-select"
-              v-model="tendancy"
-            >
+            <div class="config-radio">
+              <div v-for="item in tendencies" :key="item">
+                <input
+                  type="radio"
+                  :value="item"
+                  :id="'mode-' + item[0]"
+                  v-model="tendency"
+                />
+                <label :for="'mode-' + item[0]">
+                  {{ item }}
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="wrapper">
+            <p class="config-tag">Animation Scheme</p>
+            <select name="emotion-select" v-model="animationMode">
               <option
-                v-for="item in tendancies"
+                v-for="item in animationModes"
                 v-bind:key="item"
                 v-bind:value="item"
               >
@@ -49,19 +61,11 @@
               </option>
             </select>
           </div>
+          <br />
           <div class="slider-wrapper">
             <Slider
               init="0.5"
-              step="0.1"
-              label="Extent"
-              className="extent"
-              :callback="extentCallback"
-            ></Slider>
-          </div>
-          <div class="slider-wrapper">
-            <Slider
-              init="0.5"
-              step="0.1"
+              step="0.05"
               label="Speed"
               className="speed"
               :callback="speedCallback"
@@ -70,33 +74,36 @@
           <div class="slider-wrapper">
             <Slider
               init="0.5"
-              step="0.1"
+              step="0.05"
               label="Entropy"
               className="entropy"
               :callback="entropyCallback"
             ></Slider>
           </div>
-          <!-- <div class="slider-wrapper">
-          <Slider
-            label="f: widh"
-            className="widh"
-            :callback="widhCallback"
-          ></Slider>
-        </div>
-        <div class="slider-wrapper">
-          <Slider
-            label="f: wght"
-            className="wght"
-            :callback="wghtCallback"
-          ></Slider>
-        </div>
-        <div class="slider-wrapper">
-          <Slider
-            label="f: ital"
-            className="ital"
-            :callback="italCallback"
-          ></Slider>
-        </div> -->
+          <br />
+          <div class="wrapper-mid row">
+            <div class="col-4">
+              <i
+                id="pauseButton"
+                @click="pause()"
+                class="fas fa-pause-circle lg light"
+              ></i>
+            </div>
+            <div class="col-4">
+              <i
+                id="playButton"
+                @click="play()"
+                class="fas fa-play-circle active lg light"
+              ></i>
+            </div>
+            <div class="col-4">
+              <i
+                id="replayButton"
+                @click="replay()"
+                class="fas fa-arrow-circle-left lg light"
+              ></i>
+            </div>
+          </div>
           <br />
           <button type="button" class="button" @click="getGif">
             <i class="fas fa-check light"></i>
@@ -111,12 +118,12 @@
       <div class="col-10">
         <svg
           id="emo-wordle"
-          :height="styleScheme.height * 0.5"
+          :height="styleScheme.height * zoomLevel"
           :width="styleScheme.width"
-          :viewBox="`0 0 ${styleScheme.width} ${styleScheme.height}`"
+          :viewBox="`${0} ${-styleScheme.height * (1 - zoomLevel)/2} ${styleScheme.width} ${styleScheme.height}`"
           preserveAspectRatio="xMidYMid meet"
         ></svg>
-        <div class="group-configs active">
+        <div class="group-configs">
           <div
             v-for="(item, index) in groups"
             v-bind:key="item"
@@ -140,7 +147,7 @@ import { Prop, Watch } from "vue-property-decorator";
 import { createColorPicker } from "@/assets/color-picker";
 import Slider from "@/components/ui/Slider.vue";
 import GroupPanel from "@/components/GroupPanel.vue";
-import { Dataset, Word, Mode, Style, GroupManagerConfig } from "@/assets/types";
+import { Dataset, Word, EmotionMode, Mode, Style, GroupManagerConfig } from "@/assets/types";
 import * as ColorPreset from "@/assets/color-preset";
 import * as d3 from "d3";
 import * as dsv from "d3-dsv";
@@ -158,30 +165,19 @@ export default class Interface extends Vue {
   public wordleData: Dataset | null = null;
   public collection: Dataset[] = [];
   public fileReader = new FileReader();
+  public zoomLevel: number = 0.9;
   public uploadFilename: string = "";
   public font = new FontConfig();
-  public colorSchemes = ["black", "black", "Viridis", "Plasma", "rainbow"];
-  public colorScheme = "red";
-  public easeTypes = [
-    "Cubic",
-    "ElasticIn",
-    "ElasticOut",
-    "BounceIn",
-    "BounceOut",
-    "BounceInOut",
-  ];
-  public easeType = "ElasticIn";
-  public strokeWidth = "2px";
-  public rotation: number = 0;
   public duration: number = 5000;
   public speed: number = 0.5;
   public entropy: number = 0.5;
   public customColor = "#000000";
-  public presetColors = ColorPreset.rainbow;
   public animator: null | WordleAnimator = null;
   public extent: number = 0.5;
-  public tendancies: Array<string> = ["positive", "negative"];
-  public tendancy: string = "positive";
+  public tendencies: Array<EmotionMode> = [EmotionMode.positive, EmotionMode.negative];
+  public tendency: EmotionMode = EmotionMode.positive
+  public animationModes: Array<Mode> = [Mode.split, Mode.dance, Mode.wave, Mode.swing]
+  public animationMode: Mode = Mode.split
   get groups() {
     if (!this.animator) return [] as Array<GroupManagerConfig>;
     return this.animator.groupManagers;
@@ -192,8 +188,6 @@ export default class Interface extends Vue {
       fontStyle: "regular",
       fontWeight: "400",
       fontFamily: this.font.name,
-      strokeWidth: "2px",
-      rotation: 0,
       height: 520,
       width: 800,
       font: this.font,
@@ -227,7 +221,6 @@ export default class Interface extends Vue {
         .filter((v: any) => v["data-tag"] == this.collection[0].tag)
         .property("selected", true);
     });
-    //createColorPicker('black', this.presetColors, '.color-picker')
   }
   @Watch("wordleData")
   wordleDataChanged() {
@@ -239,8 +232,6 @@ export default class Interface extends Vue {
     });
     this.animator.play();
   }
-  @Watch("easeType")
-  easeTypeChanged() {}
   extentCallback(v: string) {
     if (!this.wordleData) return;
     const pv = parseFloat(v);
@@ -345,9 +336,10 @@ let assignColor = function (words: Word[]) {
 <style lang="scss">
 @import "@/assets/scss/_ui.scss";
 .group-configs {
-  display: none;
-  &.active {
-    display: flex;
+  visibility: hidden;
+  display: flex;
+    &.active {
+    visibility: visible;
     flex-wrap: wrap; /* | wrap-reverse;*/
     -webkit-flex-wrap: wrap;
   }

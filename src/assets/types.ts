@@ -105,15 +105,22 @@ enum GroupingMode {
     random = 'random'
 }
 
-/** not use */
+enum EmotionMode {
+    positive = 'positive', 
+    negative = 'negative'
+}
+
 enum Mode {
-    bubble = 'bubble',
-    glisten = 'glisten',
-    vapor = 'vapor',
-    colorful = 'colorful',
-    chill = 'chill',
-    electric = 'electric',
-    split = 'split'
+    bubble = 'Bubble',
+    glisten = 'Glisten',
+    vapor = 'Vapor',
+    colorful = 'Colorful',
+    chill = 'Chill',
+    electric = 'Electric',
+    split = 'Split',
+    wave = 'Wave',
+    dance = 'Dance',
+    swing = 'Swing'
 }
 
 export {
@@ -127,5 +134,6 @@ export {
     Direction,
     MetaConfig,
     GroupManagerConfig,
-    AnimatorPlayParams
+    AnimatorPlayParams,
+    EmotionMode
 }
