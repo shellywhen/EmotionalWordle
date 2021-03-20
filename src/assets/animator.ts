@@ -156,7 +156,6 @@ class WordleAnimator {
             gm.words = copy;
             gm.frameCounter = 0;
         })
-        console.log(this.groupManagers[0].words[0].x);
     }
 
     public copyByValue(val: any) {
@@ -171,8 +170,11 @@ class WordleAnimator {
 
     /** Play the animated wordle.
      * @param {boolean} gifFlag whether to produce Gif
+     * 1. get keyframes with given extent, speed, entropy
+     *  - extent - extent at which
      */
     public play({gifFlag = false, replay = false, mode = "disco"} : AnimatorPlayParams = {}) {
+        this.plotHandler?.plotOnSvg(this.words);
         const keyFrameHandler =  new KeyFrameHandler();
         const wordLength = this.words.length;
         const keyFrames = keyFrameHandler.getKeyFrames(mode, wordLength, this.extent , this.speed, this.entropy);
@@ -187,7 +189,6 @@ class WordleAnimator {
         }
         const gms = this.groupManagers;
         
-        this.plotHandler?.plotOnSvg(this.words);
         this.timer?.stop();
         this.timer = d3Timer.timer((elapsed) => {
             if (elapsed < this.duration) {      
@@ -222,7 +223,7 @@ class WordleAnimator {
                 }
                 this.play({gifFlag: gifFlag, replay: true});
             }
-        })
+        }, 10)
     }
     private getTotalWords() {
         let res = [] as Array<Word>;
@@ -279,7 +280,7 @@ class WordleAnimator {
 }
 
 function getDivideMode() {
-    return GroupingMode.xy;
+    return GroupingMode.x;
 }
 
 // separate key frame getter logic from wordle class

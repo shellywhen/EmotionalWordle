@@ -244,6 +244,7 @@ export default class Interface extends Vue {
     const pv = parseFloat(v);
     this.speed = pv;
     this.animator!.speed = pv;
+    this.animator?.reset();
     this.animator!.play({ mode: "disco" });
   }
   entropyCallback(v: string) {
@@ -251,6 +252,7 @@ export default class Interface extends Vue {
     const pv = parseFloat(v);
     this.entropy = pv;
     this.animator!.entropy = pv;
+    this.animator!.reset();
     this.animator!.play({ mode: "disco" });
   }
   handleUpload(event: any) {
