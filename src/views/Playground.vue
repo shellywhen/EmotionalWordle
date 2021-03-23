@@ -226,7 +226,7 @@ export default class Playground extends Vue {
     this.testFunc()
     this.fileReader.addEventListener("load", this.parseFile, false)
     //let fileNames = ["2020_search", "xmas", "xmas-emoji", "thx", "Poe", "creep", "creep_emoji", "creep_mask"]
-    let fileNames = ["xmas"]
+    let fileNames = ["creep","2020_search", "thx"]
     let tasks = fileNames.map((tag: string) => d3.json(`./dataset/layout/layout_${tag}.json`))
     Promise.all(tasks).then((dataList: any) => {
       this.collection = dataList.map((data: Word[], idx: number) => {

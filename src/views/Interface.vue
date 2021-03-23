@@ -203,7 +203,7 @@ export default class Interface extends Vue {
     );
     this.fileReader.addEventListener("load", this.parseFile, false);
     //let fileNames = ["2020_search", "xmas", "xmas-emoji", "thx", "Poe", "creep", "creep_emoji", "creep_mask"]
-    let fileNames = ["xmas"];
+    let fileNames = ["creep"];
     let tasks = fileNames.map((tag: string) =>
       d3.json(`./dataset/layout/layout_${tag}.json`)
     );
@@ -225,19 +225,21 @@ export default class Interface extends Vue {
   @Watch("wordleData")
   wordleDataChanged() {
     if (!this.wordleData) return;
+    let copy = this.wordleData.data.map((v) => Object.assign({}, v))
     this.animator = new WordleAnimator({
-      words: assignColor(this.wordleData.data),
+      data: assignColor(copy),
       duration: this.duration,
       plotHandler: this.plotHandler,
+      mode: this.animationMode
     });
     this.animator.play();
   }
-  extentCallback(v: string) {
-    if (!this.wordleData) return;
-    const pv = parseFloat(v);
-    this.extent = pv;
-    this.animator!.extent = pv;
-    this.animator!.play({ mode: "disco" });
+  @Watch("animationMode")
+  aniModeChanged() {
+    if(!this.wordleData) return
+    this.animator!.update('mode', this.animationMode)
+    this.animator!.reset()
+    this.animator!.play()
   }
   speedCallback(v: string) {
     if (!this.wordleData) return;
@@ -245,7 +247,7 @@ export default class Interface extends Vue {
     this.speed = pv;
     this.animator!.speed = pv;
     this.animator?.reset();
-    this.animator!.play({ mode: "disco" });
+    this.animator!.play();
   }
   entropyCallback(v: string) {
     if (!this.wordleData) return;
@@ -253,7 +255,7 @@ export default class Interface extends Vue {
     this.entropy = pv;
     this.animator!.entropy = pv;
     this.animator!.reset();
-    this.animator!.play({ mode: "disco" });
+    this.animator!.play();
   }
   handleUpload(event: any) {
     let file = event.target.files[0];

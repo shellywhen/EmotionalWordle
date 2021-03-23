@@ -29,7 +29,7 @@ class CloudManager {
         // console.log(data, 'cloud data')
         if(loadCanvasFlag) {
             self.animator = new WordleAnimator({
-                words: assignColor(data), 
+                data: assignColor(data), 
                 plotHandler: self.canvasHandler, 
                 duration: duration
             })

@@ -53,8 +53,8 @@ class Meta implements MetaConfig {
         this.ts = word.size!
         this.ss = 0
         this.sy = 0 // height / 2 - word.size!
-        this.x = this.sx
-        this.y = this.sy
+        this.x = word.x!
+        this.y = word.y!
         this.color = 'black'
         this.sc = 'white'
         this.tc = 'black'
@@ -331,7 +331,6 @@ class Animator {
             let result = kmeans(positions, groupNum, centers)
             result.indexes.forEach((d: number, idx: number) => {
                 this.data[idx].order = d
-                //console.log(this.data[idx].text, this.data[idx].truex, this.data[idx].truey, this.data[idx].order)
             })
             return
         }

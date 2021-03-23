@@ -158,6 +158,7 @@ class PlotHandler {
         })
     }
     public plotOnSvg(data: Word[]) {
+        console.log(data, 'check')
         this.svg.selectAll('g').remove()
         let basic = this.svg.append('g')
         .attr('class', `wordcloud ${this.styleSheet.font.name}`)
