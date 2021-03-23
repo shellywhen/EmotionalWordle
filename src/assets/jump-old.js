@@ -17,6 +17,8 @@
 // 4. Send all points to Earcut with the holes indices as a second parameter.
 // 5. Uses earcut's result as indices for the geometry.
 // 6. Then, render triangles with webGL.
+
+
 import opentype from "opentype.js"
 import earcut from "earcut"
 import { createShader, createProgram } from "./gl-helper"

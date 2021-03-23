@@ -17,6 +17,7 @@ import * as Manual from "@/assets/manual"
 import { KeyframeConfig, GroupingMode, Word, Mode, MetaConfig, GroupManagerConfig, AnimatorPlayParams} from "@/assets/types"
 import { KeyFrameHandler } from './keyframe-handler'
 import { Meta } from './animation'
+import { jumpingWordle } from "@/assets/jump"
 
 class KeyFrame implements KeyframeConfig {
     public x: number = 0
@@ -102,10 +103,10 @@ class WordleAnimator {
         })
     }
 
-    public createManagers(numGroups: number) {
+    public createManagers(numGroups: number, field: Partial<GroupManager>={}) {
         this.groupManagers = new Array(numGroups);
         for(var i = 0; i < numGroups; ++i) {
-            this.groupManagers[i] = new GroupManager({});
+            this.groupManagers[i] = new GroupManager(field);
         }
     }
 
@@ -174,17 +175,36 @@ class WordleAnimator {
      */
     public play({gifFlag = false, replay = false} : AnimatorPlayParams = {}) {
         let mode = this.mode
+        let svgFlag = mode !== Mode.wave
         this.reset()
+        if (mode === Mode.wave) this.playWaving({gifFlag, replay})
+        if (mode === Mode.swing) this.playSwinging({gifFlag, replay})
         if (mode === Mode.dance) this.playDancing({gifFlag, replay})
         if (mode === Mode.split) this.playSplitting({gifFlag, replay})
+        this.plotHandler!.svg.style('display', svgFlag? '': 'none')
+        this.plotHandler!.canvas!.style.display = svgFlag? 'none': ''
     }
 
     public playWaving({gifFlag = false, replay = false} : AnimatorPlayParams = {}) {
+
     }
 
     public playSwinging({gifFlag = false, replay = false} : AnimatorPlayParams = {}) {
+        if (!replay) {
+            this.plotHandler?.plotOnSvg(this.data);
+            const keyFrameHandler = new KeyFrameHandler();
+            const wordLength = this.words.length;
+            const keyFrames = keyFrameHandler.getKeyFrames(Mode.dance, wordLength, this.extent , this.speed, this.entropy);
+            const numGroups = keyFrames.length;
+            const divideMode = getDivideMode();
+            this.createManagers(numGroups);
+            this.assignKeyFrame(keyFrames);
+            this.divideGroup(divideMode);
+        } else {
+            this.reset();
+        }  
+        this.startPlay(gifFlag, replay)      
     }
-
 
     public playSplitting({gifFlag = false, replay = false} : AnimatorPlayParams = {}) {
         if (!replay) {
@@ -202,7 +222,7 @@ class WordleAnimator {
                 let y = b * Math.sin(theta)
                 centers.push([x, y])
             }
-            this.createManagers(numGroups);
+            this.createManagers(numGroups, {ease: d3Ease.easeExp});
             this.assignKeyFrame(keyFrames);
             this.divideGroup(GroupingMode.xy, centers);
         } else {
@@ -215,7 +235,7 @@ class WordleAnimator {
     public playDancing({gifFlag = false, replay = false} : AnimatorPlayParams = {}) {
         if (!replay) {
             this.plotHandler?.plotOnSvg(this.data);
-            const keyFrameHandler =  new KeyFrameHandler();
+            const keyFrameHandler = new KeyFrameHandler();
             const wordLength = this.words.length;
             const keyFrames = keyFrameHandler.getKeyFrames(Mode.dance, wordLength, this.extent , this.speed, this.entropy);
             const numGroups = keyFrames.length;
@@ -228,6 +248,11 @@ class WordleAnimator {
         }  
         this.startPlay(gifFlag, replay)      
     }
+    /** Core function to play the animation according to the keyframes
+     *
+     * @param gifFlag 
+     * @param replay 
+     */
     public startPlay(gifFlag = false, replay = false) {
         const gms = this.groupManagers;
         this.timer?.stop();
@@ -265,16 +290,6 @@ class WordleAnimator {
             }
         }, 10)
     }
-
-
-
-
-
-
-
-
-
-
 
     private getTotalWords() {
         let res = [] as Array<Word>;

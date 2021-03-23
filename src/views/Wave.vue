@@ -6,7 +6,7 @@
 <script lang="js">
 import { Vue } from "vue-class-component"
 import * as d3 from "d3"
-import { jumpingWordle } from "@/assets/jump.js"
+import { jumpingWordle } from "@/assets/jump-old"
 export default class Wave extends Vue {
     mounted() {
         d3.json('./dataset/layout/layout_creep.json').then(d => {

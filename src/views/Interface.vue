@@ -117,12 +117,22 @@
       </div>
       <div class="col-10">
         <svg
-          id="emo-wordle"
+          id="emordle-svg"
           :height="styleScheme.height * zoomLevel"
           :width="styleScheme.width"
-          :viewBox="`${0} ${-styleScheme.height * (1 - zoomLevel)/2} ${styleScheme.width} ${styleScheme.height}`"
+          :viewBox="
+            `${0} ${(-styleScheme.height * (1 - zoomLevel)) / 2} ${
+              styleScheme.width
+            } ${styleScheme.height}`
+          "
           preserveAspectRatio="xMidYMid meet"
         ></svg>
+        <canvas
+          id="emordle-canvas"
+          :height="styleScheme.height * zoomLevel"
+          :width="styleScheme.width"
+        >
+        </canvas>
         <div class="group-configs">
           <div
             v-for="(item, index) in groups"
@@ -165,7 +175,7 @@ export default class Interface extends Vue {
   public wordleData: Dataset | null = null;
   public collection: Dataset[] = [];
   public fileReader = new FileReader();
-  public zoomLevel: number = 0.9;
+  public zoomLevel: number = 0.8;
   public uploadFilename: string = "";
   public font = new FontConfig();
   public duration: number = 5000;
@@ -196,10 +206,10 @@ export default class Interface extends Vue {
   public plotHandler: undefined | PlotHandler = undefined;
   mounted() {
     this.plotHandler = new PlotHandler(
-      "",
-      "emo-wordle",
+      "emordle-canvas",
+      "emordle-svg",
       this.styleScheme,
-      false
+      true
     );
     this.fileReader.addEventListener("load", this.parseFile, false);
     //let fileNames = ["2020_search", "xmas", "xmas-emoji", "thx", "Poe", "creep", "creep_emoji", "creep_mask"]

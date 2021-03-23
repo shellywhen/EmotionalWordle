@@ -17,7 +17,7 @@ class PlotHandler {
     public canvas: HTMLCanvasElement | undefined
     private context: CanvasRenderingContext2D| undefined
     public bgCanvas: HTMLCanvasElement| undefined
-    private svg: d3.Selection<d3.BaseType, unknown, HTMLElement, any>
+    public svg: d3.Selection<d3.BaseType, unknown, HTMLElement, any>
     private styleSheet: Style
     public height: number
     public width: number
@@ -158,7 +158,6 @@ class PlotHandler {
         })
     }
     public plotOnSvg(data: Word[]) {
-        console.log(data, 'check')
         this.svg.selectAll('g').remove()
         let basic = this.svg.append('g')
         .attr('class', `wordcloud ${this.styleSheet.font.name}`)

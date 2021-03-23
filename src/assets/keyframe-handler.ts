@@ -3,6 +3,8 @@
 import { KeyFrame } from "./animator";
 import * as Manual from "@/assets/manual";
 import { Mode } from "@/assets/types"
+import { FontConfig } from "@/assets/variable-font"
+
 const minNumGroup = 1;
 class KeyFrameHandler {
     public getKeyFrames(mode: Mode, wordLength: number, speed: number, entropy: number, alpha=0) {
@@ -17,6 +19,14 @@ class KeyFrameHandler {
         }
         return keyFrames;
     }
+
+    private getSwingingKeyFrames(wordLength: number, speed: number, entropy: number, alpha: number) {
+        
+    }
+
+
+
+
     private getSplitKeyframes(wordLength: number, speed: number, entropy: number, alpha: number) {
         let keyFrames = [] as KeyFrame[][];
         let maxNumGroup =  Math.floor(wordLength * 0.9);
@@ -25,18 +35,25 @@ class KeyFrameHandler {
             const groupKf = [] as KeyFrame[]
             const theta = alpha + index * 2 * Math.PI / numGroup 
             const dis = Math.random() * 4 + 2 + entropy * 18
-            console.log(theta/(2*Math.PI), numGroup,  dis * Math.cos(theta), dis * Math.sin(theta))
+          //  console.log(theta/(2*Math.PI), numGroup,  dis * Math.cos(theta), dis * Math.sin(theta))
             const iter = Math.floor(10 * speed)
+            const _move_left = new KeyFrame({ xoff: 3*dis/5 * Math.cos(theta+ Math.PI/7), yoff: 3*dis/5 * Math.sin(theta+Math.PI/7), rotate: 0});
+            const _move_right = new KeyFrame({ xoff: 4*dis/5 * Math.cos(theta - Math.PI/8), yoff: 4*dis/5 * Math.sin(theta+Math.PI/8), rotate: 0});
             const _move = new KeyFrame({ xoff: dis * Math.cos(theta), yoff: dis * Math.sin(theta), rotate: 0});
             const _center = new KeyFrame({ xoff: 0, yoff: 0, rotate: 0 });
-            const _rotate = new KeyFrame({ rotate: (theta-Math.PI/2)})
-            const _neg_rotate = new KeyFrame({ rotate: (-theta-Math.PI/2)})
+            const _rotate = new KeyFrame({ rotate: (theta-Math.PI/4)})
+            const _neg_rotate = new KeyFrame({ rotate: (-theta+Math.PI/4)})
             const animation = [
                 _center,
+                _move_left,
+                _move_right,
                 _move,
                 _rotate,
                 _rotate,
-                _rotate,
+                _neg_rotate,
+                _move,
+                _move_right,
+                _move_left,
                 _center,
             ]
             const al = animation.length;
