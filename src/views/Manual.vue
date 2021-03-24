@@ -192,7 +192,7 @@ export default class Manual extends Vue {
   }
   mounted() {
     this.fileReader.addEventListener("load", this.parseFile, false)
-    let fileNames = ["2020_search", "xmas", "xmas-emoji", "thx", "Poe", "creep"]
+    let fileNames = ["2020_search", "xmas", "xmas-emoji", "thx", "Poe", "creep", "ingredients"]
     //let fileNames = ["creep"]
     let tasks = fileNames.map((tag: string) =>
         d3.csv(`dataset/${tag}.csv`, (v: any) => {

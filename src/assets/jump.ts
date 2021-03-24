@@ -335,7 +335,7 @@ export let test = function (fontUrl=FONTURL) {
 }
 interface WavingParam {
   words: Word[],
-  fontUrl: string,
+  fontUrl?: string,
   speed: number,
   entropy: number
 }
