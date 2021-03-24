@@ -55,6 +55,10 @@ class GroupManager implements GroupManagerConfig {
         // this.font.setValWithRatio('italic', Math.abs(Math.sin(Date.now()/1000)));
         // this.font.setValWithRatio('weight', phase);
         const color = d3Itpl.interpolateHcl(ckf.color, nkf.color)(frameAt);
+        this.font.update({
+            italic: (nkf.font.italic - ckf.font.italic) * this.ease(frameAt),
+            weight: (nkf.font.weight - ckf.font.weight) * this.ease(frameAt),
+        })
         const fontString = this.font.getCss();
         // assign by value  
         this.words.forEach((d) => {
@@ -187,14 +191,11 @@ class WordleAnimator {
 
     public playWaving({gifFlag = false, replay = false} : AnimatorPlayParams = {}) {
         let data = this.data.map(v => Object.assign({}, v))
-        // data.forEach((v) => {
-        //     v.x! -= this.plotHandler!.width/2
-        //     v.y! -= this.plotHandler!.height/2
-        // })
         jumpingWordle({
             words: data,
             entropy: this.entropy,
-            speed: this.speed
+            speed: this.speed,
+            fontUrl: './font/arial.ttf'
         })
     }
 
@@ -203,9 +204,9 @@ class WordleAnimator {
             this.plotHandler?.plotOnSvg(this.data);
             const keyFrameHandler = new KeyFrameHandler();
             const wordLength = this.words.length;
-            const keyFrames = keyFrameHandler.getKeyFrames(Mode.dance, wordLength, this.extent , this.speed, this.entropy);
+            const keyFrames = keyFrameHandler.getKeyFrames(Mode.swing, wordLength, this.speed, this.entropy);
             const numGroups = keyFrames.length;
-            const divideMode = getDivideMode();
+            const divideMode = this.entropy > 0.5? GroupingMode.random : GroupingMode.y
             this.createManagers(numGroups);
             this.assignKeyFrame(keyFrames);
             this.divideGroup(divideMode);

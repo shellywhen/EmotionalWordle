@@ -187,7 +187,7 @@ export default class Interface extends Vue {
   public tendencies: Array<EmotionMode> = [EmotionMode.positive, EmotionMode.negative];
   public tendency: EmotionMode = EmotionMode.positive
   public animationModes: Array<Mode> = [Mode.split, Mode.dance, Mode.wave, Mode.swing]
-  public animationMode: Mode = Mode.wave
+  public animationMode: Mode = Mode.swing
   get groups() {
     if (!this.animator) return [] as Array<GroupManagerConfig>;
     return this.animator.groupManagers;

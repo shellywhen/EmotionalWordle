@@ -6,6 +6,14 @@ import { Mode } from "@/assets/types"
 import { FontConfig } from "@/assets/variable-font"
 
 const minNumGroup = 1;
+const sampleFont = new FontConfig()
+const sampleItalic = sampleFont.italicRange
+const sampleWeight = sampleFont.weightRange
+const sampleItalicInterval = sampleItalic[1] - sampleItalic[0]
+const sampleWeightInterval = sampleWeight[1] - sampleWeight[0]
+const sampleItalicMid = ( sampleItalic[1] + sampleItalic[0] ) / 2
+const sampleWeightMid = ( sampleWeight[1] + sampleWeight[0] ) / 2
+
 class KeyFrameHandler {
     public getKeyFrames(mode: Mode, wordLength: number, speed: number, entropy: number, alpha=0) {
         let keyFrames = [] as KeyFrame[][];
@@ -13,6 +21,8 @@ class KeyFrameHandler {
             keyFrames = this.getDiscoKeyFrames(wordLength, speed, entropy);
         } else if (mode == Mode.split) {
             keyFrames = this.getSplitKeyframes(wordLength, speed, entropy, alpha)
+        } else if (mode == Mode.swing) {
+            keyFrames = this.getSwingingKeyFrames(wordLength, speed, entropy)
         }
         else {
             keyFrames = [Manual.colorTransition()];
@@ -20,8 +30,64 @@ class KeyFrameHandler {
         return keyFrames;
     }
 
-    private getSwingingKeyFrames(wordLength: number, speed: number, entropy: number, alpha: number) {
+    private getSwingingKeyFrames(wordLength: number, speed: number, entropy: number) {
+        let keyFrames = [] as KeyFrame[][];
+        const maxNumGroup =  Math.floor(wordLength * 0.9);
+        let numGroup = Math.max(1, entropy * maxNumGroup)
+        for (let index = 0; index < numGroup; index++) {
+            let groupKeyFrames = [] as KeyFrame[]
+            const italicDelta = sampleItalicInterval * ( entropy * 0.5 + Math.random() * 0.1 + 0.4 )
+            const weightDelta = sampleWeightInterval * ( entropy * 0.5 + Math.random() * 0.1 + 0.4 )
+            const italicRange = [sampleItalicMid - italicDelta, sampleItalicMid + italicDelta]
+            const weightRange = [sampleWeightMid - weightDelta * 0.2, sampleWeightMid + weightDelta]
+            let fontMid = new FontConfig()
+            fontMid.update({italic: sampleItalicMid, weight: sampleWeightMid})
+            let fontStart = new FontConfig()
+            fontStart.update({italic: italicRange[0], weight:weightRange[0]})
+            let fontEnd = new FontConfig()
+            fontEnd.update({italic: italicRange[1], weight: weightRange[1]})
+            let fontWideMid = new FontConfig()
+            fontWideMid.update({italic: sampleItalicMid, weight: weightRange[1]})
+            let fontWideStart = new FontConfig()
+            fontWideStart.update({ italic: italicRange[0], weight: weightRange[0] })
+ 
+            let animation = [] as KeyFrame[]
+            let backupFrames = [
+                new KeyFrame({font: fontEnd}),
+                new KeyFrame({font: fontEnd}),
+                new KeyFrame({font: fontWideMid, xoff: -1}),
+                new KeyFrame({font: fontWideStart, xoff: -4}),
+                // new KeyFrame({font: fontStart }),
+                new KeyFrame({font: fontWideMid, yoff: Math.random()>0.5?-2:2}),
+                new KeyFrame({font: fontEnd}),
+                new KeyFrame({font: fontEnd}),
+            ]
+            for(let it = 0; it < Math.max(1, Math.floor(Math.random()*3)); it ++) {
+                for(let fid = 0; fid < backupFrames.length; fid ++) {
+                    if(Math.random() > 0.2) {
+                        animation.push(backupFrames[fid])
+                    }
+                }
+            }
+            const iter = 10 * speed;
+            const al = animation.length;
+            const tl = al * iter - 1;
+            if(iter == 0) {
+                groupKeyFrames.push(...[
+                    new KeyFrame({stage: 0}),
+                    new KeyFrame({stage: 100}),
+                ])
+            }
+            for (let i = 0; i < iter; i++) {
+                animation.forEach((move, idx) => {
+                    const stage = Math.ceil((100 / tl) * (idx + i * al));
+                    groupKeyFrames.push({...move, stage: stage});
+                });
+            }
 
+            keyFrames.push(groupKeyFrames)
+        }
+        return keyFrames
     }
 
 
@@ -137,6 +203,18 @@ class KeyFrameHandler {
         }
         return keyFrames;
     }
+}
+
+let shuffle = function <T>(array: T[]) {
+    let currIdx = array.length, tempVal, randIdx
+    while (0 != currIdx) {
+        randIdx = Math.floor(Math.random() * currIdx)
+        currIdx -= 1
+        tempVal = array[currIdx]
+        array[currIdx] = array[randIdx]
+        array[randIdx] = tempVal
+    }
+    return array
 }
 
 export { KeyFrameHandler }
