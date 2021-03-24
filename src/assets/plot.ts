@@ -15,7 +15,7 @@ import * as tinycolor from 'tinycolor2'
 // import { Bubble } from './animation' 
 class PlotHandler {
     public canvas: HTMLCanvasElement | undefined
-    private context: CanvasRenderingContext2D| undefined
+    private context: WebGLRenderingContext | undefined | CanvasRenderingContext2D
     public bgCanvas: HTMLCanvasElement| undefined
     public svg: d3.Selection<d3.BaseType, unknown, HTMLElement, any>
     private styleSheet: Style
@@ -32,9 +32,9 @@ class PlotHandler {
             this.bgCanvas =  d3.select('#emotional-wordle-bg-canvas').node() as HTMLCanvasElement
             this.canvas.width = styleSheet.width
             this.canvas.height = styleSheet.height
-            this.context = this.canvas.getContext('2d')!
-            this.context.fillStyle = styleSheet.colorScheme!
-            this.context.textAlign = 'center'
+            this.context = this.canvas.getContext('webgl')!
+            // this.context.fillStyle = styleSheet.colorScheme!
+            // this.context.textAlign = 'center'
         }
     }
     public preprocess (data: Word[]) {
@@ -42,7 +42,7 @@ class PlotHandler {
     }
     public plotHoloTextOnCanvas(data: Word[]) {
         if(!this.context) return
-        const ctx = this.context
+        const ctx = this.context as CanvasRenderingContext2D
         ctx.clearRect(0, 0, this.width, this.height)
         ctx.fillStyle = "rgba(255, 255, 255, 1)"
         ctx.globalCompositeOperation = 'source-over';
@@ -66,7 +66,7 @@ class PlotHandler {
         })
     }
     public plotOnCanvas(data: Word[]) {
-        const ctx = this.context
+        const ctx = this.context as CanvasRenderingContext2D
         if(!ctx) return
         ctx.clearRect(0, 0, this.width, this.height)
         ctx.fillStyle = "rgba(255, 255, 255, 1)"

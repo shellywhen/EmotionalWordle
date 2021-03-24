@@ -186,7 +186,16 @@ class WordleAnimator {
     }
 
     public playWaving({gifFlag = false, replay = false} : AnimatorPlayParams = {}) {
-
+        let data = this.data.map(v => Object.assign({}, v))
+        // data.forEach((v) => {
+        //     v.x! -= this.plotHandler!.width/2
+        //     v.y! -= this.plotHandler!.height/2
+        // })
+        jumpingWordle({
+            words: data,
+            entropy: this.entropy,
+            speed: this.speed
+        })
     }
 
     public playSwinging({gifFlag = false, replay = false} : AnimatorPlayParams = {}) {

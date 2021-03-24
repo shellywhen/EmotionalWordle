@@ -227,9 +227,32 @@ let draw = function (font: opentype.Font, words: Word[] = [], statement: string=
     drawOnCanvas(vertexData, indices, statement)
 }
 
-const defaultvs = ` pos.y += pow(sin( (pos.x) / 250.+ uTime *4.),2.) * 20.;
-pos.x += sin( pos.x/ 100. + uTime *1.) * 5.;
-gl_Position = vec4(pos * uScale + uOffset, 0.0, 1.0);`
+const defaultvs = ` pos.y += pow(sin( (pos.x) / 500.+ uTime *.02),2.) * 20.;
+pos.x += sin( pos.y/ 100. + uTime *.8) * .5;
+`
+
+const staticvs = ` pos.y = pos.y;
+pos.x = pos.x;
+`
+
+let vsGenerator = function (speed: number, entropy: number) {
+  if (speed == 0) return staticvs
+  const waveletNum = Math.max(1, Math.floor(entropy * 10))
+  const timeGran = (0.01 + speed * 0.3) 
+  const yAmplitude = 15.1 + 9.9 * entropy
+  const yExtent = 10.1 + (1.05 - entropy) * 359.9
+  const xExtent = 50.1 + (1.05 - entropy) * 150.1
+  const xAmplitude = 0.02 + 0.08 * entropy
+  let xPosStr = `sin( pos.y/${xExtent} + uTime * ${timeGran}) * ${xAmplitude}`
+  let yPosStr = `pow(sin( (pos.x) / ${yExtent} + uTime * ${timeGran}), 2.) * ${yAmplitude}`
+  let result = `
+  pos.x += ${xPosStr};
+  pos.y += ${yPosStr};
+  `
+  console.log(result)
+  return result
+  //return defaultvs
+}
 
 let drawOnCanvas = function (vertexData: Float32Array, indices: Uint16Array, statement: string=defaultvs) {
     const canvas = document.getElementById("emordle-canvas") as HTMLCanvasElement
@@ -238,25 +261,26 @@ let drawOnCanvas = function (vertexData: Float32Array, indices: Uint16Array, sta
     const height = canvas.height
     gl.viewport(0, 0, width, height)
     const vs = createShader(gl, gl.VERTEX_SHADER, `
-        precision mediump float;
-        uniform vec2 uScale;
-        uniform vec2 uOffset;
-        uniform float uTime;
-        attribute vec2 position;
-        varying vec4 fragColor;
-        void main() {
-        vec2 pos = position;
-        ${statement}
-        fragColor = vec4(0.0, 0.0, 0.0, 0.0);// vec4(sin(uTime*.5)*.5+.5, cos(uTime*.2)*.5+.5, 0., 1. );//+ 2.*sin(uTime));
-        }`)
+      precision mediump float;
+      uniform vec2 uScale;
+      uniform vec2 uOffset;
+      uniform float uTime;
+      attribute vec2 position;
+      varying vec4 fragColor;
+      void main() {
+      vec2 pos = position;
+      ${statement}
+      gl_Position = vec4(pos * uScale + uOffset, 0.0, 1.0);
+      fragColor = vec4(0., 0., 0., 1.);// vec4(sin(uTime*.5)*.5+.5, cos(uTime*.2)*.5+.5, 0., 1. ); // colorful
+    }`)
     const ps = createShader(gl, gl.FRAGMENT_SHADER,
         `precision mediump float;
         uniform vec4 uColor;
         uniform vec2 u_resolution;
         varying vec4 fragColor;
         void main() {
-        //gl_FragColor = uColor;
-        // vec2 st = gl_FragCoord.xy / u_resolution;
+        gl_FragColor = uColor;
+        vec2 st = gl_FragCoord.xy / u_resolution;
         gl_FragColor = fragColor;
         }`)
     const prog = createProgram(gl, vs, ps)
@@ -309,8 +333,13 @@ export let test = function (fontUrl=FONTURL) {
         onloadedFont
       )    
 }
-
-export let jumpingWordle = function (words: Word[] = [], fontUrl: string = FONTURL) {
+interface WavingParam {
+  words: Word[],
+  fontUrl: string,
+  speed: number,
+  entropy: number
+}
+export let jumpingWordle = function ({words=[], fontUrl=FONTURL, speed=0.5, entropy=0.5 }: WavingParam) {
     opentype.load(
         fontUrl,
         function(err, fontMeta: opentype.Font | undefined) {
@@ -318,7 +347,8 @@ export let jumpingWordle = function (words: Word[] = [], fontUrl: string = FONTU
                 console.log(fontUrl)
                 alert("Font could not be loaded: " + err)
             } else if (fontMeta) {
-                draw(fontMeta, words)
+                let statement = vsGenerator(speed, entropy)
+                draw(fontMeta, words, statement)
             }
         }
     )

@@ -21,7 +21,7 @@ class KeyFrameHandler {
     }
 
     private getSwingingKeyFrames(wordLength: number, speed: number, entropy: number, alpha: number) {
-        
+
     }
 
 
@@ -45,15 +45,18 @@ class KeyFrameHandler {
             const _neg_rotate = new KeyFrame({ rotate: (-theta+Math.PI/4)})
             const animation = [
                 _center,
-                _move_left,
-                _move_right,
+                // _move_left,
+                // _move_right,
                 _move,
                 _rotate,
                 _rotate,
                 _neg_rotate,
                 _move,
-                _move_right,
-                _move_left,
+                _move,
+                _move,
+                _move,
+                // _move_right,
+                // _move_left,
                 _center,
             ]
             const al = animation.length;

@@ -187,7 +187,7 @@ export default class Interface extends Vue {
   public tendencies: Array<EmotionMode> = [EmotionMode.positive, EmotionMode.negative];
   public tendency: EmotionMode = EmotionMode.positive
   public animationModes: Array<Mode> = [Mode.split, Mode.dance, Mode.wave, Mode.swing]
-  public animationMode: Mode = Mode.split
+  public animationMode: Mode = Mode.wave
   get groups() {
     if (!this.animator) return [] as Array<GroupManagerConfig>;
     return this.animator.groupManagers;
@@ -213,7 +213,7 @@ export default class Interface extends Vue {
     );
     this.fileReader.addEventListener("load", this.parseFile, false);
     //let fileNames = ["2020_search", "xmas", "xmas-emoji", "thx", "Poe", "creep", "creep_emoji", "creep_mask"]
-    let fileNames = ["creep"];
+    let fileNames = ["2020_search"];
     let tasks = fileNames.map((tag: string) =>
       d3.json(`./dataset/layout/layout_${tag}.json`)
     );
