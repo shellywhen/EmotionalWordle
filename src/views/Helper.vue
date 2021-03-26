@@ -198,7 +198,7 @@ export default class Manual extends Vue {
   public customColor = "#000000"
   public presetColors = ColorPreset.rainbow
   public bgAnimator: any
-  public zoomLevel: number = 0.8
+  public zoomLevel: number = 0.9
   get styleScheme ():Style {
     return {
       colorScheme: this.colorScheme,
@@ -209,7 +209,7 @@ export default class Manual extends Vue {
       rotation: this.rotation,
       spiralType: this.spiralType,
       height: 520,
-      width: 800,
+      width: 780,
       font: new FontConfig().update({'name': 'NotoSans'})
     }
   }
