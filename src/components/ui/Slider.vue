@@ -1,9 +1,9 @@
 <template>
   <div class="slider-container">
-    <p class="config-tag slider-tag">
+    <div class="config-tag slider-tag">
       <span>{{ label }}</span>
       <span v-if="showValue"> &nbsp;&nbsp; {{ value }} </span>
-    </p>
+    </div>
     <input
       type="range"
       :class="rangeClass"
@@ -56,7 +56,7 @@ $normal: #2c3e50;
   margin-top: 2px;
   .slider-tag {
     position: relative;
-    margin-bottom: -2vh;
+    // margin-bottom: -2vh;
     color: black;
     span:nth-child(2) {
       position: absolute;

@@ -55,7 +55,7 @@ class Meta implements MetaConfig {
         this.sy = 0 // height / 2 - word.size!
         this.x = word.x!
         this.y = word.y!
-        this.color = 'black'
+        this.color = word.color || 'black'
         this.sc = 'white'
         this.tc = 'black'
         this.selected = true // !!!!!!!!!!!!!!!!!

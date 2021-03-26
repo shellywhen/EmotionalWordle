@@ -70,7 +70,7 @@ class GroupManager implements GroupManagerConfig {
             d.y = d.y! + yoff;
             d.rotate = rotate;
             d.size = d.trues! * (1 + scale);
-            d.color = color;
+         //   d.color = d.color || color;
             d.fontString = fontString;
         });
     }
@@ -191,11 +191,12 @@ class WordleAnimator {
 
     public playWaving({gifFlag = false, replay = false} : AnimatorPlayParams = {}) {
         let data = this.data.map(v => Object.assign({}, v))
+        let font = data[0].font
         jumpingWordle({
             words: data,
             entropy: this.entropy,
             speed: this.speed,
-            fontUrl: './font/arial.ttf'
+            fontUrl: `./font/${font}.ttf`
         })
     }
 

@@ -26,10 +26,10 @@ const routes: Array<RouteRecordRaw> = [
     component: () =>
       import("../views/Wave.vue")
   }, {
-    path: "/manual",
-    name: "Manual",
+    path: "/helper",
+    name: "Helper",
     component: () =>
-      import("../views/Manual.vue")
+      import("../views/Helper.vue")
   }, {
     path: "/particle",
     name: "Particle",
@@ -41,10 +41,10 @@ const routes: Array<RouteRecordRaw> = [
     component: () =>
       import("../views/Shaking.vue")
   }, {
-    path: "/interface",
-    name: "Interface",
+    path: "/Scheme",
+    name: "scheme",
     component: () =>
-      import("../views/Interface.vue")
+      import("../views/Scheme.vue")
   }
 ];
 

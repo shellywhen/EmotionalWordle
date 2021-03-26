@@ -209,7 +209,6 @@ let getVertexData = function (root: Polygon[], polys: Polygon[]) {
         vertexCount += coords.length / 2
     }
     root.forEach(process)
-    console.log(vertexData)
     return [vertexData, indices]
 }
 
@@ -238,18 +237,17 @@ pos.x = pos.x;
 let vsGenerator = function (speed: number, entropy: number) {
   if (speed == 0) return staticvs
   const waveletNum = Math.max(1, Math.floor(entropy * 10))
-  const timeGran = (0.01 + speed * 0.3) 
-  const yAmplitude = 15.1 + 9.9 * entropy
-  const yExtent = 10.1 + (1.05 - entropy) * 359.9
-  const xExtent = 50.1 + (1.05 - entropy) * 150.1
-  const xAmplitude = 0.02 + 0.08 * entropy
-  let xPosStr = `sin( pos.y/${xExtent} + uTime * ${timeGran}) * ${xAmplitude}`
+  const timeGran = Number((0.01 + speed * 0.3)).toFixed(3)
+  const yAmplitude = Number(15.1 + 9.9 * entropy).toFixed(3)
+  const yExtent = Number(10.1 + (1.05 - entropy) * 359.9).toFixed(3)
+  const xExtent = Number(50.1 + (1.05 - entropy) * 150.1).toFixed(3)
+  const xAmplitude = Number(0.02 + 0.58 * entropy).toFixed(3)
+  let xPosStr = `sin( pos.y / ${xExtent} + uTime * ${timeGran}) * ${xAmplitude}`
   let yPosStr = `pow(sin( (pos.x) / ${yExtent} + uTime * ${timeGran}), 2.) * ${yAmplitude}`
   let result = `
   pos.x += ${xPosStr};
   pos.y += ${yPosStr};
   `
-  console.log(result)
   return result
   //return defaultvs
 }
@@ -314,7 +312,6 @@ let drawOnCanvas = function (vertexData: Float32Array, indices: Uint16Array, sta
     gl.vertexAttribPointer(0, 2, gl.FLOAT, true, 8, 0)
     gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0)
     gl.flush()
-    console.log('Finish')
     tick(Date.now())
 }
 

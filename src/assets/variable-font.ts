@@ -5,7 +5,7 @@
 import * as ColorPreset from "@/assets/color-preset";
 
 export class FontConfig {
-    public name: string = 'Flexa'
+    public name: string = 'GT Flexa'
     public widthRange: [number, number] = [45, 65] //[0, 200]
     public italicRange: [number, number] = [0, 200] //[0, 200]
     public weightRange: [number, number] = [120, 700] //[0, 700]

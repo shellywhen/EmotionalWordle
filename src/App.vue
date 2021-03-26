@@ -1,13 +1,13 @@
 <template>
   <div>
     <nav id="nav">
-      <router-link to="/">Gallery</router-link>|
-      <router-link to="/manual">Static</router-link> |
+      <router-link to="/">Gallery</router-link> |
+      <router-link to="/helper">Helper</router-link> |
       <!-- <router-link to="/playground">Playground</router-link> |
       <router-link to="/wave">Wave</router-link> |
       <router-link to="/particle">Particle</router-link> |
       <router-link to="/shaking">Shaking</router-link> | -->
-      <router-link to="/interface">Playground</router-link> |
+      <router-link to="/playground">Playground</router-link> |
       <router-link to="/about">About</router-link>
     </nav>
     <router-view />
