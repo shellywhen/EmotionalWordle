@@ -269,7 +269,7 @@ let drawOnCanvas = function (vertexData: Float32Array, indices: Uint16Array, sta
       vec2 pos = position;
       ${statement}
       gl_Position = vec4(pos * uScale + uOffset, 0.0, 1.0);
-      fragColor = vec4(sin(uTime*.1)*.3+.3, 0., cos(uTime*.2)*.3, 1. ); // colorful
+      fragColor = vec4(sin(uTime*.05)*.55+.6, 0.05, cos(uTime*.15)*.25+.35, 1. ); // colorful
     }`)
     const ps = createShader(gl, gl.FRAGMENT_SHADER,
         `precision mediump float;

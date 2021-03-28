@@ -16,20 +16,20 @@ const routes: Array<RouteRecordRaw> = [
     component: () =>
       import(/* webpackChunkName: "about" */ "../views/About.vue")
   }, {
-    path: "/playground",
-    name: "Playground",
+    path: "/dynamic",
+    name: "Emordle",
     component: () =>
-      import("../views/Playground.vue")
+      import("../views/Emordle.vue")
   }, {
     path: "/wave",
     name: "Wave",
     component: () =>
       import("../views/Wave.vue")
   }, {
-    path: "/helper",
-    name: "Helper",
+    path: "/static",
+    name: "Static",
     component: () =>
-      import("../views/Helper.vue")
+      import("../views/Static.vue")
   }, {
     path: "/particle",
     name: "Particle",
