@@ -122,10 +122,16 @@ class Polygon {
   }
 }
 
+const end  = new Date(Date.now() + 5000);
+
 function tick(t: number) {
   gl.uniform1f(time, t / pace)
   gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0)
   requestAnimationFrame(tick)
+  console.log(t);
+  // if(t < end) {
+
+  // }
 }
 
 let getRoots = function (polys: Polygon[]) {
