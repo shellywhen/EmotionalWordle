@@ -6,11 +6,11 @@
           <span class="config-tag">Dataset</span>
           <div class="wrapper">
           <label class="form-label" for="wordleUpload">
-            Upload <span class="code">csv</span>
+            Upload <span class="code">CSV</span>
           </label>
           <button class="button" @click="openFile">
             <i class="fas fa-cloud-upload-alt light"></i>
-            <span class="code">&nbsp;&nbsp;csv</span>
+            <span class="code">&nbsp;&nbsp;CSV</span>
           </button>
           <input
             type="file"
@@ -105,13 +105,13 @@
         </div>
         <br />
         <div class="wrapper">
-          <label class="form-label" for="wordleLayoutDownload">
+          <!-- <label class="form-label" for="wordleLayoutDownload">
             Download <span class="code">CSV</span>
           </label>
-          <button type="button" class="button" @click="getGif">
+          <button type="button" class="button" @click="downloadGif">
             <i class="fas fa-film light"></i>
             <span class="code">&nbsp;&nbsp;GIF</span>
-          </button>
+          </button> -->
           <button
             class="button"
             @click="downloadJson"
@@ -224,7 +224,7 @@ export default class Static extends Vue {
         d3.csv(`dataset/${tag}.csv`, (v: any) => {
           return {
             frequency: parseFloat(v.frequency),
-            text: v.text
+            text: v.textlot
           }
         })
       )
@@ -251,6 +251,7 @@ export default class Static extends Vue {
     let colorLen = color.length
     this.wordleData.data.forEach((v: Word) => {
       v.color = color[randInt(0, colorLen-1)]
+      v.weight = this.styleScheme.fontWeight;
     })
     this.cloudManager = new CloudManager(this.wordleData.data, 
                                          this.styleScheme, 
@@ -258,7 +259,8 @@ export default class Static extends Vue {
                                          'emotional-wordle-edit-svg',
                                          'emotional-wordle-canvas',
                                          this.bgAnimator,
-                                         false)
+                                         false,
+                                         true)
   }
   @Watch('styleScheme')
   schemeChanged() {
@@ -281,7 +283,7 @@ export default class Static extends Vue {
     this.uploadFilename = file.name.split('.csv')[0]
     this.collection.forEach((dataset: Dataset) => {
       if (dataset.tag == this.uploadFilename) {
-        this.uploadFilename += Math.random().toString() + Math.random.toString()
+        this.uploadFilename += '_1'
       }
     })
   }
@@ -327,6 +329,7 @@ export default class Static extends Vue {
   }
   downloadGif() {
     if(!this.cloudManager) return
+    console.log(this.cloudManager);
     this.cloudManager.animator!.createGif()
   }
   downloadJson() {

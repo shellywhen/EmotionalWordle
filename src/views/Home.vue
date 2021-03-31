@@ -39,7 +39,7 @@ export default class Home extends Vue {
     "./gallery/poem2.gif",
     "./gallery/poem3.gif",
     "./gallery/poem4.gif",
-    "./gallery/poem5.gif",
+    // "./gallery/poem5.gif",
     "./gallery/poem6.gif",
     "./gallery/poem7.gif",
     "./gallery/poem8.gif",
@@ -54,7 +54,7 @@ export default class Home extends Vue {
     'f',
     'g',
     'h',
-    'i'
+    // 'i'
   ]
   public index = null;
 }
