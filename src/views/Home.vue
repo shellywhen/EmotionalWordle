@@ -69,7 +69,7 @@ export default class Home extends Vue {
     'EDGAR ALLAN POE',
     'WALT WHITMAN',
     'FRANK O\'HARA',
-    'Adrienne Rich'
+    'ADRIENNE RICH'
   ]
   public poemUrls: string[] = [
     'https://www.poetryfoundation.org/poems/47311/the-waste-land',
