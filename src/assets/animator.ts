@@ -198,7 +198,9 @@ class WordleAnimator {
             words: data,
             entropy: this.entropy,
             speed: this.speed,
-            fontUrl: `./font/${font}.ttf`
+            fontUrl: `./font/${font}.ttf`,
+            gif: this.gif,
+            gifFlag: gifFlag
         })
     }
 
@@ -294,17 +296,17 @@ class WordleAnimator {
                 })
                 this.plotHandler?.updateOnSvg(totalWords);
                 if (gifFlag) {
-                    const gifCanvas = this.svgToCanvas();
-                    this.gif.addFrame(gifCanvas, {delay: 10});
-                    // this.gif.addFrame(this.plotHandler?.canvas, { copy: true, delay: this.duration / 256 });
+                        const gifCanvas = this.svgToCanvas();
+                        this.gif.addFrame(gifCanvas, {delay: 10});
                 }
             }
             else {
                 this.timer?.stop()
                 if (gifFlag) {
-                    this.gif.render()
+                    console.log('rendering');
+                    this.gif.render();
                 }
-                this.play({gifFlag: gifFlag, replay: true});
+                this.play({gifFlag: false, replay: true});
             }
         }, 10)
     }
@@ -320,18 +322,13 @@ class WordleAnimator {
         const img = document.createElement('img');
         img.setAttribute( "src", "data:image/svg+xml;base64," + btoa( xml ) );
         img.onload = function() {
+            ctx!.clearRect(0, 0, canvas.width, canvas.height)
+            ctx!.fillStyle = "rgba(255, 255, 255, 1)"
+            ctx!.globalCompositeOperation = 'source-over';
+            ctx!.fillRect(0, 0, canvas.width, canvas.height)
             ctx?.drawImage(img, 0,0, canvas.width, canvas.height);
-            // canvas;
-            // console.log( canvas.toDataURL( "image/png" ) );
-            // window.location.href=canvas.toDataURL( "image/png" );
         }
-        // document.body.appendChild(canvas);
         return canvas
-
-        // window.location.href=canvas.toDataURL( "image/png" );
-
-        // document.body.appendChild(canvas);
-        // return image64;
     }
 
     private getTotalWords() {
@@ -345,6 +342,40 @@ class WordleAnimator {
     public stop() {
         this.timer?.stop()
     }
+
+    private createWaveGif() {
+        let timer = d3Timer.timer((elapsed) => {
+            console.log(elapsed);
+            if(elapsed < this.duration) {
+                const canvas = document.querySelector('#emordle-canvas') as HTMLCanvasElement;
+                        
+                const cvs = document.createElement('canvas') as HTMLCanvasElement;
+                cvs.width = this.plotHandler!.width;
+                cvs.height = this.plotHandler!.height;
+                const ctx = cvs.getContext('2d');
+
+                const img = document.createElement('img');
+                const imgData = canvas.toDataURL();
+                img.setAttribute( "src", imgData);
+                img.onload = function() {
+                    ctx!.clearRect(0, 0, canvas.width, canvas.height)
+                    ctx!.fillStyle = "rgba(255, 255, 255, 1)"
+                    ctx!.globalCompositeOperation = 'source-over';
+                    ctx!.fillRect(0, 0, canvas.width, canvas.height)
+                    ctx?.drawImage(img, 0,0, canvas.width, canvas.height);
+                    document.body.appendChild(img);
+                }
+                
+                this.gif.addFrame(cvs, {delay: 10});
+            } else {
+                console.log(elapsed);
+                console.log('rendering');
+                timer.stop();
+                this.gif.render();
+            }
+        });
+
+    }
     /**Generate Gif for a round
      * Reference: https://github.com/jnordberg/gif.js
     @param quality the sampling rate
@@ -355,18 +386,21 @@ class WordleAnimator {
             quality: quality,
         })
         let param = this.keyFrames;
-        this.play({gifFlag: true});
+        if(this.mode == Mode.wave) {
+            setTimeout(this.createWaveGif, 4000);
+        } else {
+            this.play({gifFlag: true});
+        }
         this.gif.on('finished', function (blob: any) {
-            window.open(URL.createObjectURL(blob));
-
-            // let wlink = document.createElement('a')
-            // wlink.setAttribute('target', '_blank')
-            // wlink.setAttribute('href', URL.createObjectURL(blob))
-            // wlink.setAttribute('download', "animation.gif")
-            // wlink.addEventListener('click', function () {
-            //     this.remove()
-            // })
-            // wlink.click()
+            console.log(Date.now(), 'finished');
+            let wlink = document.createElement('a')
+            wlink.setAttribute('target', '_blank')
+            wlink.setAttribute('href', URL.createObjectURL(blob))
+            wlink.setAttribute('download', "animation.gif")
+            wlink.addEventListener('click', function () {
+                this.remove()
+            })
+            wlink.click()
 
             let plink = document.createElement('a')
             plink.setAttribute('target', '_blank')
