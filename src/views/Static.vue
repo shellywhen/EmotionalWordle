@@ -118,7 +118,7 @@
             id="wordleLayoutDownload"
           >
             <i class="fas fa-download light"></i>
-            <span class="code">&nbsp;&nbsp;JSON</span>
+            <span class="code">&nbsp;&nbsp;CSV</span>
           </button>
         </div>
       </div>
@@ -219,12 +219,12 @@ export default class Static extends Vue {
   mounted() {
     this.fileReader.addEventListener("load", this.parseFile, false)
     let fileNames = ["2020_search", "xmas", "xmas-emoji", "thx", "Poe", "creep", "ingredients"]
-    //let fileNames = ["creep"]
+    // let fileNames = ["creep"]
     let tasks = fileNames.map((tag: string) =>
         d3.csv(`dataset/${tag}.csv`, (v: any) => {
           return {
             frequency: parseFloat(v.frequency),
-            text: v.textlot
+            text: v.text
           }
         })
       )
@@ -327,16 +327,36 @@ export default class Static extends Vue {
   updateColor() {
     console.log(this.customColor)
   }
-  downloadGif() {
-    if(!this.cloudManager) return
-    console.log(this.cloudManager);
-    this.cloudManager.animator!.createGif()
+  // downloadGif() {
+  //   if(!this.cloudManager) return
+  //   console.log(this.cloudManager);
+  //   this.cloudManager.animator!.createGif()
+  // }
+  jsonToCsv(data: any[]) {
+    let array = typeof data != 'object' ? JSON.parse(data) : data;
+    let headers = ['frequency','text','color','weight','font','style','rotate','size','padding','x','y','width','height','xoff','yoff','x1','y1','x0','y0','hasText'];
+    let csvStr = headers.join(',') + "\n";
+
+    array.forEach((element:any) => {
+
+      for(let header of headers) {
+        const d = element[header];
+        csvStr += d == undefined 
+          ? ','
+          : d + ','
+        }
+        csvStr = csvStr.slice(0,-1);
+        csvStr += '\n'
+      })
+    return csvStr;
   }
   downloadJson() {
     if (!this.wordleData) return
-    const a = document.createElement('a')
-    a.href = URL.createObjectURL( new Blob([JSON.stringify(this.wordleData.data)], { type:`text/json` }) );
-    a.download = `layout_${this.wordleData.tag}.json`
+    const a = document.createElement('a');
+    const jsonData = this.wordleData.data;
+    const csvData = this.jsonToCsv(jsonData);
+    a.href = URL.createObjectURL( new Blob([csvData], {type: 'text/csv'}) );
+    a.download = `layout_${this.wordleData.tag}.csv`
     a.click()
     a.remove()
   }

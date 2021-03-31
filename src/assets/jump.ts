@@ -314,8 +314,8 @@ let drawOnCanvas = function (vertexData: Float32Array, indices: Uint16Array, sta
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indexData, gl.STATIC_DRAW)
     gl.enableVertexAttribArray(0)
     gl.vertexAttribPointer(0, 2, gl.FLOAT, true, 8, 0)
-    // gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0)
-    // gl.flush()
+    gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0)
+    gl.flush()
     tick(Date.now())
 }
 

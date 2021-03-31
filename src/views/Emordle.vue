@@ -7,11 +7,11 @@
             <span class="config-tag">Dataset</span>
             <div class="wrapper">
               <label class="form-label" for="wordleUpload">
-                Upload <span class="code">JSON</span>
+                Upload <span class="code">CSV</span>
               </label>
               <button class="button" @click="openFile">
                 <i class="fas fa-cloud-upload-alt light"></i>
-                <span class="code">&nbsp;&nbsp;JSON</span>
+                <span class="code">&nbsp;&nbsp;CSV</span>
               </button>
               <input
                 type="file"
@@ -93,6 +93,7 @@
             type="button"
             class="button"
             @click="downloadGif"
+            :disabled="disabled"
           >
             <i class="fas fa-check light"></i>
             <span class="code">&nbsp;&nbsp;Generate</span>
@@ -190,8 +191,8 @@ export default class Emordle extends Vue {
     Mode.wave,
     Mode.swing,
   ];
-  public animationMode: Mode = Mode.wave;
-  public disable: boolean = false;
+  public animationMode: Mode = Mode.dance;
+  public disabled: boolean = false;
   get groups() {
     if (!this.animator) return [] as Array<GroupManagerConfig>;
     return this.animator.groupManagers;
@@ -208,6 +209,7 @@ export default class Emordle extends Vue {
   }
   public plotHandler: undefined | PlotHandler = undefined;
   mounted() {
+    // this.setDisabled();
     this.fileReader.addEventListener("load", this.parseFile, false);
     //let fileNames = ["2020_search", "xmas", "xmas-emoji", "thx", "Poe", "creep", "creep_emoji", "creep_mask"]
     let fileNames = ["Poe", "thx", "2020_search", "xmas", "ingredients"];
@@ -252,6 +254,7 @@ export default class Emordle extends Vue {
   }
   @Watch("animationMode")
   aniModeChanged() {
+    // this.setDisabled();
     if (!this.wordleData) return;
     this.animator!.update("mode", this.animationMode);
     this.animator!.reset();
@@ -285,6 +288,13 @@ export default class Emordle extends Vue {
       }
     });
   }
+  // setDisabled() {
+  //   this.disabled = this.animationMode == Mode.wave ? true : false;  
+  //   setTimeout(this.enabledDisabled, 2000);
+  // }
+  // enabledDisabled() {
+  //   this.disabled = true;
+  // }
   // showGroup() {
   //   let ele = ".group-configs";
   //   let state = !d3.select(ele).classed("active");
@@ -315,11 +325,44 @@ export default class Emordle extends Vue {
   //   if (!this.animator) return;
   //   this.animator.play();
   // }
+
+  
+  csvToJson(data: string) {
+    let lines = data.split("\n");
+    let result = [];
+    let headers = lines[0].split(",");
+
+    let strings = ['text','weight', 'color','font','style','rotate'];
+    let numbers = ['frequency','size','padding','x','y','width','height','xoff','yoff','x1','y1','x0','y0'];
+    let booleans = ['hasText'];
+
+    for(let i=1;i<lines.length;i++){
+      let obj = {} as any;
+      let currentline=lines[i].split(",");
+
+      for(let j=0;j<headers.length;j++){
+        const header = headers[j];
+        let dt = currentline[j]  as any;
+        if(strings.includes(header)) {
+          dt = dt;
+        } else if(numbers.includes(header)) {
+          dt = Number(dt);
+        } else if(booleans.includes(header)) {
+          dt = header == "TRUE" ? true : false;
+        }
+        obj[headers[j]] = dt;
+      }
+      result.push(obj);
+    }
+    return result;
+  }
+
   parseFile() {
     let res = this.fileReader.result;
     if (!res || typeof res !== "string") return;
     // console.log(this.fileReader)
-    let data = JSON.parse(res);
+    // let data = JSON.parse(res);
+     let data = this.csvToJson(res);
     let dataset = {
       data: data,
       tag: this.uploadFilename,

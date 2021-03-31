@@ -387,7 +387,7 @@ class WordleAnimator {
         })
         let param = this.keyFrames;
         if(this.mode == Mode.wave) {
-            setTimeout(this.createWaveGif, 4000);
+            this.createWaveGif();
         } else {
             this.play({gifFlag: true});
         }
