@@ -18,7 +18,7 @@ import { KeyframeConfig, GroupingMode, Word, Mode, MetaConfig, GroupManagerConfi
 import { KeyFrameHandler } from './keyframe-handler'
 import { Meta } from './animation'
 import { jumpingWordle } from "@/assets/jump"
-import Canvg from 'canvg';
+// import Canvg from 'canvg';
 
 class KeyFrame implements KeyframeConfig {
     public x: number = 0
@@ -52,13 +52,12 @@ class GroupManager implements GroupManagerConfig {
     }
 
     public updateWord(ckf: KeyFrame, nkf: KeyFrame, frameAt: number, phase: number) {
-        this.font.setValWithRatio('width', 1);
         // this.font.setValWithRatio('italic', Math.abs(Math.sin(Date.now()/1000)));
         // this.font.setValWithRatio('weight', phase);
         const color = d3Itpl.interpolateHcl(ckf.color, nkf.color)(frameAt);
         this.font.update({
-            italic: (nkf.font.italic - ckf.font.italic) * this.ease(frameAt),
-            weight: (nkf.font.weight - ckf.font.weight) * this.ease(frameAt),
+            italic: (nkf.font.italic - ckf.font.italic) * this.ease(frameAt) + ckf.font.italic,
+            weight: (nkf.font.weight - ckf.font.weight) * this.ease(frameAt) + ckf.font.weight / 5
         })
         const fontString = this.font.getCss();
         // assign by value  
