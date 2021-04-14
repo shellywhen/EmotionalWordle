@@ -258,6 +258,7 @@ let drawOnCanvas = function (vertexData: Float32Array, indices: Uint16Array, sta
     const width = canvas.width
     const height = canvas.height
     gl.viewport(0, 0, width, height)
+    console.log(statement, 'statement')
     const vs = createShader(gl, gl.VERTEX_SHADER, `
       precision mediump float;
       uniform vec2 uScale;
@@ -271,6 +272,7 @@ let drawOnCanvas = function (vertexData: Float32Array, indices: Uint16Array, sta
       gl_Position = vec4(pos * uScale + uOffset, 0.0, 1.0);
       fragColor = vec4(sin(uTime*.05)*.55+.6, 0.05, cos(uTime*.15)*.25+.35, 1. ); // colorful
     }`)
+
     const ps = createShader(gl, gl.FRAGMENT_SHADER,
         `precision mediump float;
         uniform vec4 uColor;
