@@ -13,7 +13,10 @@
         height: '260px'
       }"></div>
       <div class="poem">
-        {{ poems[imageIndex] }}
+        <h3>{{ poems[imageIndex] }}</h3>
+        <h6>{{ poemAuthors[imageIndex] }}</h6>
+        <a :href="poemUrls[imageIndex]">{{poemUrls[imageIndex]}}</a>
+
       </div>
     </div>
   </div>
@@ -39,22 +42,44 @@ export default class Home extends Vue {
     "./gallery/poem2.gif",
     "./gallery/poem3.gif",
     "./gallery/poem4.gif",
-    "./gallery/poem5.gif",
+    // "./gallery/poem5.gif",
     "./gallery/poem6.gif",
     "./gallery/poem7.gif",
     "./gallery/poem8.gif",
-    "./gallery/poem9.gif"
+    "./gallery/poem9.gif",
+    // "./gallery/poem10.gif",
+
   ];
   public poems:string[] = [
-    'a',
-    'b',
-    'c',
-    'd',
-    'e',
-    'f',
-    'g',
-    'h',
-    'i'
+    'The Waste Land',
+    'Daddy',
+    'Middle Passage',
+    'Howl',
+    'Raven',
+    'Song of Myself (1892 version)',
+    'Meditations in an Emergency',
+    'Diving into the Wreck',
+    // 'i'
+  ]
+  public poemAuthors: string[] = [
+    'T. S. ELIOT',
+    'SYLVIA PLATH',
+    'ROBERT HAYDEN',
+    'ALLEN GINSBERG',
+    'EDGAR ALLAN POE',
+    'WALT WHITMAN',
+    'FRANK O\'HARA',
+    'ADRIENNE RICH'
+  ]
+  public poemUrls: string[] = [
+    'https://www.poetryfoundation.org/poems/47311/the-waste-land',
+    'https://www.poetryfoundation.org/poems/48999/daddy-56d22aafa45b2',
+    'https://www.poetryfoundation.org/poems/43076/middle-passage',
+    'https://www.poetryfoundation.org/poems/49303/howl',
+    'https://www.poetryfoundation.org/poems/48860/the-raven',
+    'https://www.poetryfoundation.org/poems/45477/song-of-myself-1892-version',
+    'https://www.poetryfoundation.org/poetrymagazine/poems/26538/meditations-in-an-emergency',
+    'https://poets.org/poem/diving-wreck'
   ]
   public index = null;
 }

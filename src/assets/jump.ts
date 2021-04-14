@@ -25,6 +25,7 @@ import { createShader, createProgram } from "./gl-helper"
 // import { polygonCentroid } from "d3"
 import { Word } from './types'
 
+
 interface P {
   x: number,
   y: number
@@ -122,9 +123,12 @@ class Polygon {
   }
 }
 
+
 function tick(t: number) {
+  
   gl.uniform1f(time, t / pace)
   gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0)
+
   requestAnimationFrame(tick)
 }
 
@@ -254,7 +258,7 @@ let vsGenerator = function (speed: number, entropy: number) {
 
 let drawOnCanvas = function (vertexData: Float32Array, indices: Uint16Array, statement: string=defaultvs) {
     const canvas = document.getElementById("emordle-canvas") as HTMLCanvasElement
-    gl = canvas.getContext("webgl")
+    gl = canvas.getContext("webgl", {preserveDrawingBuffer: true});
     const width = canvas.width
     const height = canvas.height
     gl.viewport(0, 0, width, height)
@@ -301,7 +305,7 @@ let drawOnCanvas = function (vertexData: Float32Array, indices: Uint16Array, sta
     gl.uniform4fv(uColor, [0.0, 0.0, 0.0, 1.0])
     gl.uniform4fv(fragColor, [0.0, 0.0, 0.0, 1.0])
     gl.uniform2f(u_resolutionLoc, gl.canvas.width, gl.canvas.height)
-    gl.clearColor(1.0, 1.0, 1.0, 1.0)
+    gl.clearColor(.0, 1.0, 1.0, 1.0)
     gl.clear(gl.COLOR_BUFFER_BIT)
     const vertBuffer = gl.createBuffer()
     gl.bindBuffer(gl.ARRAY_BUFFER, vertBuffer)
@@ -336,9 +340,9 @@ interface WavingParam {
   words: Word[],
   fontUrl?: string,
   speed: number,
-  entropy: number
+  entropy: number,
 }
-export let jumpingWordle = function ({words=[], fontUrl=FONTURL, speed=0.5, entropy=0.5 }: WavingParam) {
+export let jumpingWordle = function ({words=[], fontUrl=FONTURL, speed=0.5, entropy=0.5}: WavingParam) {
     opentype.load(
         fontUrl,
         function(err, fontMeta: opentype.Font | undefined) {

@@ -6,11 +6,11 @@
           <span class="config-tag">Dataset</span>
           <div class="wrapper">
           <label class="form-label" for="wordleUpload">
-            Upload <span class="code">csv</span>
+            Upload <span class="code">CSV</span>
           </label>
           <button class="button" @click="openFile">
             <i class="fas fa-cloud-upload-alt light"></i>
-            <span class="code">&nbsp;&nbsp;csv</span>
+            <span class="code">&nbsp;&nbsp;CSV</span>
           </button>
           <input
             type="file"
@@ -105,20 +105,20 @@
         </div>
         <br />
         <div class="wrapper">
-          <label class="form-label" for="wordleLayoutDownload">
+          <!-- <label class="form-label" for="wordleLayoutDownload">
             Download <span class="code">CSV</span>
           </label>
-          <button type="button" class="button" @click="getGif">
+          <button type="button" class="button" @click="downloadGif">
             <i class="fas fa-film light"></i>
             <span class="code">&nbsp;&nbsp;GIF</span>
-          </button>
+          </button> -->
           <button
             class="button"
             @click="downloadJson"
             id="wordleLayoutDownload"
           >
             <i class="fas fa-download light"></i>
-            <span class="code">&nbsp;&nbsp;JSON</span>
+            <span class="code">&nbsp;&nbsp;CSV</span>
           </button>
         </div>
       </div>
@@ -219,7 +219,7 @@ export default class Static extends Vue {
   mounted() {
     this.fileReader.addEventListener("load", this.parseFile, false)
     let fileNames = ["2020_search", "xmas", "xmas-emoji", "thx", "Poe", "creep", "ingredients"]
-    //let fileNames = ["creep"]
+    // let fileNames = ["creep"]
     let tasks = fileNames.map((tag: string) =>
         d3.csv(`dataset/${tag}.csv`, (v: any) => {
           return {
@@ -251,6 +251,7 @@ export default class Static extends Vue {
     let colorLen = color.length
     this.wordleData.data.forEach((v: Word) => {
       v.color = color[randInt(0, colorLen-1)]
+      v.weight = this.styleScheme.fontWeight;
     })
     this.cloudManager = new CloudManager(this.wordleData.data, 
                                          this.styleScheme, 
@@ -258,7 +259,8 @@ export default class Static extends Vue {
                                          'emotional-wordle-edit-svg',
                                          'emotional-wordle-canvas',
                                          this.bgAnimator,
-                                         false)
+                                         false,
+                                         true)
   }
   @Watch('styleScheme')
   schemeChanged() {
@@ -281,7 +283,7 @@ export default class Static extends Vue {
     this.uploadFilename = file.name.split('.csv')[0]
     this.collection.forEach((dataset: Dataset) => {
       if (dataset.tag == this.uploadFilename) {
-        this.uploadFilename += Math.random().toString() + Math.random.toString()
+        this.uploadFilename += '_1'
       }
     })
   }
@@ -325,15 +327,36 @@ export default class Static extends Vue {
   updateColor() {
     console.log(this.customColor)
   }
-  downloadGif() {
-    if(!this.cloudManager) return
-    this.cloudManager.animator!.createGif()
+  // downloadGif() {
+  //   if(!this.cloudManager) return
+  //   console.log(this.cloudManager);
+  //   this.cloudManager.animator!.createGif()
+  // }
+  jsonToCsv(data: any[]) {
+    let array = typeof data != 'object' ? JSON.parse(data) : data;
+    let headers = ['frequency','text','color','weight','font','style','rotate','size','padding','x','y','width','height','xoff','yoff','x1','y1','x0','y0','hasText'];
+    let csvStr = headers.join(',') + "\n";
+
+    array.forEach((element:any) => {
+
+      for(let header of headers) {
+        const d = element[header];
+        csvStr += d == undefined 
+          ? ','
+          : d + ','
+        }
+        csvStr = csvStr.slice(0,-1);
+        csvStr += '\n'
+      })
+    return csvStr;
   }
   downloadJson() {
     if (!this.wordleData) return
-    const a = document.createElement('a')
-    a.href = URL.createObjectURL( new Blob([JSON.stringify(this.wordleData.data)], { type:`text/json` }) );
-    a.download = `layout_${this.wordleData.tag}.json`
+    const a = document.createElement('a');
+    const jsonData = this.wordleData.data;
+    const csvData = this.jsonToCsv(jsonData);
+    a.href = URL.createObjectURL( new Blob([csvData], {type: 'text/csv'}) );
+    a.download = `layout_${this.wordleData.tag}.csv`
     a.click()
     a.remove()
   }

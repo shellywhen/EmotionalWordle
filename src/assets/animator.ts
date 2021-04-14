@@ -18,6 +18,7 @@ import { KeyframeConfig, GroupingMode, Word, Mode, MetaConfig, GroupManagerConfi
 import { KeyFrameHandler } from './keyframe-handler'
 import { Meta } from './animation'
 import { jumpingWordle } from "@/assets/jump"
+import Canvg from 'canvg';
 
 class KeyFrame implements KeyframeConfig {
     public x: number = 0
@@ -90,7 +91,7 @@ class WordleAnimator {
     public data: Array<Word> = [];
     public timer?: d3Timer.Timer | undefined;
     readonly words: Array<MetaConfig> = new Array();
-    public duration: number = 30000;
+    public duration: number = 1000;
     public groupManagers: Array<GroupManager> = [];
     public plotHandler?: PlotHandler;
     public mode: Mode = Mode.dance;
@@ -98,7 +99,8 @@ class WordleAnimator {
     public speed: number = 0.5;
     public entropy: number = 0.5;
     public gif: any;
-    public wordMap: Map<string, number> = new Map()
+    public wordMap: Map<string, number> = new Map();
+    public keyFrames: KeyFrame[][] = [];
     constructor(configs: Partial<WordleAnimator>) {
         Object.assign(this, configs);
         this.data.forEach((word: Word, idx: number) => {
@@ -196,7 +198,9 @@ class WordleAnimator {
             words: data,
             entropy: this.entropy,
             speed: this.speed,
-            fontUrl: `./font/${font}.ttf`
+            fontUrl: `./font/${font}.ttf`,
+            gif: this.gif,
+            gifFlag: gifFlag
         })
     }
 
@@ -206,6 +210,7 @@ class WordleAnimator {
             const keyFrameHandler = new KeyFrameHandler();
             const wordLength = this.words.length;
             const keyFrames = keyFrameHandler.getKeyFrames(Mode.swing, wordLength, this.speed, this.entropy);
+            this.keyFrames = keyFrames;
             const numGroups = keyFrames.length;
             const divideMode = this.entropy > 0.5? GroupingMode.random : GroupingMode.y
             this.createManagers(numGroups);
@@ -226,6 +231,7 @@ class WordleAnimator {
             let a = this.plotHandler!.width / 4, b = this.plotHandler!.height / 4
             let alpha = Math.random() * Math.PI/4
             const keyFrames = keyFrameHandler.getKeyFrames(Mode.split, wordLength, this.speed, this.entropy, alpha);
+            this.keyFrames = keyFrames;
             const numGroups = keyFrames.length;
             for (let idx = 0; idx < numGroups; idx ++) {
                 let theta = idx * 2 * Math.PI / numGroups + alpha
@@ -249,6 +255,7 @@ class WordleAnimator {
             const keyFrameHandler = new KeyFrameHandler();
             const wordLength = this.words.length;
             const keyFrames = keyFrameHandler.getKeyFrames(Mode.dance, wordLength, this.extent , this.speed, this.entropy);
+            this.keyFrames = keyFrames;
             const numGroups = keyFrames.length;
             const divideMode = getDivideMode();
             this.createManagers(numGroups);
@@ -289,17 +296,39 @@ class WordleAnimator {
                 })
                 this.plotHandler?.updateOnSvg(totalWords);
                 if (gifFlag) {
-                    this.gif.addFrame(this.plotHandler?.canvas, { copy: true, delay: this.duration / 256 });
+                        const gifCanvas = this.svgToCanvas();
+                        this.gif.addFrame(gifCanvas, {delay: 10});
                 }
             }
             else {
                 this.timer?.stop()
                 if (gifFlag) {
-                    this.gif.render()
+                    console.log('rendering');
+                    this.gif.render();
                 }
-                this.play({gifFlag: gifFlag, replay: true});
+                this.play({gifFlag: false, replay: true});
             }
         }, 10)
+    }
+    private svgToCanvas() {
+        const svg = document.querySelector('#emordle-svg') as Node;
+        const xml = new XMLSerializer().serializeToString(svg);
+        const canvas = document.createElement('canvas') as HTMLCanvasElement;
+        canvas.width = this.plotHandler!.width;
+        canvas.height = this.plotHandler!.height;
+        const ctx = canvas.getContext('2d');
+        // canvas.setAttribute('display', 'none');
+
+        const img = document.createElement('img');
+        img.setAttribute( "src", "data:image/svg+xml;base64," + btoa( xml ) );
+        img.onload = function() {
+            ctx!.clearRect(0, 0, canvas.width, canvas.height)
+            ctx!.fillStyle = "rgba(255, 255, 255, 1)"
+            ctx!.globalCompositeOperation = 'source-over';
+            ctx!.fillRect(0, 0, canvas.width, canvas.height)
+            ctx?.drawImage(img, 0,0, canvas.width, canvas.height);
+        }
+        return canvas
     }
 
     private getTotalWords() {
@@ -313,16 +342,57 @@ class WordleAnimator {
     public stop() {
         this.timer?.stop()
     }
+
+    private createWaveGif() {
+        let timer = d3Timer.timer((elapsed) => {
+            console.log(elapsed);
+            if(elapsed < this.duration) {
+                const canvas = document.querySelector('#emordle-canvas') as HTMLCanvasElement;
+                        
+                const cvs = document.createElement('canvas') as HTMLCanvasElement;
+                cvs.width = this.plotHandler!.width;
+                cvs.height = this.plotHandler!.height;
+                const ctx = cvs.getContext('2d');
+
+                const img = document.createElement('img');
+                const imgData = canvas.toDataURL();
+                img.setAttribute( "src", imgData);
+                img.onload = function() {
+                    ctx!.clearRect(0, 0, canvas.width, canvas.height)
+                    ctx!.fillStyle = "rgba(255, 255, 255, 1)"
+                    ctx!.globalCompositeOperation = 'source-over';
+                    ctx!.fillRect(0, 0, canvas.width, canvas.height)
+                    ctx?.drawImage(img, 0,0, canvas.width, canvas.height);
+                    document.body.appendChild(img);
+                }
+                
+                this.gif.addFrame(cvs, {delay: 10});
+            } else {
+                console.log(elapsed);
+                console.log('rendering');
+                timer.stop();
+                this.gif.render();
+            }
+        });
+
+    }
     /**Generate Gif for a round
      * Reference: https://github.com/jnordberg/gif.js
     @param quality the sampling rate
     */
     public createGif(quality: number = 5) {
+        // convert svg -> canvas
         this.gif = new Gif({
-            quality: quality
+            quality: quality,
         })
-        let param = getKeyFrames();
+        let param = this.keyFrames;
+        if(this.mode == Mode.wave) {
+            this.createWaveGif();
+        } else {
+            this.play({gifFlag: true});
+        }
         this.gif.on('finished', function (blob: any) {
+            console.log(Date.now(), 'finished');
             let wlink = document.createElement('a')
             wlink.setAttribute('target', '_blank')
             wlink.setAttribute('href', URL.createObjectURL(blob))
