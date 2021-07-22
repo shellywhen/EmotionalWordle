@@ -2,13 +2,15 @@
   <div>
     <nav id="nav">
       <router-link to="/">Gallery</router-link> |
+      <router-link to="/tool">Tool</router-link> | 
       <router-link to="/static">Static Helper</router-link> |
       <!-- <router-link to="/playground">Playground</router-link> |
       <router-link to="/wave">Wave</router-link> |
       <router-link to="/particle">Particle</router-link> |
       <router-link to="/shaking">Shaking</router-link> | -->
       <router-link to="/dynamic">Emordle Tool</router-link> |
-      <router-link to="/about">About</router-link>
+      <router-link to="/about">About</router-link> |
+      <router-link to="/corpus">Corpus</router-link>
     </nav>
     <router-view />
   </div>

@@ -3,7 +3,8 @@
   <div class="about">
     <h1>About</h1>
     <br>
-    <h3>Welcome to Emordle! Emordle is an online tool where you can easily create an animated wordle with emotion context.</h3>
+    <h3>Welcome to Emordle!</h3>
+    <h5>Emordle is an online tool where you can easily create an animated wordle with emotion context.</h5>
     <br>
 
     <div class="steps">
@@ -13,7 +14,7 @@
       <h6>4️⃣ Navigate to "Emordle Tool" and upload the layout CSV file.</h6>
       <h6>5️⃣ Choose the animation scheme from the dropdown. Play around with speed and entropy sliders until you see an animated emotion that you feel satisfied. You can also pause and restart the animation with the green play/pause button.</h6>
       <h6>6️⃣ Once you are satisfied, press the generate button to donwload the animated GIF. This requires around 30 seconds to process. </h6>
-      <p>*For wave scheme, please press the button around 5 seconds after the animation is played.</p>
+      <p>*For the wave scheme, please press the button around 5 seconds after the animation is played.</p>
 
 
     </div>
@@ -27,6 +28,12 @@
 // }
 // </script>
 <style>
+.about {
+  padding: 0 15vw;
+}
+h3,h5 {
+  text-align: left;
+}
 .steps {
   margin: 0 auto;
   width: 1000px;
