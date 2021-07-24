@@ -45,6 +45,11 @@ const routes: Array<RouteRecordRaw> = [
     name: "scheme",
     component: () =>
       import("../views/Scheme.vue")
+  }, {
+    path: "/playground",
+    name: "playground",
+    component: () =>
+      import("../views/Playground.vue")
   }
 ];
 

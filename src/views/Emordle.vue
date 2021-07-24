@@ -25,6 +25,7 @@
             <select name="dataset" id="dataset" v-model="wordleData">
               <option
                 v-for="item in collection"
+
                 v-bind:key="item.tag"
                 v-bind:value="item"
               >
@@ -338,7 +339,7 @@ export default class Emordle extends Vue {
 
     for(let i=1;i<lines.length;i++){
       let obj = {} as any;
-      let currentline=lines[i].split(",");
+      let currentline=lines[i].split(";");
 
       for(let j=0;j<headers.length;j++){
         const header = headers[j];
