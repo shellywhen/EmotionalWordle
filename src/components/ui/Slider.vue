@@ -25,18 +25,20 @@ export default class Slider extends Vue {
   @Prop({ default: 0 }) public min: number = 0;
   @Prop({ default: 1 }) public max: number = 1;
   @Prop({ default: 0.1 }) public step: number = 0.1;
-  @Prop({ default: (a: number) => {} }) public callback: Callback = (a: number) => {};
+  @Prop({ default: (a: number) => {} }) public callback: Callback = (
+    a: number
+  ) => {};
   @Prop({ default: "" }) public label: string = "";
   @Prop({ default: "slider" }) public className: string = "slider";
   @Prop({ default: 0 }) public init: number = 0;
-  @Prop({ default: false }) public showValue: boolean = false
+  @Prop({ default: false }) public showValue: boolean = false;
   public value = 0;
   public range = 1;
   get rangeClass(): string {
     return this.className + " slider";
   }
   created() {
-    this.value = this.init
+    this.value = this.init;
   }
   @Watch("value")
   public valueChanged(val: number): void {
@@ -84,8 +86,8 @@ $normal: #2c3e50;
   background: $deep-gray;
   cursor: pointer;
   &:hover {
-      background: $gray;
-    }
+    background: $gray;
+  }
 }
 .slider::-moz-range-thumb {
   width: 2vh;

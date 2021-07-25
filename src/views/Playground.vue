@@ -1,101 +1,208 @@
 <template>
   <h1>Playground</h1>
-  <div class="text-layout-container">
-    <!-- <div class="text-node">text to animate</div>
-    <div class="text-node">text to animate</div>
-    <div class="text-node">text to animate</div>
-    <div class="text-node">text to animate</div>
-    <div class="text-node">text to animate</div>
-    <div class="text-node">text to animate</div>
-    <div class="text-node">text to animate</div>
-    <div class="text-node">text to animate</div> -->
+  <div id="container"></div>
+
+  <span>Animation Scheme</span>
+  <select v-model="animationMode" @change="animationModeChange">
+    <option
+      v-for="item in animationModes"
+      v-bind:key="item"
+      v-bind:value="item"
+    >
+      {{ item }}
+    </option>
+  </select>
+  <br />
+  <span>Easing</span>
+  <select v-model="easing" @change="animate">
+    <option v-for="item in easings" v-bind:key="item" v-bind:value="item">
+      {{ item }}
+    </option>
+  </select>
+  <div style="margin: 0 auto; width: 40%">
+    <Slider
+      :init="speed"
+      step="0.05"
+      label="Speed"
+      className="speed"
+      :callback="speedCallback"
+    ></Slider>
   </div>
+  <div style="margin: 0 auto; width: 40%">
+    <Slider
+      :init="entropy"
+      step="0.05"
+      label="Entropy"
+      className="entropy"
+      :callback="entropyCallback"
+    ></Slider>
+  </div>
+  <br />
   <button @click="animate">animate</button>
-  <button id="reverse">reverse</button>
+  <div>
+    <button @click="play">{{ "play" }}</button>
+    <button @click="pause">{{ "pause" }}</button>
+  </div>
+
+  <!-- <button id="reverse">reverse</button> -->
   <button @click="restart">restart</button>
+  <button @click="center">center</button>
 
   <!-- <button @click="pressUpload">upload</button> -->
   <input type="file" accept=".csv" id="uploadId" @change="upload" hidden />
 </template>
 
 <script lang="ts">
-import anime from "animejs";
-import { Vue } from "vue-class-component";
+const WIDTH = 1000;
+const HEIGHT = 700;
+const mockData: TextStyleConfig[] = [
+  {
+    text: "TEXT1",
+    left: 0,
+    top: 0,
+    color: "red",
+    fontFamily: "GT Flexa",
+    fontWeight: 100,
+    fontSize: 100,
+  },
+  {
+    text: "TEXT2",
+    left: 100,
+    top: 100,
+    color: "black",
+    fontFamily: "GT Flexa",
+    fontWeight: 100,
+    fontSize: 100,
+  },
+  {
+    text: "TEXT3",
+    left: 100,
+    top: 100,
+    color: "red",
+    fontFamily: "GT Flexa",
+    fontWeight: 100,
+    fontSize: 100,
+  },
+  {
+    text: "TEXT4",
+    left: 100,
+    top: 100,
+    color: "red",
+    fontFamily: "GT Flexa",
+    fontWeight: 100,
+    fontSize: 100,
+  },
+  {
+    text: "breeze",
+    left: 200,
+    top: 200,
+    color: "green",
+    fontFamily: "GT Flexa",
+    fontWeight: 100,
+    fontSize: 60,
+  },
+  {
+    text: "thisissochill",
+    left: 50,
+    top: 100,
+    color: "red",
+    fontFamily: "GT Flexa",
+    fontWeight: 100,
+    fontSize: 80,
+  },
+];
+
+import anime, { AnimeAnimParams, AnimeInstance } from "animejs";
+import { Options, Vue } from "vue-class-component";
+import Slider from "@/components/ui/Slider.vue";
+
+@Options({
+  components: {
+    Slider,
+  },
+})
 export default class Playground extends Vue {
   private draggableTexts: DraggableText[] = [];
-  constructor(private animation: anime.AnimeInstance) {
-    super(animation);
-  }
-  mockData: TextStyleConfig[] = [
-    {
-      text: "this is 0,0",
-      left: 0,
-      top: 0,
-      color: "red",
-      fontFamily: "GT Flexa",
-      fontWeight: 100,
-      fontSize: 100,
-    },
-    {
-      text: "grasp",
-      left: 100,
-      top: 100,
-      color: "red",
-      fontFamily: "GT Flexa",
-      fontWeight: 100,
-      fontSize: 100,
-    },
-    {
-      text: "creep",
-      left: 200,
-      top: 200,
-      color: "green",
-      fontFamily: "GT Flexa",
-      fontWeight: 100,
-      fontSize: 60,
-    },
-    {
-      text: "hi",
-      left: 50,
-      top: 100,
-      color: "red",
-      fontFamily: "GT Flexa",
-      fontWeight: 100,
-      fontSize: 80,
-    },
+  private animationInstances: AnimeInstance[] = [];
+  private animationMode = "breeze";
+  private animationModes = ["breeze", "happy"];
+  private speed = 0.5;
+  private entropy = 0.5;
+  private easing = "linear";
+  private easings = [
+    "linear",
+    "easeInQuad",
+    "easeInCubic",
+    "easeInQuart",
+    "easeInQuint",
+    "easeInSine",
+    "easeInExpo",
+    "easeInCirc",
+    "easeInBack",
+    "easeOutQuad",
+    "easeOutCubic",
+    "easeOutQuart",
+    "easeOutQuint",
+    "easeOutSine",
+    "easeOutExpo",
+    "easeOutCirc",
+    "easeOutBack",
+    "easeInBounce",
+    "easeInOutQuad",
+    "easeInOutCubic",
+    "easeInOutQuart",
+    "easeInOutQuint",
+    "easeInOutSine",
+    "easeInOutExpo",
+    "easeInOutCirc",
+    "easeInOutBack",
+    "easeInOutBounce",
+    "easeOutBounce",
+    "easeOutInQuad",
+    "easeOutInCubic",
+    "easeOutInQuart",
+    "easeOutInQuint",
+    "easeOutInSine",
+    "easeOutInExpo",
+    "easeOutInCirc",
+    "easeOutInBack",
+    "easeOutInBounce",
   ];
 
-  applyStyle(obj: HTMLDivElement, data: TextStyleConfig) {
+  private readonly animeParams: anime.AnimeParams = {
+    easing: "linear",
+    // direction: "alternate",
+    loop: true,
+  };
+
+  applyStyle(obj: HTMLDivElement, style: TextStyleConfig) {
     obj.style.position = "absolute";
-    obj.textContent = data.text;
-    obj.style.left = `${data.left}px`;
-    obj.style.top = `${data.top}px`;
-    obj.style.color = `${data.color}`;
-    obj.style.fontFamily = data.fontFamily;
-    obj.style.fontWeight = `${data.fontWeight}`;
-    obj.style.fontSize = `${data.fontSize}px`;
+    obj.textContent = style.text;
+    obj.style.left = `${style.left}px`;
+    obj.style.top = `${style.top}px`;
+    obj.style.color = `${style.color}`;
+    obj.style.fontFamily = style.fontFamily;
+    obj.style.fontWeight = `${style.fontWeight}`;
+    obj.style.fontSize = `${style.fontSize}px`;
     // return obj;
   }
-  mounted() {
-    const WIDTH = 1000;
-    const HEIGHT = 700;
-
-    // prepare the text layout
-    const container = document.querySelector(
-      ".text-layout-container"
-    )! as HTMLDivElement;
+  initLayout() {
+    const container = document.querySelector("#container")! as HTMLDivElement;
     container.style.backgroundColor = "rgba(0,0,0,0.1)";
     container.style.width = `${WIDTH}px`;
     container.style.height = `${HEIGHT}px`;
     container.style.margin = "0 auto";
     container.style.position = "relative";
+  }
+  initDraggableText() {
+    for (let index = 0; index < mockData.length; index++) {
+      const style: TextStyleConfig = mockData[index];
 
-    for (let index = 0; index < this.mockData.length; index++) {
-      const data: TextStyleConfig = this.mockData[index];
-      // assign initial text data from mock data
-      const obj: HTMLDivElement = document.createElement("div");
-      obj.classList.add("text-node");
-      this.applyStyle(obj, data);
+      //  initial text data from mock data
+      const container = document.querySelector("#container") as HTMLDivElement;
+      const elem: HTMLDivElement = document.createElement("div");
+      elem.classList.add("text-node");
+      this.applyStyle(elem, style);
 
       // assign properties to enable draggablity
       const draggableTextProp: DraggableTextProp = {
@@ -103,28 +210,30 @@ export default class Playground extends Vue {
         offset: { x: 0, y: 0 },
         isDown: false,
       };
-      // draggableTexts[index].elem = obj;
+
       this.draggableTexts.push({
-        elem: obj,
+        initData: style,
+        elem: elem,
         textProp: draggableTextProp,
       } as DraggableText);
+
       const mouseEnterCallBack = function (e: MouseEvent) {
         // prevents mousemove event to lose to overlapping element
-        obj.parentNode?.appendChild(obj);
-        obj.style.border = "0.5px dotted grey";
-        obj.style.borderRadius = "5px";
-        obj.style.cursor = "grab";
+        elem.parentNode?.appendChild(elem);
+        elem.style.border = "0.5px dotted grey";
+        elem.style.borderRadius = "5px";
+        elem.style.cursor = "grab";
       };
       const mouseLeaveCallBack = function () {
-        obj.style.borderStyle = "none";
-        obj.style.cursor = "default";
+        elem.style.borderStyle = "none";
+        elem.style.cursor = "default";
       };
       const mouseMoveCallBack = function (e: MouseEvent) {
         // e.preventDefault();
         if (draggableTextProp.isDown) {
           // this ensures that the isDown property sets to false when the mouse speed is too fast
           // and the mouse leaves the div during mousemove
-          obj.onmouseleave = function () {
+          elem.onmouseleave = function () {
             draggableTextProp.isDown = false;
           };
           draggableTextProp.mousePosition.x = e.clientX;
@@ -135,127 +244,259 @@ export default class Playground extends Vue {
           const topMouseDrag =
             draggableTextProp.mousePosition.y + draggableTextProp.offset.y;
 
-          if (leftMouseDrag <= WIDTH - obj.offsetWidth && leftMouseDrag > 0) {
-            obj.style.left = leftMouseDrag + "px";
+          if (leftMouseDrag <= WIDTH - elem.offsetWidth && leftMouseDrag > 0) {
+            elem.style.left = leftMouseDrag + "px";
           }
           // console.log(leftMouseDrag);
-          if (topMouseDrag <= HEIGHT - obj.offsetHeight && topMouseDrag > 0) {
-            obj.style.top = topMouseDrag + "px";
+          if (topMouseDrag <= HEIGHT - elem.offsetHeight && topMouseDrag > 0) {
+            elem.style.top = topMouseDrag + "px";
           }
         }
       };
       const mouseDownCallBack = function (e: MouseEvent) {
-        obj.style.cursor = "grabbing";
+        elem.style.cursor = "grabbing";
         draggableTextProp.isDown = true;
-        draggableTextProp.offset.x = obj.offsetLeft - e.clientX;
-        draggableTextProp.offset.y = obj.offsetTop - e.clientY;
-        obj.onmousemove = mouseMoveCallBack;
+        draggableTextProp.offset.x = elem.offsetLeft - e.clientX;
+        draggableTextProp.offset.y = elem.offsetTop - e.clientY;
+        elem.onmousemove = mouseMoveCallBack;
       };
 
       const mouseUpCallBack = function () {
-        obj.style.cursor = "grab";
+        elem.style.cursor = "grab";
         draggableTextProp.isDown = false;
       };
-      obj.addEventListener("mouseleave", mouseLeaveCallBack);
-      obj.addEventListener("mouseenter", mouseEnterCallBack);
-      obj.addEventListener("mousedown", mouseDownCallBack);
-      obj.addEventListener("mouseup", mouseUpCallBack);
-      container?.appendChild(obj);
+      elem.addEventListener("mouseleave", mouseLeaveCallBack);
+      elem.addEventListener("mouseenter", mouseEnterCallBack);
+      elem.addEventListener("mousedown", mouseDownCallBack);
+      elem.addEventListener("mouseup", mouseUpCallBack);
+      container?.appendChild(elem);
     }
   }
 
-  animate() {
-    this.animation = anime({
-      targets: ".text-node",
-      fontVariationSettings: [
-        "'wght' 100, 'wdth' 85",
-        "'wght' 700, 'wdth' 100",
-      ],
-      easing: "linear",
-      direction: "alternate",
-      loop: true,
-      // fontStretch: ["150%", "100%"],
-      // width: function (el: HTMLElement, _: number, __: number) {
-      //   // return [el.offsetWidth,;
-      // },
-      // loop: true,
-      // translateX: [
-      //   { value: 250, duration: 1000, delay: 500 },
-      //   { value: 0, duration: 1000, delay: 500 },
-      // ],
-      // translateY: [
-      //   { value: -40, duration: 500 },
-      //   { value: 40, duration: 500, delay: 1000 },
-      //   { value: 0, duration: 500, delay: 1000 },
-      // ],
-      // scaleX: [
-      //   { value: 4, duration: 100, delay: 500, easing: "easeOutExpo" },
-      //   { value: 1, duration: 900 },
-      //   { value: 4, duration: 100, delay: 500, easing: "easeOutExpo" },
-      //   { value: 1, duration: 900 },
-      // ],
-      // scaleY: [
-      //   { value: [1.75, 1], duration: 500 },
-      //   { value: 2, duration: 50, delay: 1000, easing: "easeOutExpo" },
-      //   { value: 1, duration: 450 },
-      //   { value: 1.75, duration: 50, delay: 1000, easing: "easeOutExpo" },
-      //   { value: 1, duration: 450 },
-      // ],
-      // translateX: 300,
-      // translateY: 250,
-      // scaleY: [0.2, 1.0],
+  initAnimation() {
+    const animation = anime(this.animeParams);
+    animation.pause();
+    this.animationInstances.push(animation);
+  }
+  mounted() {
+    this.initLayout();
+    this.initDraggableText();
+    this.initAnimation();
+    this.center();
+  }
 
-      // scale: 1.5,
-      duration: 2000,
-      // width: function (el: HTMLElement, i: number, l: number) {
-      //   return [0, el.offsetWidth];
-      // },
-      // fontStretch: ["20%", "100%"],
-      // height: function (el: HTMLElement, i: number, l: number) {
-      //   return [el.style.height, 0];
-      // },
-      // fontSize: function (el: HTMLElement, i: number, l: number) {
-      //   return [0, el.style.fontSize];
-      // },
-      // delay: anime.stagger(100),
-      // width: "100%",
-      // fontSize: ["12px", "50px"],
-      // fontWeight: ["10", "900"],
-      // direction: "alternate",
-      // rotate: {
-      //   value: 360,
-      //   duration: 2000,
-      // },
-      // loop: true,
+  animate() {
+    switch (this.animationMode) {
+      case "happy":
+        this.animateHappy();
+        break;
+      case "breeze":
+        this.animateBreeze();
+        break;
+      default:
+        break;
+    }
+  }
+  private animateHappy() {
+    const params: AnimeAnimParams = {
+      targets: ".text-node",
+      translateY: [-20, 20],
+      // duration: 200 * (1 / this.speed),
+      easing: this.easing,
+      direction: "alternate",
+    };
+    this.animationInstances.push(anime({ ...this.animeParams, ...params }));
+  }
+  private animateBreeze() {
+    const textElems = document.querySelectorAll(".text-node");
+    textElems.forEach((textElem, i) => {
+      const selector = `char-node-${i}`;
+      const charElems = this.textToChars(textElem);
+      charElems.forEach((elem) => {
+        elem.classList.add(selector);
+        elem.style.color = "rgb(153,204,204)";
+      });
+
+      // slowest 2000, fastest 1000
+      const duration = 1000 * (1 - this.speed) + 1000;
+      const stagger = duration / charElems.length;
+      const params: AnimeAnimParams = {
+        targets: `.${selector}`,
+        keyframes: [
+          { fontVariationSettings: "'wght' 150", color: "rgb(153,204,204)" },
+          {
+            fontVariationSettings: "'wght' 700",
+            color: "rgb(154,189,198)",
+            translateY: "-100",
+          },
+          { fontVariationSettings: "'wght' 150", color: "rgb(153,204,204)" },
+        ],
+        delay: anime.stagger(stagger),
+        duration: duration,
+      };
+      this.animationInstances.push(anime({ ...this.animeParams, ...params }));
     });
-    (document.querySelector("#reverse") as HTMLButtonElement).onclick =
-      this.animation.reverse;
+  }
+
+  private textToChars(textElem: Element) {
+    const text = textElem.textContent!;
+    textElem.textContent = "";
+    const charElems: HTMLElement[] = [];
+    for (let index = 0; index < text.length; index++) {
+      const charEl = document.createElement("span");
+      charEl.textContent = text[index];
+      textElem.appendChild(charEl);
+      charElems.push(charEl);
+    }
+    return charElems;
+  }
+
+  play() {
+    this.animationInstances.forEach((i) => i.play());
+  }
+  pause() {
+    this.animationInstances.forEach((i) => i.pause());
+  }
+
+  center() {
+    const center = this.getTextCenter();
+    const translateX = WIDTH / 2 - center.x;
+    const translateY = HEIGHT / 2 - center.y;
+    anime({
+      targets: ".text-node",
+      left: function (el: HTMLElement, i: number, l: number) {
+        const offsetL = parseInt(el.style.left.split("px")[0]);
+        return `${offsetL + translateX}px`;
+      },
+      top: function (el: HTMLElement, i: number, l: number) {
+        const offsetT = parseInt(el.style.top.split("px")[0]);
+        return `${offsetT + translateY}px`;
+      },
+    });
+    // this.draggableTexts.forEach((draggableText) => {
+    //   const toCenterLeft = WIDTH / 2 - this.midPoint.x;
+    //   const toCenterTop = HEIGHT / 2 - this.midPoint.y;
+    //   const offsetLeft = parseInt(draggableText.elem.style.left.split("px")[0]);
+    //   const offsetTop = parseInt(draggableText.elem.style.top.split("px")[0]);
+    //   draggableText.elem.style.left = `${
+    //     offsetLeft + toCenterLeft - draggableText.elem.offsetWidth
+    //   }px`;
+    //   draggableText.elem.style.top = `${
+    //     offsetTop + toCenterTop - draggableText.elem.offsetHeight
+    //   }px`;
+    // });
   }
 
   restart() {
     for (let index = 0; index < this.draggableTexts.length; index++) {
       const obj = this.draggableTexts[index].elem;
-      const data = this.mockData[index];
+      const data = mockData[index];
       obj.removeAttribute("style");
       this.applyStyle(obj, data);
     }
   }
-  pressUpload() {
-    document.getElementById("uploadId")!.click();
+
+  private calculateCenter(positions: Position[]): Position {
+    const center: Position = { x: 0, y: 0 };
+    for (let index = 0; index < positions.length; index++) {
+      const element = positions[index];
+      center.x += element.x;
+      center.y += element.y;
+    }
+    center.x = center.x / positions.length;
+    center.y = center.y / positions.length;
+    return center;
   }
-  upload(e: any) {
-    const fileReader = new FileReader();
-    const file = e.target.files[0];
-    if (!file) return;
-    fileReader.onload = function (e) {
-      const data = e.target!.result;
-      console.log(data);
-    };
-    fileReader.readAsText(file);
+
+  getTextCenter(draw = false): Position {
+    const leftTops: Position[] = [],
+      rightBots: Position[] = [];
+    this.draggableTexts.forEach((val) => {
+      const leftTopX = val.elem.offsetLeft;
+      const leftTopY = val.elem.offsetTop;
+      const rightTopX = leftTopX + val.elem.offsetWidth;
+      const leftBotY = leftTopY + val.elem.offsetHeight;
+      const rightBotX = rightTopX;
+      const rightBotY = leftBotY;
+
+      leftTops.push({ x: leftTopX, y: leftTopY });
+      rightBots.push({ x: rightBotX, y: rightBotY });
+    });
+    const centerLeftTop = this.calculateCenter(leftTops);
+    const centerRightBots = this.calculateCenter(rightBots);
+    const center = this.calculateCenter([centerLeftTop, centerRightBots]);
+    if (draw) {
+      const container = document.querySelector("#container");
+      const centerMid = this.createPoint();
+      const leftTopMid = this.createPoint();
+      const rightBotMid = this.createPoint();
+
+      container?.appendChild(centerMid);
+      container?.appendChild(leftTopMid);
+      container?.appendChild(rightBotMid);
+
+      this.draw(centerMid, center);
+      this.draw(leftTopMid, centerLeftTop);
+      this.draw(rightBotMid, centerRightBots);
+    }
+    return center;
   }
+
+  speedCallback(v: string) {
+    this.speed = parseFloat(v);
+    this.animate();
+  }
+  entropyCallback(v: string) {
+    this.entropy = parseFloat(v);
+    this.animate();
+  }
+
+  animationModeChange(v: string) {
+    // stops what ever animation
+    this.animationInstances.forEach((i) => {
+      i.restart();
+      i.pause();
+    });
+    this.animationInstances.length = 0;
+    this.restart();
+    this.animate();
+  }
+  // drawPoints() {}
+
+  createPoint(): HTMLElement {
+    const point = document.createElement("div");
+    point.classList.add("point");
+    point.style.background = `rgb(${Math.random() * 255},${
+      Math.random() * 255
+    },${Math.random() * 255})`;
+    point.style.width = "10px";
+    point.style.height = "10px";
+    point.style.borderRadius = "50%";
+    point.style.position = "absolute";
+    return point;
+  }
+
+  draw(elem: HTMLElement, position: Position) {
+    elem.style.left = `${position.x}px`;
+    elem.style.top = `${position.y}px`;
+  }
+  // pressUpload() {
+  //   document.getElementById("uploadId")!.click();
+  // }
+  // upload(e: any) {
+  //   const fileReader = new FileReader();
+  //   const file = e.target.files[0];
+  //   if (!file) return;
+  //   fileReader.onload = function (e) {
+  //     const data = e.target!.result;
+  //     console.log(data);
+  //   };
+  //   fileReader.readAsText(file);
+  // }
 }
 
 interface DraggableText {
+  initData: TextStyleConfig;
   elem: HTMLDivElement;
   textProp: DraggableTextProp;
 }
