@@ -105,5 +105,9 @@ export default class Home extends Vue {
   padding: 16px;
   text-align: left;
 }
+.gallery {
+  text-align: middle;
+  padding: 0 10vw;
+}
 
 </style>
