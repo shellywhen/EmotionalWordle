@@ -45,7 +45,6 @@ const routes: Array<RouteRecordRaw> = [
     name: "scheme",
     component: () =>
       import("../views/Scheme.vue")
-<<<<<<< HEAD
   // }, {
   //   path: "/playground",
   //   name: "playground",
@@ -53,21 +52,9 @@ const routes: Array<RouteRecordRaw> = [
   //     import("../views/Playground.vue")
    }, {
     path: "/tool",
-    name: "tool",
+    name: "Tool",
     component: () =>
       import("../views/Tool.vue")
-=======
-  }, {
-    path: "/tool",
-    name: "tool",
-    component: () =>
-      import ("../views/Tool.vue")
-  }, {
-    path: "/corpus",
-    name: "corpus",
-    component: () =>
-      import ("../views/Corpus.vue")
->>>>>>> master
   }
 ];
 
