@@ -1,61 +1,64 @@
 <template>
   <h1>Playground</h1>
-  <div id="container"></div>
+  <div class="row">
+    <div class="config-panel col-2">
+      <span>Animation Scheme</span>
+      <select v-model="animationMode" @change="animationModeChange">
+        <option
+          v-for="item in animationModes"
+          v-bind:key="item"
+          v-bind:value="item"
+        >
+          {{ item }}
+        </option>
+      </select>
+      <br />
+      <span>Easing</span>
+      <select v-model="easing" @change="animate">
+        <option v-for="item in easings" v-bind:key="item" v-bind:value="item">
+          {{ item }}
+        </option>
+      </select>
+      <div style="margin: 0 auto">
+        <Slider
+          :init="speed"
+          step="0.05"
+          label="Speed"
+          className="speed"
+          :callback="speedCallback"
+        ></Slider>
+      </div>
+      <div style="margin: 0 auto">
+        <Slider
+          :init="entropy"
+          step="0.05"
+          label="Entropy"
+          className="entropy"
+          :callback="entropyCallback"
+        ></Slider>
+      </div>
+      <br />
+      <button @click="animate">animate</button>
+      <div>
+        <button @click="play">{{ "play" }}</button>
+        <button @click="pause">{{ "pause" }}</button>
+      </div>
 
-  <span>Animation Scheme</span>
-  <select v-model="animationMode" @change="animationModeChange">
-    <option
-      v-for="item in animationModes"
-      v-bind:key="item"
-      v-bind:value="item"
-    >
-      {{ item }}
-    </option>
-  </select>
-  <br />
-  <span>Easing</span>
-  <select v-model="easing" @change="animate">
-    <option v-for="item in easings" v-bind:key="item" v-bind:value="item">
-      {{ item }}
-    </option>
-  </select>
-  <div style="margin: 0 auto; width: 40%">
-    <Slider
-      :init="speed"
-      step="0.05"
-      label="Speed"
-      className="speed"
-      :callback="speedCallback"
-    ></Slider>
-  </div>
-  <div style="margin: 0 auto; width: 40%">
-    <Slider
-      :init="entropy"
-      step="0.05"
-      label="Entropy"
-      className="entropy"
-      :callback="entropyCallback"
-    ></Slider>
-  </div>
-  <br />
-  <button @click="animate">animate</button>
-  <div>
-    <button @click="play">{{ "play" }}</button>
-    <button @click="pause">{{ "pause" }}</button>
-  </div>
+      <!-- <button id="reverse">reverse</button> -->
+      <button @click="restart">restart</button>
+      <button @click="center">center</button>
 
-  <!-- <button id="reverse">reverse</button> -->
-  <button @click="restart">restart</button>
-  <button @click="center">center</button>
-
-  <!-- <button @click="pressUpload">upload</button> -->
-  <input type="file" accept=".csv" id="uploadId" @change="upload" hidden />
+      <!-- <button @click="pressUpload">upload</button> -->
+      <input type="file" accept=".csv" id="uploadId" @change="upload" hidden />
+    </div>
+    <div id="container" class="col-8"></div>
+  </div>
 </template>
 
 <script lang="ts">
 const WIDTH = 1000;
 const HEIGHT = 700;
-const mockData: TextStyleConfig[] = [
+let mockData: TextStyleConfig[] = [
   {
     text: "TEXT1",
     left: 0,
@@ -63,7 +66,7 @@ const mockData: TextStyleConfig[] = [
     color: "red",
     fontFamily: "GT Flexa",
     fontWeight: 100,
-    fontSize: 100,
+    fontSize: 100
   },
   {
     text: "TEXT2",
@@ -72,7 +75,7 @@ const mockData: TextStyleConfig[] = [
     color: "black",
     fontFamily: "GT Flexa",
     fontWeight: 100,
-    fontSize: 100,
+    fontSize: 100
   },
   {
     text: "TEXT3",
@@ -81,7 +84,7 @@ const mockData: TextStyleConfig[] = [
     color: "red",
     fontFamily: "GT Flexa",
     fontWeight: 100,
-    fontSize: 100,
+    fontSize: 100
   },
   {
     text: "TEXT4",
@@ -90,7 +93,7 @@ const mockData: TextStyleConfig[] = [
     color: "red",
     fontFamily: "GT Flexa",
     fontWeight: 100,
-    fontSize: 100,
+    fontSize: 100
   },
   {
     text: "breeze",
@@ -99,7 +102,7 @@ const mockData: TextStyleConfig[] = [
     color: "green",
     fontFamily: "GT Flexa",
     fontWeight: 100,
-    fontSize: 60,
+    fontSize: 60
   },
   {
     text: "thisissochill",
@@ -108,24 +111,24 @@ const mockData: TextStyleConfig[] = [
     color: "red",
     fontFamily: "GT Flexa",
     fontWeight: 100,
-    fontSize: 80,
-  },
+    fontSize: 80
+  }
 ];
 
 import anime, { AnimeAnimParams, AnimeInstance } from "animejs";
 import { Options, Vue } from "vue-class-component";
 import Slider from "@/components/ui/Slider.vue";
-
+import * as d3 from "d3";
 @Options({
   components: {
-    Slider,
-  },
+    Slider
+  }
 })
 export default class Playground extends Vue {
   private draggableTexts: DraggableText[] = [];
   private animationInstances: AnimeInstance[] = [];
-  private animationMode = "breeze";
-  private animationModes = ["breeze", "happy"];
+  private animationMode = "happy";
+  private animationModes = ["tender", "happy", "angry", "sad", "fearful"];
   private speed = 0.5;
   private entropy = 0.5;
   private easing = "linear";
@@ -166,13 +169,13 @@ export default class Playground extends Vue {
     "easeOutInExpo",
     "easeOutInCirc",
     "easeOutInBack",
-    "easeOutInBounce",
+    "easeOutInBounce"
   ];
 
   private readonly animeParams: anime.AnimeParams = {
     easing: "linear",
     // direction: "alternate",
-    loop: true,
+    loop: true
   };
 
   applyStyle(obj: HTMLDivElement, style: TextStyleConfig) {
@@ -188,7 +191,7 @@ export default class Playground extends Vue {
   }
   initLayout() {
     const container = document.querySelector("#container")! as HTMLDivElement;
-    container.style.backgroundColor = "rgba(0,0,0,0.1)";
+    container.style.border = "1px solid black";
     container.style.width = `${WIDTH}px`;
     container.style.height = `${HEIGHT}px`;
     container.style.margin = "0 auto";
@@ -208,32 +211,32 @@ export default class Playground extends Vue {
       const draggableTextProp: DraggableTextProp = {
         mousePosition: { x: 0, y: 0 },
         offset: { x: 0, y: 0 },
-        isDown: false,
+        isDown: false
       };
 
       this.draggableTexts.push({
         initData: style,
         elem: elem,
-        textProp: draggableTextProp,
+        textProp: draggableTextProp
       } as DraggableText);
 
-      const mouseEnterCallBack = function (e: MouseEvent) {
+      const mouseEnterCallBack = function(e: MouseEvent) {
         // prevents mousemove event to lose to overlapping element
         elem.parentNode?.appendChild(elem);
         elem.style.border = "0.5px dotted grey";
         elem.style.borderRadius = "5px";
         elem.style.cursor = "grab";
       };
-      const mouseLeaveCallBack = function () {
+      const mouseLeaveCallBack = function() {
         elem.style.borderStyle = "none";
         elem.style.cursor = "default";
       };
-      const mouseMoveCallBack = function (e: MouseEvent) {
+      const mouseMoveCallBack = function(e: MouseEvent) {
         // e.preventDefault();
         if (draggableTextProp.isDown) {
           // this ensures that the isDown property sets to false when the mouse speed is too fast
           // and the mouse leaves the div during mousemove
-          elem.onmouseleave = function () {
+          elem.onmouseleave = function() {
             draggableTextProp.isDown = false;
           };
           draggableTextProp.mousePosition.x = e.clientX;
@@ -253,7 +256,7 @@ export default class Playground extends Vue {
           }
         }
       };
-      const mouseDownCallBack = function (e: MouseEvent) {
+      const mouseDownCallBack = function(e: MouseEvent) {
         elem.style.cursor = "grabbing";
         draggableTextProp.isDown = true;
         draggableTextProp.offset.x = elem.offsetLeft - e.clientX;
@@ -261,7 +264,7 @@ export default class Playground extends Vue {
         elem.onmousemove = mouseMoveCallBack;
       };
 
-      const mouseUpCallBack = function () {
+      const mouseUpCallBack = function() {
         elem.style.cursor = "grab";
         draggableTextProp.isDown = false;
       };
@@ -278,7 +281,24 @@ export default class Playground extends Vue {
     animation.pause();
     this.animationInstances.push(animation);
   }
-  mounted() {
+  async mounted() {
+    const tag = "ingredients";
+    await Promise.all([d3.json(`./dataset/layout/layout_${tag}.json`)]).then(
+      data => {
+        const result = data[0] as any[];
+        result.forEach(d => {
+          d.left = -d.width / 2 + d.x;
+          d.top = -d.height * 0.58 + d.y;
+          d.x - d.left;
+          d.fontSize = d.size;
+          d.fontFamily = d.font;
+          d.fontWeight = 100;
+          d.color = "black";
+        });
+        mockData = result;
+      }
+    );
+    this.easing = "easeOutBounce";
     this.initLayout();
     this.initDraggableText();
     this.initAnimation();
@@ -286,24 +306,44 @@ export default class Playground extends Vue {
   }
 
   animate() {
+    this.animationInstances = [];
     switch (this.animationMode) {
       case "happy":
         this.animateHappy();
         break;
-      case "breeze":
+      case "tender":
         this.animateBreeze();
+        break;
+      case "angry":
+        this.animateAngry();
+        break;
+      case "sad":
+        this.animateSad();
+        break;
+      case "fearful":
+        this.animateFearful();
         break;
       default:
         break;
     }
   }
-  private animateHappy() {
+  private animateSad() {
     const params: AnimeAnimParams = {
       targets: ".text-node",
       translateY: [-20, 20],
       // duration: 200 * (1 / this.speed),
       easing: this.easing,
-      direction: "alternate",
+      direction: "alternate"
+    };
+    this.animationInstances.push(anime({ ...this.animeParams, ...params }));
+  }
+  private animateHappy() {
+    const params: AnimeAnimParams = {
+      targets: ".text-node",
+      translateY: [-20, 20],
+      duration: 200 * (1 / this.speed),
+      easing: this.easing,
+      direction: "alternate"
     };
     this.animationInstances.push(anime({ ...this.animeParams, ...params }));
   }
@@ -312,7 +352,7 @@ export default class Playground extends Vue {
     textElems.forEach((textElem, i) => {
       const selector = `char-node-${i}`;
       const charElems = this.textToChars(textElem);
-      charElems.forEach((elem) => {
+      charElems.forEach(elem => {
         elem.classList.add(selector);
         elem.style.color = "rgb(153,204,204)";
       });
@@ -327,12 +367,12 @@ export default class Playground extends Vue {
           {
             fontVariationSettings: "'wght' 700",
             color: "rgb(154,189,198)",
-            translateY: "-100",
+            translateY: "-100"
           },
-          { fontVariationSettings: "'wght' 150", color: "rgb(153,204,204)" },
+          { fontVariationSettings: "'wght' 150", color: "rgb(153,204,204)" }
         ],
         delay: anime.stagger(stagger),
-        duration: duration,
+        duration: duration
       };
       this.animationInstances.push(anime({ ...this.animeParams, ...params }));
     });
@@ -352,10 +392,10 @@ export default class Playground extends Vue {
   }
 
   play() {
-    this.animationInstances.forEach((i) => i.play());
+    this.animationInstances.forEach(i => i.play());
   }
   pause() {
-    this.animationInstances.forEach((i) => i.pause());
+    this.animationInstances.forEach(i => i.pause());
   }
 
   center() {
@@ -364,14 +404,14 @@ export default class Playground extends Vue {
     const translateY = HEIGHT / 2 - center.y;
     anime({
       targets: ".text-node",
-      left: function (el: HTMLElement, i: number, l: number) {
+      left: function(el: HTMLElement, i: number, l: number) {
         const offsetL = parseInt(el.style.left.split("px")[0]);
         return `${offsetL + translateX}px`;
       },
-      top: function (el: HTMLElement, i: number, l: number) {
+      top: function(el: HTMLElement, i: number, l: number) {
         const offsetT = parseInt(el.style.top.split("px")[0]);
         return `${offsetT + translateY}px`;
-      },
+      }
     });
     // this.draggableTexts.forEach((draggableText) => {
     //   const toCenterLeft = WIDTH / 2 - this.midPoint.x;
@@ -411,7 +451,7 @@ export default class Playground extends Vue {
   getTextCenter(draw = false): Position {
     const leftTops: Position[] = [],
       rightBots: Position[] = [];
-    this.draggableTexts.forEach((val) => {
+    this.draggableTexts.forEach(val => {
       const leftTopX = val.elem.offsetLeft;
       const leftTopY = val.elem.offsetTop;
       const rightTopX = leftTopX + val.elem.offsetWidth;
@@ -453,7 +493,7 @@ export default class Playground extends Vue {
 
   animationModeChange(v: string) {
     // stops what ever animation
-    this.animationInstances.forEach((i) => {
+    this.animationInstances.forEach(i => {
       i.restart();
       i.pause();
     });
@@ -466,9 +506,8 @@ export default class Playground extends Vue {
   createPoint(): HTMLElement {
     const point = document.createElement("div");
     point.classList.add("point");
-    point.style.background = `rgb(${Math.random() * 255},${
-      Math.random() * 255
-    },${Math.random() * 255})`;
+    point.style.background = `rgb(${Math.random() * 255},${Math.random() *
+      255},${Math.random() * 255})`;
     point.style.width = "10px";
     point.style.height = "10px";
     point.style.borderRadius = "50%";

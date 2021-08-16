@@ -20,7 +20,7 @@ export const rainbow = [
 'rgba(205, 220, 57, 0.9)',
 'rgba(255, 235, 59, 0.95)',
 'rgba(255, 193, 7, 1)'
-]
+];
 
 export const calm = [
     '#6E746A',
@@ -37,7 +37,7 @@ export const calm = [
     '#A857AA',
     '#9796BB',
     '#D4D4D4'
-]
+];
 
 export const negative = [
     '#D8D8D8',
@@ -52,7 +52,7 @@ export const negative = [
     '#845145',
     '#920000',
     '#C91E11'
-]
+];
 
 export const positive = [
     '#F9468C',
@@ -66,7 +66,7 @@ export const positive = [
     '#8AD2F1',
     '#32BFF2',
     '#00BEB9'
-]
+];
 
 export const exciting = [
     '#AAD2E0',
@@ -83,7 +83,7 @@ export const exciting = [
     '#6D6EB9',
     '#423FA8',
     '#0073AA'
-]
+];
 
 export const disturbing = [
     '#30355F',
@@ -97,7 +97,7 @@ export const disturbing = [
     '#FF8000',
     '#F3D027',
     '#23BF0C'
-]
+];
 
 export const serious = [
     '#899390',
@@ -113,7 +113,7 @@ export const serious = [
     '#69301D',
     '#920000',
     '#F80F19',
-]
+];
 
 export const playful = [
     '#A857AA',
@@ -125,7 +125,7 @@ export const playful = [
     '#25C00F',
     '#00BEB9',
     '#32BFF2'
-]
+];
 
 export const trustworthy = [
     '#FF8000',
@@ -140,19 +140,22 @@ export const trustworthy = [
     '#32BFF2',
     '#0572CD',
     '#9796BB'
-]
+];
 
-export const black = ['#000000']
+export const black = ['#000000'];
+
+export const red = ['red'];
 
 export let getColor = function (name: string) {
-    if (name == "trustworthy") return trustworthy
-    if (name == "positive") return positive
-    if (name == "negative") return negative
-    if (name == "calm") return calm
-    if (name == "black") return black
-    if (name == "playful") return playful
-    if (name == "rainbow") return rainbow
-    if (name == "serious") return serious
-    if (name == "disturbing") return disturbing
-    return calm
+    if (name == "trustworthy") return trustworthy;
+    if (name == "positive") return positive;
+    if (name == "negative") return negative;
+    if (name == "calm") return calm;
+    if (name == "black") return black;
+    if (name == "playful") return playful;
+    if (name == "rainbow") return rainbow;
+    if (name == "serious") return serious;
+    if (name == "disturbing") return disturbing;
+    if (name == "red") return red;
+    return calm;
 }

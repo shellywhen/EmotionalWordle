@@ -58,7 +58,37 @@ interface Word extends cloudGenerator.Word {
     color?: string
     class?: string
     fontString?: string
+    left?: number
+    top?: number
+    fontFamily?: string
+    fontWeight?: number
+    fontSize?: number
 }
+
+interface DraggableText {
+    initData: TextStyleConfig;
+    elem: HTMLDivElement;
+    textProp: DraggableTextProp;
+  }
+  
+  interface DraggableTextProp {
+    mousePosition: Position;
+    offset: Position;
+    isDown: boolean;
+  }
+  interface Position {
+    x: number;
+    y: number;
+  }
+  interface TextStyleConfig {
+    left: number;
+    top: number;
+    fontFamily: string;
+    fontWeight: number;
+    fontSize: number;
+    color: string;
+    text: string;
+  }
 
 interface Style {
     colorScheme?: string
@@ -135,5 +165,6 @@ export {
     MetaConfig,
     GroupManagerConfig,
     AnimatorPlayParams,
-    EmotionMode
+    EmotionMode,
+    DraggableText, DraggableTextProp, Position, TextStyleConfig
 }

@@ -1,0 +1,711 @@
+<script src="https://assets.crowd.aws/crowd-html-elements.js"></script>
+
+<style>
+    section {
+        height: 80vh;
+        text-align: left;
+        vertical-align: top;
+        border-top: white 6px solid;
+        padding-bottom: 10px;
+        padding-top: 40px;
+    }
+
+    section:before {
+  content: "";
+  display: inline-block;
+  vertical-align: top;
+  height: 100%;
+}
+
+    img {
+        max-width: 100%;
+        max-height: 520px;
+    }
+
+    h3 {
+        margin-top: 0;
+    }
+
+    crowd-card {
+        width: 100%;
+        /* height: 100%; */
+        /* min-height: 400px; */
+    }
+
+    .card {
+        margin: 10px;
+        max-width: 100%;
+    }
+
+    .left {
+        width: 60%;
+        margin-right: 10px;
+        display: inline-block;
+        vertical-align: top;
+        padding-right: 10px;
+    }
+
+    .right {
+        width: 30%;
+        display: inline-block;
+        vertical-align: top;
+    }
+
+    .note {
+        color: #3367D6;
+    }
+
+    .positive-answer {
+        color: black;
+    }
+
+    .negative-answer {
+        color: black;
+    }
+</style>
+
+<crowd-toast duration="20000" opened>
+    <!-- This is a message that you want users to see when opening the template. This message will disappear in 20 seconds.  -->
+    <p>Please finish all 20 tasks and try your best to evaluate on the animation, <u>NOT</u> based on the content.</p>
+    <p>(1). Select the sentiment that the animated word cloud presents. </p>
+    <p>(2). Input keywords that best describes your feelings towards the animated wordle.</p>
+</crowd-toast>
+
+<crowd-form>
+
+    <short-instructions>
+        <h2>Sentiment tagging for animated word cloud. </h2>
+        <p>There will be 20 tasks:<br />
+            (1). Select the sentiment that the animated word cloud presents. Be aware that the default answer
+            disqualified your task. <br />
+            (2). Input keywords that best describes your feelings towards the animated wordle.</p>
+        <p>Please try your best to evaluate the sentiment of the <b>animation</b>, <u>NOT</u> on the textual
+            content.</b></p>
+        <p class="positive-answer">
+            <b>:D Good examples</b>
+        <ul>
+            <li>accurate words describing emotions, e.g. <i>terrified</i>, <i>cheerful</i></li>
+            <li>similar scenario, e.g. <i>dance</i>, <i>swing</i></li>
+        </ul>
+        </p>
+        <p class="negative-answer">
+            <b>:( Bad examples</b>
+        <ul>
+            <li>meaningless answer, e.g. <i>?</i>, <i>oops</i></li>
+        </ul>
+        </p>
+    </short-instructions>
+
+    <full-instructions>
+        <h2>Sentiment tagging for animated word cloud. </h2>
+        <p>There will be 20 tasks:<br />
+            (1). Select the sentiment that the animated word cloud presents. Be aware that the default answer
+            disqualified your task. <br />
+            (2). Input keywords that best describes your feelings towards the animated wordle.</p>
+        <p>Please try your best to evaluate the sentiment of the <b>animation</b>, <u>NOT</u> on the textual
+            content.</b></p>
+        <p class="positive-answer">
+            <b>😃 Good examples</b>
+        <ul>
+            <li>accurate words describing emotions, e.g. <i>terrified</i>, <i>cheerful</i></li>
+            <li>similar scenario, e.g. <i>dance</i>, <i>swing</i></li>
+        </ul>
+        </p>
+        <p class="negative-answer">
+            <b>😣 Bad examples</b>
+        <ul>
+            <li>meaningless answer, e.g. <i>?</i>, <i>oops</i></li>
+        </ul>
+        </p>
+    </full-instructions>
+
+    <div>
+        <h2>Sentiment tagging for animated word cloud. </h2>
+        <p>There will be 20 tasks:<br />
+            (1). Select the sentiment that the animated word cloud presents. Be aware that the default answer
+            disqualified your task. <br />
+            (2). Input keywords that best describes your feelings towards the animated wordle.</p>
+        <p>Please try your best to evaluate the sentiment of the <b>animation</b>, <u>NOT</u> on the textual
+            content.</b></p>
+        <p class="positive-answer">
+            <b>:D Good examples</b>
+        <ul>
+            <li>accurate words describing emotions, e.g. <i>terrified</i>, <i>cheerful</i></li>
+            <li>similar scenario, e.g. <i>dance</i>, <i>swing</i></li>
+        </ul>
+        </p>
+        <p class="negative-answer">
+            <b>:( Bad examples</b>
+        <ul>
+            <li>meaningless answer, e.g. <i>?</i>, <i>oops</i></li>
+        </ul>
+        </p>
+    </div>
+
+    <section>
+        <div class="left">
+        <h3>How do you feel right now?</h3>
+        <p> Instruction: Please .</p>
+        <crowd-slider name="sentiment_report" min="-1" max="1" step="1" pin="true" editable value="0" required>
+        </crowd-slider>
+        <ul>
+            <li>-1: :-( </li>
+            <li>0: Peaceful</li>
+            <li>1: :-) </li>
+        </ul>
+        </div>
+
+    </section>
+
+    <section>
+        <div class="left">
+            <h3>How Do You Feel Towards the Animated Word Cloud?</h3>
+            <!-- <crowd-card> -->
+                <img src="./animation_split_0.5_0.4.gif"/>
+            <!-- <img
+                src="http://bbs.hkustvis.org/uploads/default/original/2X/f/f5f2152c606c30882b6cda24dc16a08a069e1b2d.gif" /> -->
+            <!-- </crowd-card> -->
+        </div>
+        <div class="right">
+            <h3>Rate the most proper sentiment</h3>
+            <p> Instruction: Please give your rating based on the animation, <b>NOT</b> the word semantics.</p>
+            <crowd-slider name="sentiment_01" min="-3" max="4" step="1" pin="true" editable value="4" required>
+            </crowd-slider>
+            <ul>
+                <li>-3: Extremely Negative</li>
+                <li>-2: Fairly Negative</li>
+                <li>-1: Slightly Negative</li>
+                <li>0: Unclear</li>
+                <li>1: Slightly Positive</li>
+                <li>2: Fairly Positive</li>
+                <li>3: Extremely Positive</li>
+                <li><span class="note">4: Unselected (Invalid Answer)</span></li>
+            </ul>
+
+            <crowd-input name="feeling_01" label="Keywords best describe your feelings" required></crowd-input>
+        </div>
+    </section>
+
+    <section>
+        <div class="left">
+            <h3>How Do You Feel Towards the Animated Word Cloud?</h3>
+            <!-- <crowd-card> -->
+            <img src="${task_02}" />
+            <!-- </crowd-card> -->
+        </div>
+        <div class="right">
+            <h3>Rate the most proper sentiment</h3>
+            <p> Instruction: Please give your rating based on the animation, <b>NOT</b> the word semantics.</p>
+            <crowd-slider name="sentiment_02" min="-3" max="4" step="1" pin="true" editable value="4" required>
+            </crowd-slider>
+            <ul>
+                <li>-3: Extremely Negative</li>
+                <li>-2: Fairly Negative</li>
+                <li>-1: Slightly Negative</li>
+                <li>0: Unclear</li>
+                <li>1: Slightly Positive</li>
+                <li>2: Fairly Positive</li>
+                <li>3: Extremely Positive</li>
+                <li><span class="note">4: Unselected (Invalid Answer)</span></li>
+            </ul>
+
+            <crowd-input name="feeling_02" label="Keywords best describe your feelings" required></crowd-input>
+        </div>
+    </section>
+
+    <section>
+        <div class="left">
+            <h3>How Do You Feel Towards the Animated Word Cloud?</h3>
+            <!-- <crowd-card> -->
+            <img src="${task_03}" />
+            <!-- </crowd-card> -->
+        </div>
+        <div class="right">
+            <h3>Rate the most proper sentiment</h3>
+            <p> Instruction: Please give your rating based on the animation, <b>NOT</b> the word semantics.</p>
+            <crowd-slider name="sentiment_03" min="-3" max="4" step="1" pin="true" editable value="4" required>
+            </crowd-slider>
+            <ul>
+                <li>-3: Extremely Negative</li>
+                <li>-2: Fairly Negative</li>
+                <li>-1: Slightly Negative</li>
+                <li>0: Unclear</li>
+                <li>1: Slightly Positive</li>
+                <li>2: Fairly Positive</li>
+                <li>3: Extremely Positive</li>
+                <li><span class="note">4: Unselected (Invalid Answer)</span></li>
+            </ul>
+
+            <crowd-input name="feeling_03" label="Keywords best describe your feelings" required></crowd-input>
+        </div>
+    </section>
+
+    <section>
+        <div class="left">
+            <h3>How Do You Feel Towards the Animated Word Cloud?</h3>
+            <!-- <crowd-card> -->
+            <img src="${task_04}" />
+            <!-- </crowd-card> -->
+        </div>
+        <div class="right">
+            <h3>Rate the most proper sentiment</h3>
+            <p> Instruction: Please give your rating based on the animation, <b>NOT</b> the word semantics.</p>
+            <crowd-slider name="sentiment_04" min="-3" max="4" step="1" pin="true" editable value="4" required>
+            </crowd-slider>
+            <ul>
+                <li>-3: Extremely Negative</li>
+                <li>-2: Fairly Negative</li>
+                <li>-1: Slightly Negative</li>
+                <li>0: Unclear</li>
+                <li>1: Slightly Positive</li>
+                <li>2: Fairly Positive</li>
+                <li>3: Extremely Positive</li>
+                <li><span class="note">4: Unselected (Invalid Answer)</span></li>
+            </ul>
+
+            <crowd-input name="feeling_04" label="Keywords best describe your feelings" required></crowd-input>
+        </div>
+    </section>
+
+    <section>
+        <div class="left">
+            <h3>How Do You Feel Towards the Animated Word Cloud?</h3>
+            <!-- <crowd-card> -->
+            <img src="${task_05}" />
+            <!-- </crowd-card> -->
+        </div>
+        <div class="right">
+            <h3>Rate the most proper sentiment</h3>
+            <p> Instruction: Please give your rating based on the animation, <b>NOT</b> the word semantics.</p>
+            <crowd-slider name="sentiment_05" min="-3" max="4" step="1" pin="true" editable value="4" required>
+            </crowd-slider>
+            <ul>
+                <li>-3: Extremely Negative</li>
+                <li>-2: Fairly Negative</li>
+                <li>-1: Slightly Negative</li>
+                <li>0: Unclear</li>
+                <li>1: Slightly Positive</li>
+                <li>2: Fairly Positive</li>
+                <li>3: Extremely Positive</li>
+                <li><span class="note">4: Unselected (Invalid Answer)</span></li>
+            </ul>
+
+            <crowd-input name="feeling_05" label="Keywords best describe your feelings" required></crowd-input>
+        </div>
+    </section>
+
+    <section>
+        <div class="left">
+            <h3>How Do You Feel Towards the Animated Word Cloud?</h3>
+            <!-- <crowd-card> -->
+                <img src="${task_06}"/>
+            <!-- </crowd-card> -->
+        </div>
+        <div class="right">
+             <h3>Rate the most proper sentiment</h3>
+             <p> Instruction: Please give your rating based on the animation, <b>NOT</b> the word semantics.</p>
+                <crowd-slider name="sentiment_06" min="-3" max="4" step="1" pin="true" editable value="4" required></crowd-slider>
+                <ul>
+                    <li>-3: Extremely Negative</li>
+                    <li>-2: Fairly Negative</li>
+                    <li>-1: Slightly Negative</li>
+                    <li>0: Unclear</li>
+                    <li>1: Slightly Positive</li>
+                    <li>2: Fairly Positive</li>
+                    <li>3: Extremely Positive</li>
+                    <li><span class="note">4: Unselected (Invalid Answer)</span></li>
+                </ul>
+                
+        <crowd-input name="feeling_06" label="Keywords best describe your feelings" required></crowd-input>   
+        </div>
+        </section>
+
+        <section>
+            <div class="left">
+                <h3>How Do You Feel Towards the Animated Word Cloud?</h3>
+                <!-- <crowd-card> -->
+                    <img src="${task_07}"/>
+                <!-- </crowd-card> -->
+            </div>
+            <div class="right">
+                 <h3>Rate the most proper sentiment</h3>
+                 <p> Instruction: Please give your rating based on the animation, <b>NOT</b> the word semantics.</p>
+                    <crowd-slider name="sentiment_07" min="-3" max="4" step="1" pin="true" editable value="4" required></crowd-slider>
+                    <ul>
+                        <li>-3: Extremely Negative</li>
+                        <li>-2: Fairly Negative</li>
+                        <li>-1: Slightly Negative</li>
+                        <li>0: Unclear</li>
+                        <li>1: Slightly Positive</li>
+                        <li>2: Fairly Positive</li>
+                        <li>3: Extremely Positive</li>
+                        <li><span class="note">4: Unselected (Invalid Answer)</span></li>
+                    </ul>
+                    
+            <crowd-input name="feeling_07" label="Keywords best describe your feelings" required></crowd-input>   
+            </div>
+            </section>
+
+
+            <section>
+                <div class="left">
+                    <h3>How Do You Feel Towards the Animated Word Cloud?</h3>
+                    <!-- <crowd-card> -->
+                        <img src="${task_08}"/>
+                    <!-- </crowd-card> -->
+                </div>
+                <div class="right">
+                     <h3>Rate the most proper sentiment</h3>
+                     <p> Instruction: Please give your rating based on the animation, <b>NOT</b> the word semantics.</p>
+                        <crowd-slider name="sentiment_08" min="-3" max="4" step="1" pin="true" editable value="4" required></crowd-slider>
+                        <ul>
+                            <li>-3: Extremely Negative</li>
+                            <li>-2: Fairly Negative</li>
+                            <li>-1: Slightly Negative</li>
+                            <li>0: Unclear</li>
+                            <li>1: Slightly Positive</li>
+                            <li>2: Fairly Positive</li>
+                            <li>3: Extremely Positive</li>
+                            <li><span class="note">4: Unselected (Invalid Answer)</span></li>
+                        </ul>
+                        
+                <crowd-input name="feeling_08" label="Keywords best describe your feelings" required></crowd-input>   
+                </div>
+                </section>
+
+                
+        <section>
+            <div class="left">
+                <h3>How Do You Feel Towards the Animated Word Cloud?</h3>
+                <!-- <crowd-card> -->
+                    <img src="${task_09}"/>
+                <!-- </crowd-card> -->
+            </div>
+            <div class="right">
+                 <h3>Rate the most proper sentiment</h3>
+                 <p> Instruction: Please give your rating based on the animation, <b>NOT</b> the word semantics.</p>
+                    <crowd-slider name="sentiment_09" min="-3" max="4" step="1" pin="true" editable value="4" required></crowd-slider>
+                    <ul>
+                        <li>-3: Extremely Negative</li>
+                        <li>-2: Fairly Negative</li>
+                        <li>-1: Slightly Negative</li>
+                        <li>0: Unclear</li>
+                        <li>1: Slightly Positive</li>
+                        <li>2: Fairly Positive</li>
+                        <li>3: Extremely Positive</li>
+                        <li><span class="note">4: Unselected (Invalid Answer)</span></li>
+                    </ul>
+                    
+            <crowd-input name="feeling_09" label="Keywords best describe your feelings" required></crowd-input>   
+            </div>
+            </section>
+
+            
+        <section>
+            <div class="left">
+                <h3>How Do You Feel Towards the Animated Word Cloud?</h3>
+                <!-- <crowd-card> -->
+                    <img src="${task_10}"/>
+                <!-- </crowd-card> -->
+            </div>
+            <div class="right">
+                 <h3>Rate the most proper sentiment</h3>
+                 <p> Instruction: Please give your rating based on the animation, <b>NOT</b> the word semantics.</p>
+                    <crowd-slider name="sentiment_10" min="-3" max="4" step="1" pin="true" editable value="4" required></crowd-slider>
+                    <ul>
+                        <li>-3: Extremely Negative</li>
+                        <li>-2: Fairly Negative</li>
+                        <li>-1: Slightly Negative</li>
+                        <li>0: Unclear</li>
+                        <li>1: Slightly Positive</li>
+                        <li>2: Fairly Positive</li>
+                        <li>3: Extremely Positive</li>
+                        <li><span class="note">4: Unselected (Invalid Answer)</span></li>
+                    </ul>
+                    
+            <crowd-input name="feeling_10" label="Keywords best describe your feelings" required></crowd-input>   
+            </div>
+            </section>
+
+    
+            <section>
+                <div class="left">
+                    <h3>How Do You Feel Towards the Animated Word Cloud?</h3>
+                    <!-- <crowd-card> -->
+                        <img src="${task_11}"/>
+                    <!-- </crowd-card> -->
+                </div>
+                <div class="right">
+                     <h3>Rate the most proper sentiment</h3>
+                     <p> Instruction: Please give your rating based on the animation, <b>NOT</b> the word semantics.</p>
+                        <crowd-slider name="sentiment_11" min="-3" max="4" step="1" pin="true" editable value="4" required></crowd-slider>
+                        <ul>
+                            <li>-3: Extremely Negative</li>
+                            <li>-2: Fairly Negative</li>
+                            <li>-1: Slightly Negative</li>
+                            <li>0: Unclear</li>
+                            <li>1: Slightly Positive</li>
+                            <li>2: Fairly Positive</li>
+                            <li>3: Extremely Positive</li>
+                            <li><span class="note">4: Unselected (Invalid Answer)</span></li>
+                        </ul>
+                        
+                <crowd-input name="feeling_11" label="Keywords best describe your feelings" required></crowd-input>   
+                </div>
+                </section>
+
+
+        
+                <section>
+                    <div class="left">
+                        <h3>How Do You Feel Towards the Animated Word Cloud?</h3>
+                        <!-- <crowd-card> -->
+                            <img src="${task_12}"/>
+                        <!-- </crowd-card> -->
+                    </div>
+                    <div class="right">
+                         <h3>Rate the most proper sentiment</h3>
+                         <p> Instruction: Please give your rating based on the animation, <b>NOT</b> the word semantics.</p>
+                            <crowd-slider name="sentiment_12" min="-3" max="4" step="1" pin="true" editable value="4" required></crowd-slider>
+                            <ul>
+                                <li>-3: Extremely Negative</li>
+                                <li>-2: Fairly Negative</li>
+                                <li>-1: Slightly Negative</li>
+                                <li>0: Unclear</li>
+                                <li>1: Slightly Positive</li>
+                                <li>2: Fairly Positive</li>
+                                <li>3: Extremely Positive</li>
+                                <li><span class="note">4: Unselected (Invalid Answer)</span></li>
+                            </ul>
+                            
+                    <crowd-input name="feeling_12" label="Keywords best describe your feelings" required></crowd-input>   
+                    </div>
+                    </section>
+
+        
+                    <section>
+                        <div class="left">
+                            <h3>How Do You Feel Towards the Animated Word Cloud?</h3>
+                            <!-- <crowd-card> -->
+                                <img src="${task_13}"/>
+                            <!-- </crowd-card> -->
+                        </div>
+                        <div class="right">
+                             <h3>Rate the most proper sentiment</h3>
+                             <p> Instruction: Please give your rating based on the animation, <b>NOT</b> the word semantics.</p>
+                                <crowd-slider name="sentiment_13" min="-3" max="4" step="1" pin="true" editable value="4" required></crowd-slider>
+                                <ul>
+                                    <li>-3: Extremely Negative</li>
+                                    <li>-2: Fairly Negative</li>
+                                    <li>-1: Slightly Negative</li>
+                                    <li>0: Unclear</li>
+                                    <li>1: Slightly Positive</li>
+                                    <li>2: Fairly Positive</li>
+                                    <li>3: Extremely Positive</li>
+                                    <li><span class="note">4: Unselected (Invalid Answer)</span></li>
+                                </ul>
+                                
+                        <crowd-input name="feeling_13" label="Keywords best describe your feelings" required></crowd-input>   
+                        </div>
+                        </section>
+
+
+            
+        <section>
+            <div class="left">
+                <h3>How Do You Feel Towards the Animated Word Cloud?</h3>
+                <!-- <crowd-card> -->
+                    <img src="${task_14}"/>
+                <!-- </crowd-card> -->
+            </div>
+            <div class="right">
+                 <h3>Rate the most proper sentiment</h3>
+                 <p> Instruction: Please give your rating based on the animation, <b>NOT</b> the word semantics.</p>
+                    <crowd-slider name="sentiment_14" min="-3" max="4" step="1" pin="true" editable value="4" required></crowd-slider>
+                    <ul>
+                        <li>-3: Extremely Negative</li>
+                        <li>-2: Fairly Negative</li>
+                        <li>-1: Slightly Negative</li>
+                        <li>0: Unclear</li>
+                        <li>1: Slightly Positive</li>
+                        <li>2: Fairly Positive</li>
+                        <li>3: Extremely Positive</li>
+                        <li><span class="note">4: Unselected (Invalid Answer)</span></li>
+                    </ul>
+                    
+            <crowd-input name="feeling_14" label="Keywords best describe your feelings" required></crowd-input>   
+            </div>
+            </section>
+
+        
+            
+        <section>
+            <div class="left">
+                <h3>How Do You Feel Towards the Animated Word Cloud?</h3>
+                <!-- <crowd-card> -->
+                    <img src="${task_15}"/>
+                <!-- </crowd-card> -->
+            </div>
+            <div class="right">
+                 <h3>Rate the most proper sentiment</h3>
+                 <p> Instruction: Please give your rating based on the animation, <b>NOT</b> the word semantics.</p>
+                    <crowd-slider name="sentiment_15" min="-3" max="4" step="1" pin="true" editable value="4" required></crowd-slider>
+                    <ul>
+                        <li>-3: Extremely Negative</li>
+                        <li>-2: Fairly Negative</li>
+                        <li>-1: Slightly Negative</li>
+                        <li>0: Unclear</li>
+                        <li>1: Slightly Positive</li>
+                        <li>2: Fairly Positive</li>
+                        <li>3: Extremely Positive</li>
+                        <li><span class="note">4: Unselected (Invalid Answer)</span></li>
+                    </ul>
+                    
+            <crowd-input name="feeling_15" label="Keywords best describe your feelings" required></crowd-input>   
+            </div>
+            </section>
+
+            
+        <section>
+            <div class="left">
+                <h3>How Do You Feel Towards the Animated Word Cloud?</h3>
+                <!-- <crowd-card> -->
+                    <img src="${task_16}"/>
+                <!-- </crowd-card> -->
+            </div>
+            <div class="right">
+                 <h3>Rate the most proper sentiment</h3>
+                 <p> Instruction: Please give your rating based on the animation, <b>NOT</b> the word semantics.</p>
+                    <crowd-slider name="sentiment_16" min="-3" max="4" step="1" pin="true" editable value="4" required></crowd-slider>
+                    <ul>
+                        <li>-3: Extremely Negative</li>
+                        <li>-2: Fairly Negative</li>
+                        <li>-1: Slightly Negative</li>
+                        <li>0: Unclear</li>
+                        <li>1: Slightly Positive</li>
+                        <li>2: Fairly Positive</li>
+                        <li>3: Extremely Positive</li>
+                        <li><span class="note">4: Unselected (Invalid Answer)</span></li>
+                    </ul>
+                    
+            <crowd-input name="feeling_16" label="Keywords best describe your feelings" required></crowd-input>   
+            </div>
+            </section>
+
+
+            <section>
+                <div class="left">
+                    <h3>How Do You Feel Towards the Animated Word Cloud?</h3>
+                    <!-- <crowd-card> -->
+                        <img src="${task_17}"/>
+                    <!-- </crowd-card> -->
+                </div>
+                <div class="right">
+                     <h3>Rate the most proper sentiment</h3>
+                     <p> Instruction: Please give your rating based on the animation, <b>NOT</b> the word semantics.</p>
+                        <crowd-slider name="sentiment_17" min="-3" max="4" step="1" pin="true" editable value="4" required></crowd-slider>
+                        <ul>
+                            <li>-3: Extremely Negative</li>
+                            <li>-2: Fairly Negative</li>
+                            <li>-1: Slightly Negative</li>
+                            <li>0: Unclear</li>
+                            <li>1: Slightly Positive</li>
+                            <li>2: Fairly Positive</li>
+                            <li>3: Extremely Positive</li>
+                            <li><span class="note">4: Unselected (Invalid Answer)</span></li>
+                        </ul>
+                        
+                <crowd-input name="feeling_17" label="Keywords best describe your feelings" required></crowd-input>   
+                </div>
+                </section>
+
+        
+                <section>
+                    <div class="left">
+                        <h3>How Do You Feel Towards the Animated Word Cloud?</h3>
+                        <!-- <crowd-card> -->
+                            <img src="${task_18}"/>
+                        <!-- </crowd-card> -->
+                    </div>
+                    <div class="right">
+                         <h3>Rate the most proper sentiment</h3>
+                         <p> Instruction: Please give your rating based on the animation, <b>NOT</b> the word semantics.</p>
+                            <crowd-slider name="sentiment_18" min="-3" max="4" step="1" pin="true" editable value="4" required></crowd-slider>
+                            <ul>
+                                <li>-3: Extremely Negative</li>
+                                <li>-2: Fairly Negative</li>
+                                <li>-1: Slightly Negative</li>
+                                <li>0: Unclear</li>
+                                <li>1: Slightly Positive</li>
+                                <li>2: Fairly Positive</li>
+                                <li>3: Extremely Positive</li>
+                                <li><span class="note">4: Unselected (Invalid Answer)</span></li>
+                            </ul>
+                            
+                    <crowd-input name="feeling_18" label="Keywords best describe your feelings" required></crowd-input>   
+                    </div>
+                    </section>
+
+        
+                    <section>
+                        <div class="left">
+                            <h3>How Do You Feel Towards the Animated Word Cloud?</h3>
+                            <!-- <crowd-card> -->
+                                <img src="${task_19}"/>
+                            <!-- </crowd-card> -->
+                        </div>
+                        <div class="right">
+                             <h3>Rate the most proper sentiment</h3>
+                             <p> Instruction: Please give your rating based on the animation, <b>NOT</b> the word semantics.</p>
+                                <crowd-slider name="sentiment_19" min="-3" max="4" step="1" pin="true" editable value="4" required></crowd-slider>
+                                <ul>
+                                    <li>-3: Extremely Negative</li>
+                                    <li>-2: Fairly Negative</li>
+                                    <li>-1: Slightly Negative</li>
+                                    <li>0: Unclear</li>
+                                    <li>1: Slightly Positive</li>
+                                    <li>2: Fairly Positive</li>
+                                    <li>3: Extremely Positive</li>
+                                    <li><span class="note">4: Unselected (Invalid Answer)</span></li>
+                                </ul>
+                                
+                        <crowd-input name="feeling_19" label="Keywords best describe your feelings" required></crowd-input>   
+                        </div>
+                        </section>
+
+
+                    
+        <section>
+            <div class="left">
+                <h3>How Do You Feel Towards the Animated Word Cloud?</h3>
+                <!-- <crowd-card> -->
+                    <img src="${task_20}"/>
+                <!-- </crowd-card> -->
+            </div>
+            <div class="right">
+                 <h3>Rate the most proper sentiment</h3>
+                 <p> Instruction: Please give your rating based on the animation, <b>NOT</b> the word semantics.</p>
+                    <crowd-slider name="sentiment_20" min="-3" max="4" step="1" pin="true" editable value="4" required></crowd-slider>
+                    <ul>
+                        <li>-3: Extremely Negative</li>
+                        <li>-2: Fairly Negative</li>
+                        <li>-1: Slightly Negative</li>
+                        <li>0: Unclear</li>
+                        <li>1: Slightly Positive</li>
+                        <li>2: Fairly Positive</li>
+                        <li>3: Extremely Positive</li>
+                        <li><span class="note">4: Unselected (Invalid Answer)</span></li>
+                    </ul>
+                    
+            <crowd-input name="feeling_20" label="Keywords best describe your feelings" required></crowd-input>   
+            </div>
+            </section>
+</crowd-form>
+
+<script>
+    document.querySelector('crowd-form').onsubmit = function (e) {
+        if (!validateForm()) {
+            e.preventDefault();
+        }
+    }
+</script>

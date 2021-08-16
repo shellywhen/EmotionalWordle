@@ -134,6 +134,7 @@
               } ${styleScheme.height}`"
               preserveAspectRatio="xMidYMid meet"
             ></svg>
+            <canvas id="emordle-test-static-canvas"></canvas>
             <div class="text-style-config">
               <div class="color-picker"></div>
             </div>
