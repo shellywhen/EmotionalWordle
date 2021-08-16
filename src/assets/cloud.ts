@@ -81,6 +81,9 @@ let testCloud = function (data: Word[], styleSheet: Style) {
             return d.text || ''
         })
         .spiral(styleSheet.spiralType!) // 'archimedean' or 'rectangular'
+        .canvas( function() {
+            return document.querySelector("#emordle-test-static-canvas") as HTMLCanvasElement;
+        })
         .start()
 }
 

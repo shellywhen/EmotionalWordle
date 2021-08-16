@@ -59,6 +59,11 @@ button {
   border-radius: 4px;
   width: 100%;
   font-size: small;
+  i {
+    vertical-align: text-bottom !important;
+    // position: absolute;
+    // left: 3rem;
+  }
 }
 button:hover {
   border: $themeColor 1px solid;

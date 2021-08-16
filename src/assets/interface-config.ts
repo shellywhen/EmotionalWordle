@@ -1,4 +1,0 @@
-/** Constants for Variable.vue
- */
-
- 

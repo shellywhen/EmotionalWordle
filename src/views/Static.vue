@@ -5,22 +5,22 @@
         <div class="wrapper">
           <span class="config-tag">Dataset</span>
           <div class="wrapper">
-          <label class="form-label" for="wordleUpload">
-            Upload <span class="code">CSV</span>
-          </label>
-          <button class="button" @click="openFile">
-            <i class="fas fa-cloud-upload-alt light"></i>
-            <span class="code">&nbsp;&nbsp;CSV</span>
-          </button>
-          <input
-            type="file"
-            class="form-control-sm"
-            id="wordleUpload"
-            name="wordleUpload"
-            accept="text/txt"
-            @change="handleUpload($event)"
-          />
-        </div>
+            <label class="form-label" for="wordleUpload">
+              Upload <span class="code">CSV</span>
+            </label>
+            <button class="button" @click="openFile">
+              <i class="fas fa-cloud-upload-alt light"></i>
+              <span class="code">&nbsp;&nbsp;CSV</span>
+            </button>
+            <input
+              type="file"
+              class="form-control-sm"
+              id="wordleUpload"
+              name="wordleUpload"
+              accept="text/txt"
+              @change="handleUpload($event)"
+            />
+          </div>
           <select name="dataset" id="dataset" v-model="wordleData">
             <option
               v-for="item in collection"
@@ -31,7 +31,7 @@
             </option>
           </select>
         </div>
-        
+
         <br />
         <!-- <div class="wrapper">
           <Slider
@@ -129,13 +129,12 @@
               id="emotional-wordle-edit-svg"
               :height="styleScheme.height * zoomLevel"
               :width="styleScheme.width"
-              :viewBox="
-                `${0} ${(-styleScheme.height * (1 - zoomLevel)) / 2} ${
-                  styleScheme.width
-                } ${styleScheme.height}`
-              "
+              :viewBox="`${0} ${(-styleScheme.height * (1 - zoomLevel)) / 2} ${
+                styleScheme.width
+              } ${styleScheme.height}`"
               preserveAspectRatio="xMidYMid meet"
             ></svg>
+            <canvas id="emordle-test-static-canvas"></canvas>
             <div class="text-style-config">
               <div class="color-picker"></div>
             </div>
@@ -148,59 +147,89 @@
 </template>
 <script lang="ts">
 /* eslint-disable */
-import { Options, Vue } from "vue-class-component"
-import { Prop, Watch } from "vue-property-decorator"
-import { CloudManager } from "@/assets/cloud"
-import { createBackground, fragment } from "@/assets/gl-helper"
-import * as ColorPreset from "@/assets/color-preset"
-import { createColorPicker } from "@/assets/color-picker"
-import Slider from "@/components/ui/Slider.vue"
-import { FontConfig } from "@/assets/variable-font"
-import "bootstrap"
-import * as ColorPrest from "@/assets/color-preset"
-import * as d3 from "d3"
-import * as dsv from "d3-dsv"
-import { Dataset, Word, Mode, Style } from "@/assets/types"
-function randInt(min: number,max: number){
-	var range = max - min;
-	var rand = Math.floor(Math.random() * (range + 1));
-	return min + rand;
+import { Options, Vue } from "vue-class-component";
+import { Prop, Watch } from "vue-property-decorator";
+import { CloudManager } from "@/assets/cloud";
+import { createBackground, fragment } from "@/assets/gl-helper";
+import * as ColorPreset from "@/assets/color-preset";
+import { createColorPicker } from "@/assets/color-picker";
+import Slider from "@/components/ui/Slider.vue";
+import { FontConfig } from "@/assets/variable-font";
+import "bootstrap";
+import * as ColorPrest from "@/assets/color-preset";
+import * as d3 from "d3";
+import * as dsv from "d3-dsv";
+import { Dataset, Word, Mode, Style } from "@/assets/types";
+function randInt(min: number, max: number) {
+  var range = max - min;
+  var rand = Math.floor(Math.random() * (range + 1));
+  return min + rand;
 }
-
 
 @Options({
   components: {
-    Slider
-  }
+    Slider,
+  },
 })
 export default class Static extends Vue {
-  public wordleData: Dataset | null = null
-  public collection: Dataset[] = []
-  public fileReader = new FileReader()
-  public uploadFilename: string = ""
-  public animationModes: Array<Mode> = [Mode.bubble, Mode.colorful, Mode.chill, Mode.glisten, Mode.electric]
-  public animationMode: Mode = Mode.bubble
-  public fontFamilies = ['Arial', 'NotoSans', 'DancingScript', 'RobotoMono', 'Raleway', 'Manrope', 'Dreamwood', 'GT Flexa']
-  public fontFamily = 'NotoSans'
-  public fontStyles = ['normal', 'oblique', 'italic']
-  public fontStyle = 'normal'
-  public fontWeights = ['normal', 200, 300, 800, 'bold']
-  public fontWeight = 'normal'
-  public colorSchemes = ['calm', 'positive', 'negative', 'playful', 'trustworthy', 'rainbow', 'exciting', 'black']
-  public colorScheme = 'black'
-  public easeTypes = ['Cubic', 'ElasticIn', 'ElasticOut', 'BounceIn', 'BounceOut', 'BounceInOut']
-  public easeType = 'ElasticIn'
-  public strokeWidth = '2px'
-  public rotation: number = 0
-  public duration: number = 5000
-  public spiralTypes = ['rectangular', 'archimedean']
-  public spiralType = 'rectangular'
-  public cloudManager: CloudManager | undefined
-  public customColor = "#000000"
-  public presetColors = ColorPreset.rainbow
-  public bgAnimator: any
-  public zoomLevel: number = 0.9
-  get styleScheme ():Style {
+  public wordleData: Dataset | null = null;
+  public collection: Dataset[] = [];
+  public fileReader = new FileReader();
+  public uploadFilename: string = "";
+  public animationModes: Array<Mode> = [
+    Mode.bubble,
+    Mode.colorful,
+    Mode.chill,
+    Mode.glisten,
+    Mode.electric,
+  ];
+  public animationMode: Mode = Mode.bubble;
+  public fontFamilies = [
+    "Arial",
+    "NotoSans",
+    "DancingScript",
+    "RobotoMono",
+    "Raleway",
+    "Manrope",
+    "Dreamwood",
+    "GT Flexa",
+  ];
+  public fontFamily = "NotoSans";
+  public fontStyles = ["normal", "oblique", "italic"];
+  public fontStyle = "normal";
+  public fontWeights = ["normal", 200, 300, 800, "bold"];
+  public fontWeight = "normal";
+  public colorSchemes = [
+    "calm",
+    "positive",
+    "negative",
+    "playful",
+    "trustworthy",
+    "rainbow",
+    "exciting",
+    "black",
+  ];
+  public colorScheme = "black";
+  public easeTypes = [
+    "Cubic",
+    "ElasticIn",
+    "ElasticOut",
+    "BounceIn",
+    "BounceOut",
+    "BounceInOut",
+  ];
+  public easeType = "ElasticIn";
+  public strokeWidth = "2px";
+  public rotation: number = 0;
+  public duration: number = 5000;
+  public spiralTypes = ["rectangular", "archimedean"];
+  public spiralType = "rectangular";
+  public cloudManager: CloudManager | undefined;
+  public customColor = "#000000";
+  public presetColors = ColorPreset.rainbow;
+  public bgAnimator: any;
+  public zoomLevel: number = 0.9;
+  get styleScheme(): Style {
     return {
       colorScheme: this.colorScheme,
       fontStyle: this.fontStyle,
@@ -211,121 +240,132 @@ export default class Static extends Vue {
       spiralType: this.spiralType,
       height: 520,
       width: 780,
-      font: new FontConfig().update({'name': 'NotoSans'})
-    }
+      font: new FontConfig().update({ name: "NotoSans" }),
+    };
   }
-  created() {
-  }
+  created() {}
   mounted() {
-    this.fileReader.addEventListener("load", this.parseFile, false)
-    let fileNames = ["2020_search", "xmas", "xmas-emoji", "thx", "Poe", "creep", "ingredients"]
+    this.fileReader.addEventListener("load", this.parseFile, false);
+    let fileNames = [
+      "2020_search",
+      "xmas",
+      "xmas-emoji",
+      "thx",
+      "Poe",
+      "creep",
+      "ingredients",
+    ];
     // let fileNames = ["creep"]
     let tasks = fileNames.map((tag: string) =>
-        d3.csv(`dataset/${tag}.csv`, (v: any) => {
-          return {
-            frequency: parseFloat(v.frequency),
-            text: v.text
-          }
-        })
-      )
+      d3.csv(`dataset/${tag}.csv`, (v: any) => {
+        return {
+          frequency: parseFloat(v.frequency),
+          text: v.text,
+        };
+      })
+    );
     Promise.all(tasks).then((dataList: any) => {
       this.collection = dataList.map((data: Word[], idx: number) => {
         return {
           tag: fileNames[idx],
-          data: data
-        }
-      })
-      this.wordleData = this.collection[0]
-      d3.select('#dataset')
-        .selectAll('option')
-        .property('selected', 'false')
-        .filter((v: any) => v['data-tag']==this.collection[0].tag)
-        .property('selected', true)
-    })
+          data: data,
+        };
+      });
+      this.wordleData = this.collection[0];
+      d3.select("#dataset")
+        .selectAll("option")
+        .property("selected", "false")
+        .filter((v: any) => v["data-tag"] == this.collection[0].tag)
+        .property("selected", true);
+    });
     // createColorPicker('black', this.presetColors, '.color-picker')
   }
-  @Watch('wordleData')
+  @Watch("wordleData")
   wordleDataChanged() {
-    if (!this.wordleData) return
-    let color = ColorPreset.getColor(this.colorScheme)
-    let colorLen = color.length
+    if (!this.wordleData) return;
+    let color = ColorPreset.getColor(this.colorScheme);
+    let colorLen = color.length;
     this.wordleData.data.forEach((v: Word) => {
-      v.color = color[randInt(0, colorLen-1)]
+      v.color = color[randInt(0, colorLen - 1)];
       v.weight = this.styleScheme.fontWeight;
-    })
-    this.cloudManager = new CloudManager(this.wordleData.data, 
-                                         this.styleScheme, 
-                                         this.animationMode,
-                                         'emotional-wordle-edit-svg',
-                                         'emotional-wordle-canvas',
-                                         this.bgAnimator,
-                                         false,
-                                         true)
+    });
+    this.cloudManager = new CloudManager(
+      this.wordleData.data,
+      this.styleScheme,
+      this.animationMode,
+      "emotional-wordle-edit-svg",
+      "emotional-wordle-canvas",
+      this.bgAnimator,
+      false,
+      true
+    );
   }
-  @Watch('styleScheme')
+  @Watch("styleScheme")
   schemeChanged() {
-    this.wordleDataChanged()
+    this.wordleDataChanged();
   }
-  @Watch('animationMode')
+  @Watch("animationMode")
   animationModeChanged() {
-    if( this.animationMode === Mode.bubble ) this.easeType = 'elasticIn'
-    d3.select('#emotional-wordle-bg-canvas')
-      .style('visibility', this.animationMode === Mode.chill? 'visible': 'hidden')
-    this.cloudManager!.updateMode(this.animationMode)
+    if (this.animationMode === Mode.bubble) this.easeType = "elasticIn";
+    d3.select("#emotional-wordle-bg-canvas").style(
+      "visibility",
+      this.animationMode === Mode.chill ? "visible" : "hidden"
+    );
+    this.cloudManager!.updateMode(this.animationMode);
   }
   rotateCallback(v: number) {
-    this.rotation = v
+    this.rotation = v;
   }
   handleUpload(event: any) {
-    let file = event.target.files[0]
-    if (!file) return
-    this.fileReader.readAsText(file)
-    this.uploadFilename = file.name.split('.csv')[0]
+    let file = event.target.files[0];
+    if (!file) return;
+    this.fileReader.readAsText(file);
+    this.uploadFilename = file.name.split(".csv")[0];
     this.collection.forEach((dataset: Dataset) => {
       if (dataset.tag == this.uploadFilename) {
-        this.uploadFilename += '_1'
+        this.uploadFilename += "_1";
       }
-    })
+    });
   }
   pause() {
-    let ele = "#pauseButton"
-    let state = !d3.select(ele).classed("active")
-    d3.select(ele).classed("active", state)
-    d3.select("#playButton").classed("active", !state)
-    if(!this.cloudManager) return
-    this.cloudManager!.stop()
+    let ele = "#pauseButton";
+    let state = !d3.select(ele).classed("active");
+    d3.select(ele).classed("active", state);
+    d3.select("#playButton").classed("active", !state);
+    if (!this.cloudManager) return;
+    this.cloudManager!.stop();
   }
   play() {
-    let ele = "#playButton"
-    let state = !d3.select(ele).classed("active")
-    d3.select(ele).classed("active", state)
-    d3.select("#pauseButton").classed("active", !state)
-    if(!this.cloudManager) return
-    this.cloudManager!.play(this.duration)
+    let ele = "#playButton";
+    let state = !d3.select(ele).classed("active");
+    d3.select(ele).classed("active", state);
+    d3.select("#pauseButton").classed("active", !state);
+    if (!this.cloudManager) return;
+    this.cloudManager!.play(this.duration);
   }
   replay() {
-    if(!this.cloudManager) return
-    this.cloudManager!.play(this.duration)
+    if (!this.cloudManager) return;
+    this.cloudManager!.play(this.duration);
   }
   parseFile() {
-    let res = this.fileReader.result
-    if (!res || typeof res !== 'string') return
+    let res = this.fileReader.result;
+    if (!res || typeof res !== "string") return;
     let data = dsv.csvParse(res, (item: any) => {
-        return {
-          frequency: parseFloat(item.frequency),
-          text: item.text
-        }
-      })
+      return {
+        frequency: parseFloat(item.frequency),
+        text: item.text,
+      };
+    });
     let dataset = {
       data: data,
-      tag: this.uploadFilename
-    }
-    this.collection.push(dataset)
-    d3.select('#dataset').property('value', dataset)
-    this.wordleData = dataset
+      tag: this.uploadFilename,
+    };
+    this.collection.push(dataset);
+    d3.select("#dataset").property("value", dataset);
+    this.wordleData = dataset;
   }
   updateColor() {
-    console.log(this.customColor)
+    console.log(this.customColor);
   }
   // downloadGif() {
   //   if(!this.cloudManager) return
@@ -333,35 +373,53 @@ export default class Static extends Vue {
   //   this.cloudManager.animator!.createGif()
   // }
   jsonToCsv(data: any[]) {
-    let array = typeof data != 'object' ? JSON.parse(data) : data;
-    let headers = ['frequency','text','color','weight','font','style','rotate','size','padding','x','y','width','height','xoff','yoff','x1','y1','x0','y0','hasText'];
-    let csvStr = headers.join(',') + "\n";
+    let array = typeof data != "object" ? JSON.parse(data) : data;
+    let headers = [
+      "frequency",
+      "text",
+      "color",
+      "weight",
+      "font",
+      "style",
+      "rotate",
+      "size",
+      "padding",
+      "x",
+      "y",
+      "width",
+      "height",
+      "xoff",
+      "yoff",
+      "x1",
+      "y1",
+      "x0",
+      "y0",
+      "hasText",
+    ];
+    let csvStr = headers.join(",") + "\n";
 
-    array.forEach((element:any) => {
-
-      for(let header of headers) {
+    array.forEach((element: any) => {
+      for (let header of headers) {
         const d = element[header];
-        csvStr += d == undefined 
-          ? ','
-          : d + ','
-        }
-        csvStr = csvStr.slice(0,-1);
-        csvStr += '\n'
-      })
+        csvStr += d == undefined ? "," : d + ",";
+      }
+      csvStr = csvStr.slice(0, -1);
+      csvStr += "\n";
+    });
     return csvStr;
   }
   downloadJson() {
-    if (!this.wordleData) return
-    const a = document.createElement('a');
+    if (!this.wordleData) return;
+    const a = document.createElement("a");
     const jsonData = this.wordleData.data;
     const csvData = this.jsonToCsv(jsonData);
-    a.href = URL.createObjectURL( new Blob([csvData], {type: 'text/csv'}) );
-    a.download = `layout_${this.wordleData.tag}.csv`
-    a.click()
-    a.remove()
+    a.href = URL.createObjectURL(new Blob([csvData], { type: "text/csv" }));
+    a.download = `layout_${this.wordleData.tag}.csv`;
+    a.click();
+    a.remove();
   }
   openFile() {
-    document.getElementById("wordleUpload")!.click()
+    document.getElementById("wordleUpload")!.click();
   }
 }
 </script>
@@ -375,17 +433,17 @@ $highlightColor: #f96760;
   stroke: black;
   &.active {
     stroke-width: 1px;
-     &.activate {
-        stroke: orange;
-      }
+    &.activate {
+      stroke: orange;
+    }
   }
 }
 .rotationHandler {
-    fill: red;
-    visibility: hidden;
-    &.active {
-      visibility: visible;
-    }
+  fill: red;
+  visibility: hidden;
+  &.active {
+    visibility: visible;
+  }
 }
 .annotation-wrapper {
   position: relative;
@@ -398,23 +456,21 @@ $highlightColor: #f96760;
 }
 
 @keyframes float {
-	0% {
-		box-shadow: 0 5px 15px 0px rgba(0,0,0,0.6);
-		transform: translatey(0px);
-	}
-	50% {
-		box-shadow: 0 25px 15px 0px rgba(0,0,0,0.2);
-		transform: translatey(-20px);
-	}
-	100% {
-		box-shadow: 0 5px 15px 0px rgba(0,0,0,0.6);
-		transform: translatey(0px);
-	}
+  0% {
+    box-shadow: 0 5px 15px 0px rgba(0, 0, 0, 0.6);
+    transform: translatey(0px);
+  }
+  50% {
+    box-shadow: 0 25px 15px 0px rgba(0, 0, 0, 0.2);
+    transform: translatey(-20px);
+  }
+  100% {
+    box-shadow: 0 5px 15px 0px rgba(0, 0, 0, 0.6);
+    transform: translatey(0px);
+  }
 }
 // text {
 //    animation: bop 10s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards infinite
 //       alternate;
 // }
-
-
 </style>
