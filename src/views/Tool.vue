@@ -184,7 +184,7 @@ export default class Tool extends Vue {
   private draggableTexts: DraggableText[] = [];
   private wordleData: Dataset = { data: [], tag: "" };
   private animationInstances: AnimeInstance[] = [];
-  private animationMode = "sad";
+  private animationMode = "happy";
   private ifMask =false;
   private animationModes = [
     "still",
@@ -193,7 +193,7 @@ export default class Tool extends Vue {
     "angry",
     "sad",
     "fearful",
-    // "nervous"
+    "nervous"
   ];
   private colorScheme = "black";
   private colorSchemes = [
@@ -244,6 +244,7 @@ export default class Tool extends Vue {
       fileNames.map((f: string) => d3.json(`./dataset/layout/layout_${f}.json`))
     ).then((rawData: unknown[]) => {
       const data = rawData as Word[][];
+      console.log(rawData, '??')
       data.forEach((instance, idx: number) => {
         const style = (preprocessData(
           instance
@@ -264,7 +265,7 @@ export default class Tool extends Vue {
   }
   @Watch("wordleData")
   wordleDataChanged() {
-    if (!this.wordleData) return;
+    if (!this.wordleData || this.wordleData.data.length === 0) return;
     this.ifMask = false;
     this.initiateData(this.wordleData.data);
     this.relayout();
@@ -295,6 +296,7 @@ export default class Tool extends Vue {
     this.animate();
   }
   animate() {
+    if(!this.draggableTexts || this.draggableTexts.length===0) return;
     const animator = new Emordle.Animator(
       this.draggableTexts,
       this.entropy,
@@ -303,6 +305,9 @@ export default class Tool extends Vue {
     );
     this.animationInstances = animator.getAnimationScheme();
     this.play();
+    setTimeout(() => {
+      d3.select("#pauseButton").on('click');
+    }, 60000)
   }
   play() {
     document.querySelector("#pauseButton")?.classList.remove("active");

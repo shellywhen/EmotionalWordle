@@ -1,0 +1,296 @@
+<script src="https://assets.crowd.aws/crowd-html-elements.js"></script>
+
+<style>
+    section {
+        height: 90vh;
+        text-align: left;
+        vertical-align: top;
+        border-top: white 6px solid;
+        padding-bottom: 10px;
+        padding-top: 40px;
+    }
+
+    section:before {
+  content: "";
+  display: inline-block;
+  vertical-align: top;
+  height: 100%;
+}
+
+.general {
+        height: fit-content !important;
+    }
+
+    img {
+        max-width: 100%;
+        max-height: 520px;
+    }
+
+    h3 {
+        margin-top: 10px;
+        margin-bottom: 0px;
+    }
+
+    .left h3 {
+        margin-bottom: 30px;
+    }
+
+    crowd-card {
+        width: 100%;
+        /* height: 100%; */
+        /* min-height: 400px; */
+    }
+
+    .card {
+        margin: 10px;
+        max-width: 100%;
+    }
+
+    .left {
+        width: 50%;
+        margin-right: 10px;
+        display: inline-block;
+        vertical-align: top;
+        padding-right: 10px;
+    }
+
+    .right {
+        width: 40%;
+        display: inline-block;
+        vertical-align: top;
+    }
+
+    .note {
+        color: #3367D6;
+    }
+
+    .positive-answer {
+        color: black;
+    }
+
+    .negative-answer {
+        color: black;
+    }
+</style>
+
+<crowd-toast duration="20000" opened>
+    <!-- This is a message that you want users to see when opening the template. This message will disappear in 20 seconds.  -->
+    <p>Please finish all 4 tasks and try your best to evaluate on the animation, <u>NOT</u> based on the textual content.</p>
+    <p>(1). Select the emotion that the animated word cloud presents and its extent. </p>
+    <p>(2). Input your feelings that best describes your feelings towards the animated word cloud. You may use some words or a sentence.</p>
+</crowd-toast>
+
+<crowd-form>
+
+    <short-instructions>
+        <h2>Emotion tagging for animated word cloud. </h2>
+        <p>There will be four tasks:<br />
+            (1). Select the emotion that the animated word cloud presents according to your understanding. Be aware that the default answer
+            disqualifies your task. <br />
+            (2). Input words or sentences that best describes your feelings towards the animated word cloud.</p>
+        <p>Please try your best to evaluate the sentiment of the <b>animation</b>, <u>NOT</u> on the textual
+            content.</b></p>
+        <p class="positive-answer">
+            <b>:D Good examples</b>
+        <ul>
+            <li>accurate words, e.g. <i>terrified</i>, <i>cheerful</i>, <i>no feeling</i></li>
+            <li>link with real-life scenarios, e.g. <i>The words are like dancing.</i></li>
+        </ul>
+        </p>
+        <p class="negative-answer">
+            <b>:( Bad examples</b>
+        <ul>
+            <li>meaningless answer, e.g. <i>?</i>, <i>oops</i></li>
+        </ul>
+        </p>
+    </short-instructions>
+
+    <full-instructions>
+        <h2>Emotion tagging for animated word cloud. </h2>
+        <p>There will be four tasks:<br />
+            (1). Select the emotion that the animated word cloud presents according to your understanding. Be aware that the default answer
+            disqualifies your task. <br />
+            (2). Input words or sentences that best describes your feelings towards the animated word cloud.</p>
+        <p>Please try your best to evaluate the sentiment of the <b>animation</b>, <u>NOT</u> on the textual
+            content.</b></p>
+        <p class="positive-answer">
+            <b>:D Good examples</b>
+        <ul>
+            <li>accurate words, e.g. <i>terrified</i>, <i>cheerful</i>, <i>no feeling</i></li>
+            <li>link with real-life scenarios, e.g. <i>The words are like dancing.</i></li>
+        </ul>
+        </p>
+        <p class="negative-answer">
+            <b>:( Bad examples</b>
+        <ul>
+            <li>meaningless answer, e.g. <i>?</i>, <i>oops</i></li>
+        </ul>
+        </p>
+    </full-instructions>
+
+    <div>
+        <h2>Emotion tagging for animated word cloud. </h2>
+        <p>There will be four tasks:<br />
+            (1). Select the emotion that the animated word cloud presents according to your understanding. Be aware that the default answer
+            disqualifies your task. <br />
+            (2). Input words or sentences that best describes your feelings towards the animated word cloud.</p>
+        <p>Please try your best to evaluate the sentiment of the <b>animation</b>, <u>NOT</u> on the textual
+            content.</b></p>
+        <p class="positive-answer">
+            <b>:D Good examples</b>
+        <ul>
+            <li>accurate words, e.g. <i>terrified</i>, <i>cheerful</i>, <i>no feeling</i></li>
+            <li>link with real-life scenarios, e.g. <i>The words are like dancing.</i></li>
+        </ul>
+        </p>
+        <p class="negative-answer">
+            <b>:( Bad examples</b>
+        <ul>
+            <li>meaningless answer, e.g. <i>?</i>, <i>oops</i></li>
+        </ul>
+        </p>
+    </div>
+
+    <section class="general">
+        <div class="left">
+        <h3>How do you feel right now?</h3>
+        <crowd-slider name="sentiment_report" min="-1" max="1" step="1" pin="true" editable value="0" required>
+        </crowd-slider>
+        <ul>
+            <li>-1: :-( </li>
+            <li>0: Peaceful</li>
+            <li>1: :-) </li>
+        </ul>
+        </div>
+
+    </section>
+
+
+    <section name="q1">
+        <div class="left">
+            <h3>How Do You Feel Towards the Animated Word Cloud?</h3>
+                <img src="https://emordle-mturk.s3.us-east-2.amazonaws.com/update-pilot/hht-sad.gif"/>
+        </div>
+        <div class="right">
+            <h3>Select most proper emotion that the animated word cloud has expressed.</h3>
+            <crowd-radio-group>
+                <crowd-radio-button name="angry1" value="angry">Angry</crowd-radio-button>
+                <crowd-radio-button name="fearful1" value="fearful">Fearful</crowd-radio-button>
+                <crowd-radio-button name="sad1" value="sad">Sad</crowd-radio-button>
+                <crowd-radio-button name="tender1" value="tender">Tender</crowd-radio-button>
+                <crowd-radio-button name="happy1" value="happy">Happy</crowd-radio-button>
+                <crowd-radio-button name="unknown1" value="unknown">Unclear</crowd-radio-button>
+              </crowd-radio-group>
+            <h3> Please rate the emotion extent/strength. </h3>
+            <crowd-slider name="extent1" min="0" max="4" step="1" pin="true" editable value="4" required>
+            </crowd-slider>
+            <ul>
+                <li>0: Unclear</li>
+                <li>1: Slightly expressed</li>
+                <li>2: Properly expressed</li>
+                <li>3: Extensively expressed</li>
+                <li><span class="note"> Unselected (Invalid Answer)</span></li>
+            </ul>
+
+            <crowd-input name="response1" label="Words/sentences best describe your feelings" required></crowd-input>
+        </div>
+    </section>
+
+    <section name="q2">
+        <div class="left">
+            <h3>How Do You Feel Towards the Animated Word Cloud?</h3>
+                <img src="https://emordle-mturk.s3.us-east-2.amazonaws.com/update-pilot/llt-sad.gif"/>
+        </div>
+        <div class="right">
+            <h3>Select most proper emotion that the animated word cloud has expressed.</h3>
+            <crowd-radio-group>
+                <crowd-radio-button name="angry2" value="angry">Angry</crowd-radio-button>
+                <crowd-radio-button name="fearful2" value="fearful">Fearful</crowd-radio-button>
+                <crowd-radio-button name="sad2" value="sad">Sad</crowd-radio-button>
+                <crowd-radio-button name="tender2" value="tender">Tender</crowd-radio-button>
+                <crowd-radio-button name="happy2" value="happy">Happy</crowd-radio-button>
+                <crowd-radio-button name="unknown2" value="unknown">Unclear</crowd-radio-button>
+              </crowd-radio-group>
+            <h3> Please rate the emotion extent/strength. </h3>
+            <crowd-slider name="extent2" min="0" max="4" step="1" pin="true" editable value="4" required>
+            </crowd-slider>
+            <ul>
+                <li>0: Unclear</li>
+                <li>1: Slightly expressed</li>
+                <li>2: Properly expressed</li>
+                <li>3: Extensively expressed</li>
+                <li><span class="note"> Unselected (Invalid Answer)</span></li>
+            </ul>
+
+            <crowd-input name="response2" label="Words/sentences best describe your feelings" required></crowd-input>
+        </div>
+    </section>
+
+    <section name="q3">
+        <div class="left">
+            <h3>How Do You Feel Towards the Animated Word Cloud?</h3>
+                <img src="https://emordle-mturk.s3.us-east-2.amazonaws.com/update-pilot/lht-sad.gif"/>
+        </div>
+        <div class="right">
+            <h3>Select most proper emotion that the animated word cloud has expressed.</h3>
+            <crowd-radio-group>
+                <crowd-radio-button name="angry3" value="angry">Angry</crowd-radio-button>
+                <crowd-radio-button name="fearful3" value="fearful">Fearful</crowd-radio-button>
+                <crowd-radio-button name="sad3" value="sad">Sad</crowd-radio-button>
+                <crowd-radio-button name="tender3" value="tender">Tender</crowd-radio-button>
+                <crowd-radio-button name="happy3" value="happy">Happy</crowd-radio-button>
+                <crowd-radio-button name="unknown3" value="unknown">Unclear</crowd-radio-button>
+              </crowd-radio-group>
+            <h3> Please rate the emotion extent/strength. </h3>
+            <crowd-slider name="extent3" min="0" max="4" step="1" pin="true" editable value="4" required>
+            </crowd-slider>
+            <ul>
+                <li>0: Unclear</li>
+                <li>1: Slightly expressed</li>
+                <li>2: Properly expressed</li>
+                <li>3: Extensively expressed</li>
+                <li><span class="note"> Unselected (Invalid Answer)</span></li>
+            </ul>
+
+            <crowd-input name="response3" label="Words/sentences best describe your feelings" required></crowd-input>
+        </div>
+    </section>
+
+    <section name="q4">
+        <div class="left">
+            <h3>How Do You Feel Towards the Animated Word Cloud?</h3>
+                <img src="https://emordle-mturk.s3.us-east-2.amazonaws.com/update-pilot/hlt-sad.gif"/>
+        </div>
+        <div class="right">
+            <h3>Select most proper emotion that the animated word cloud has expressed.</h3>
+            <crowd-radio-group>
+                <crowd-radio-button name="angry4" value="angry">Angry</crowd-radio-button>
+                <crowd-radio-button name="fearful4" value="fearful">Fearful</crowd-radio-button>
+                <crowd-radio-button name="sad4" value="sad">Sad</crowd-radio-button>
+                <crowd-radio-button name="tender4" value="tender">Tender</crowd-radio-button>
+                <crowd-radio-button name="happy4" value="happy">Happy</crowd-radio-button>
+                <crowd-radio-button name="unknown4" value="unknown">Unclear</crowd-radio-button>
+              </crowd-radio-group>
+            <h3> Please rate the emotion extent/strength. </h3>
+            <crowd-slider name="extent4" min="0" max="4" step="1" pin="true" editable value="4" required>
+            </crowd-slider>
+            <ul>
+                <li>0: Unclear</li>
+                <li>1: Slightly expressed</li>
+                <li>2: Properly expressed</li>
+                <li>3: Extensively expressed</li>
+                <li><span class="note"> Unselected (Invalid Answer)</span></li>
+            </ul>
+
+            <crowd-input name="response4" label="Words/sentences best describe your feelings" required></crowd-input>
+        </div>
+    </section>
+</crowd-form>
+
+<script>
+    document.querySelector('crowd-form').onsubmit = function (e) {
+        if (!validateForm()) {
+            e.preventDefault();
+        }
+    }
+</script>

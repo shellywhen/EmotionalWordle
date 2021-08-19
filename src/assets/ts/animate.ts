@@ -57,14 +57,9 @@ const getSadSchemeFrame:AnimationFrameScheme = function (data, entropy, speed, i
   const animationInstances = [] as AnimeInstance[]
   const duration = getDuration(speed);
   const stagger = duration / 3;
-  // data.forEach(d => {
-  //   d.elem.style.filter = "blur(0)";
-  //   d.elem
-  // })
   const params: AnimeAnimParams = {
     targets: `.group_${idx}`,
     opacity: [0.8, 0.4, 0.25, 0.3, 0.4, 0.8, 1, 1],
-    // translateY: ["1%", "2%", "5%", "2%", "0%"],
     translateY: [1, 2, 5, 8, 5, 2, 1, 0],
     filter: ["blur(0)", "blur(0)" , "blur(0.2px)", "blur(1px)", "blur(0.2px)", "blur(0)", "blur(0)"],
     duration: 4 * duration,
@@ -79,14 +74,23 @@ const getAngrySchemeFrame:AnimationFrameScheme = function (data, entropy, speed,
   const animationInstances = [] as AnimeInstance[]
   const duration = getDuration(speed);
   const period = 0.6 + Math.random() * 1.;
-  const params: AnimeAnimParams = {
+  let x = 0, y = 0;
+  data.forEach(d => {
+    x += d.initData.left + (d.initData.offx || 0);
+    y +=  d.initData.top + (d.initData.offy || 0);
+  })
+  x /= Math.max(1, data.length);
+  y /= Math.max(1, data.length);
+  console.log(x, y, 'center of group')
+  const theta = Math.atan2(y - defaultStyleSheet.height / 2, x - defaultStyleSheet.width /2);
+  const d = Math.sqrt((y - defaultStyleSheet.height / 2)**2 + (x - defaultStyleSheet.width /2)**2)
+  const params: AnimeAnimParams = { 
       targets: `.group_${idx}`,
       scale: [0.8, 1.25],
+      translateY: [0, d * Math.sin(theta) / 2],
+      translateX: [0, d * Math.cos(theta) / 2],
       duration: duration,
       easing: `easeInElastic(1, ${period})`,
-      // translateX: anime.stagger(10, {grid: [14, 5], from: 'center', axis: 'x'}),
-      // translateY: anime.stagger(10, {grid: [14, 5], from: 'center', axis: 'y'}),
-      // rotateZ: anime.stagger([0, 9], {grid: [14, 5], from: 'center', axis: 'x'}),
       direction: "alternate"
   };
   animationInstances.push(anime({ ...animeParams, ...params }));
@@ -148,15 +152,25 @@ const getStillSchemeFrame: AnimationFrameScheme = function (data, entropy, durat
 }
 
 const getHappySchemeFrame:AnimationFrameScheme = function (data, entropy, speed, idx=0) {
-  const animationInstances = [] as AnimeInstance[];
-  const duration = 1.2 * getDuration(speed);
-  const extent = 40 - Math.random()*5;
-  const params: AnimeAnimParams = {
+  const animationInstances = [] as AnimeInstance[]
+  const duration = getDuration(speed) * 0.5;
+  let x = 0, y = 0;
+  data.forEach(d => {
+    x += d.initData.left + (d.initData.offx || 0);
+    y +=  d.initData.top + (d.initData.offy || 0);
+  })
+  x /= Math.max(1, data.length);
+  y /= Math.max(1, data.length);
+  const theta = Math.atan2(y - defaultStyleSheet.height / 2, x - defaultStyleSheet.width /2);
+  const d = Math.sqrt((y - defaultStyleSheet.height / 2)**2 + (x - defaultStyleSheet.width /2)**2)
+  const params: AnimeAnimParams = { 
       targets: `.group_${idx}`,
-      translateY: [0, extent],
+      translateY: [d * Math.sin(theta) / 2, 0],
+      translateX: [d * Math.cos(theta) / 2, 0],
+      rotate: [0, 0, -theta * Math.PI / 2 + Math.PI, 0, 0],
       duration: duration,
-      // easing: 'easeInBounce',
-      easing: "easeOutElastic(1, .8)"
+      easing: `easeInOutQuint`,
+      direction: "alternate"
   };
   animationInstances.push(anime({ ...animeParams, ...params }));
   return animationInstances
@@ -164,13 +178,14 @@ const getHappySchemeFrame:AnimationFrameScheme = function (data, entropy, speed,
 
 const getNervousSchemeFrame: AnimationFrameScheme = function (data, entropy, speed, idx) {
   const animationInstances = [] as AnimeInstance[]
-  const duration = getDuration(speed);
+  const duration = getDuration(speed) * .5;
   const extent = (1 + entropy) * 15 + Math.random() * 15;
   const direction = Math.random() > 0.5 ? 0 : (Math.random() > 0.5? -1 : 1);
   const params: AnimeAnimParams = {
       targets: `.group_${idx}`,
-      translateY: [0, -extent],
+      translateY: [0, -extent * 0.3],
       translateX: [direction * 5 * Math.random(), -direction * 5 * Math.random()],
+      rotate: [-Math.PI/6,Math.PI/6,0,0,-Math.PI/4,0, Math.PI/4],
       duration: duration,
       easing: 'easeOutQuad',
       direction: "alternate"
@@ -189,7 +204,6 @@ class Animator {
   private scheme: SchemeType;
   get numGroup() {
     const value = Math.max(1, Math.ceil((this.data.length * this.entropy )));
-    console.log('number of groups:', value);
     return value;
   }
   get splitCenters() {
@@ -242,7 +256,7 @@ class Animator {
         break;
       case 'angry':
         this.scheme = SchemeType.angry;
-        this.split = DivideMode.split;
+        this.split = DivideMode.xy;
         break;
       case 'fearful':
         this.scheme = SchemeType.fearful;
@@ -251,6 +265,9 @@ class Animator {
       case 'tender':
         this.scheme = SchemeType.tender;
         this.split = DivideMode.x;
+        if(data[0].initData.fontFamily !== 'GT Flexa') {
+          alert("You should use a variable font for this scheme.");
+        }
         break;
       default:
         this.scheme = SchemeType.still;
@@ -293,9 +310,9 @@ class Animator {
           }
         }
         else {  // divide by xy
-            const positions = assignedWords.map((obj) => [obj.initData.left, obj.initData.top]);
+            const positions = assignedWords.map((obj) => [obj.initData.left + (obj.initData.offx || 0), obj.initData.top + (obj.initData.offy || 0)]);
             const centers = this.splitCenters;
-            const alias = this.split === DivideMode.xy ? centers : "kmeans";
+            const alias = this.split === DivideMode.xy ? "kmeans" : centers;
             const kmResult = kmeans(positions, numGroup, alias);
             const wordBags = getMatrix(numGroup, 0) as Array<Array<DraggableText>>;
             kmResult.indexes.forEach((d: number, idx: number) => {
@@ -305,6 +322,7 @@ class Animator {
               if(bag.length !== 0) results.push(bag);
             })
         }
+        console.log(numGroup, results.length, '??')
         return results
   }
 }
