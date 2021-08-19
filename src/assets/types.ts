@@ -88,6 +88,8 @@ interface DraggableText {
     fontSize: number;
     color: string;
     text: string;
+    offx?: number;
+    offy?: number;
   }
 
 interface Style {

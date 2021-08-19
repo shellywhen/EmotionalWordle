@@ -91,18 +91,36 @@
         ></Slider>
       </div>
       <br />
-      <button @click="animate">animate</button>
+      <!-- <button @click="animate">animate</button> -->
       <div>
-        <button @click="play">{{ "play" }}</button>
-        <button @click="pause">{{ "pause" }}</button>
+        <!-- <button @click="play">{{ "play" }}</button>
+        <button @click="pause">{{ "pause" }}</button> -->
+         <div class="row">
+           <div class="col-6">
+              <i
+                id="playButton"
+                @click="play()"
+                class="fas fa-play-circle active lg light"
+              ></i>
+            </div>
+            <div class="col-6">
+              <i
+                id="pauseButton"
+                @click="pause()"
+                class="fas fa-pause-circle lg light"
+              ></i>
+            </div>
+          </div>
       </div>
 
       <!-- <button id="reverse">reverse</button> -->
-      <button @click="restart">restart</button>
-      <button @click="center">center</button>
-
-      <br>
-      <br>
+      <!-- <button @click="restart">restart</button> -->
+      <br />
+      <!-- <button @click="center">center</button> -->
+      <button @click="relayout">relayout</button>
+      <button @click="mask"> {{ ifMask? "unmask": "mask" }} </button>
+      <br />
+      <br />
       <button @click="downloadConfig"> <i class="fas fa-download light"></i> &nbsp; config</button>
       <button @click="downloadGIF"> <i class="fas fa-download light"></i> &nbsp; gif </button>
 
@@ -142,7 +160,9 @@ import * as d3Dsv from "d3-dsv";
 import {
   generateWordle,
   defaultStyleSheet,
-  testOnSvg
+  testOnSvg,
+  word2Config,
+  config2Word
 } from "@/assets/ts/layout";
 const WIDTH = defaultStyleSheet.width;
 const HEIGHT = defaultStyleSheet.height;
@@ -165,6 +185,7 @@ export default class Tool extends Vue {
   private wordleData: Dataset = { data: [], tag: "" };
   private animationInstances: AnimeInstance[] = [];
   private animationMode = "sad";
+  private ifMask =false;
   private animationModes = [
     "still",
     "tender",
@@ -237,13 +258,16 @@ export default class Tool extends Vue {
         .property("selected", true);
   
       this.initiateData(this.collection[0].data);
+      this.relayout();
       // testOnSvg(data[0]);
     });
   }
   @Watch("wordleData")
   wordleDataChanged() {
     if (!this.wordleData) return;
+    this.ifMask = false;
     this.initiateData(this.wordleData.data);
+    this.relayout();
   }
   @Watch("colorScheme")
   colorSchemeChanged() {
@@ -281,11 +305,14 @@ export default class Tool extends Vue {
     this.play();
   }
   play() {
+    document.querySelector("#pauseButton")?.classList.remove("active");
     this.animationInstances.forEach(i => i.play());
+    document.querySelector("#playButton")?.classList.add("active");
   }
   pause() {
-    console.log('pause', this.animationInstances)
+    document.querySelector("#playButton")?.classList.remove("active");
     this.animationInstances.forEach(i => i.pause());
+    document.querySelector("#pauseButton")?.classList.add("active");
   }
 
   center() {
@@ -326,6 +353,37 @@ export default class Tool extends Vue {
     }
     this.center();
   }
+
+  relayout() {
+    this.pause();
+    const words = config2Word(this.draggableTexts.map(v => v.initData));
+     generateWordle(words, { width: WIDTH, height: HEIGHT })
+        .on("end", layout => {
+          const configs = word2Config(layout, WIDTH, HEIGHT);
+          configs.forEach((config, i) => {
+            config.color = this.draggableTexts[i].initData.color;
+          })
+          this.draggableTexts = initDraggableText(configs);
+          this.animate();
+        })
+        .start();
+
+  }
+
+  mask() {
+    this.ifMask = !this.ifMask;
+    if(this.ifMask) {
+        this.draggableTexts.forEach(v => {
+        v.elem.textContent = "x".repeat(v.initData.text.length);
+      })
+    } else {
+    this.draggableTexts.forEach(v =>{
+        v.elem.textContent = v.initData.text;
+      })
+    }
+    
+  }
+
 
   speedCallback(v: string) {
     this.speed = parseFloat(v);
@@ -388,29 +446,11 @@ export default class Tool extends Vue {
       alert(`Wrong Data Format! Please use 'Text' and 'Frequency'!`);
       return;
     }
-    const configs: TextStyleConfig[] = [];
     if (sanity.compute) {
       generateWordle(data, { width: WIDTH, height: HEIGHT })
         .on("end", layout => {
-          layout.forEach(w => {
-            const config = {
-              left: WIDTH / 2 + w.x!,
-              top: HEIGHT / 2 + w.y!,
-              fontFamily: this.fontFamily!,
-              fontWeight: Number(w.weight!),
-              fontSize: w.size!,
-              color: "black",
-              text: String(w.text),
-              x: w.x!,
-              y: w.y!,
-              size: w.size!
-            };
-            const bbox = testSize(config);
-            config.left -= bbox.width * 0.55;
-            config.top -= w.size! * 1.2;
-            configs.push(config);
-          });
-          testOnSvg((configs as unknown) as Word[]);
+          const configs = word2Config(layout, WIDTH, HEIGHT);
+          //testOnSvg((configs as unknown) as Word[]);
           this.insertDataset(configs);
           this.wordleData = this.collection[this.collection.length - 1];
         })
@@ -444,7 +484,7 @@ export default class Tool extends Vue {
 <style lang="scss">
 @import "@/assets/scss/_ui.scss";
 #emordle-container {
-  border: 1px solid black;
+  // border: 1px solid black;
   margin: 0 auto;
   position: relative;
 }
