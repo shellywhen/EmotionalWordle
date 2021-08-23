@@ -86,9 +86,9 @@ const getAngrySchemeFrame:AnimationFrameScheme = function (data, entropy, speed,
   const d = Math.sqrt((y - defaultStyleSheet.height / 2)**2 + (x - defaultStyleSheet.width /2)**2)
   const params: AnimeAnimParams = { 
       targets: `.group_${idx}`,
-      scale: [0.8, 1.25],
-      translateY: [0, d * Math.sin(theta) / 2],
-      translateX: [0, d * Math.cos(theta) / 2],
+      scale: [0.75, 1.25],
+      translateY: [ d * Math.sin(theta) * 0.75],
+      translateX: [ d * Math.cos(theta) * 0.75],
       duration: duration,
       easing: `easeInElastic(1, ${period})`,
       direction: "alternate"
@@ -104,10 +104,11 @@ const getFearfulSchemeFrame:AnimationFrameScheme = function (data, entropy, spee
   const direction = Math.random() > 0.5 ? 0 : (Math.random() > 0.5? -1 : 1);
   const params: AnimeAnimParams = {
       targets: `.group_${idx}`,
-      translateY: [0, -extent],
+      translateY: [0, -3 * extent],
       translateX: [direction * 5 * Math.random(), -direction * 5 * Math.random()],
       duration: duration,
       easing: 'easeOutQuad',
+      loop: true,
       direction: "alternate"
   };
   animationInstances.push(anime({ ...animeParams, ...params }));
@@ -185,7 +186,7 @@ const getNervousSchemeFrame: AnimationFrameScheme = function (data, entropy, spe
       targets: `.group_${idx}`,
       translateY: [0, -extent * 0.3],
       translateX: [direction * 5 * Math.random(), -direction * 5 * Math.random()],
-      rotate: [-Math.PI/6,Math.PI/6,0,0,-Math.PI/4,0, Math.PI/4],
+      rotate: [-Math.PI/6,Math.PI/6,0,0,-Math.PI/4,0, Math.PI/4, -Math.PI/4,0, Math.PI/4, -Math.PI/4,0, Math.PI/4],
       duration: duration,
       easing: 'easeOutQuad',
       direction: "alternate"
