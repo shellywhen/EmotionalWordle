@@ -176,7 +176,7 @@ import {
 const WIDTH = defaultStyleSheet.width;
 const HEIGHT = defaultStyleSheet.height;
 const divId = "emordle-container";
-const fileNames = ["thx", "2020_search", "xmas", "ingredients"];
+const fileNames = ["emotive/happy-words.csv", "emotive/sad-words.csv", "emotive/tender-words.csv", "emotive/afraid-words.csv", "emotive/angry-words.csv"];
 const fileReader = new FileReader();
 let uploadFilename = "a";
 interface Dataset {
@@ -228,7 +228,7 @@ export default class Tool extends Vue {
     "Dreamwood",
     "GT Flexa",
   ];
-  public fontFamily = "NotoSans";
+  public fontFamily = "Arial";
 
   private readonly animeParams: anime.AnimeParams = {
     easing: "linear",
@@ -248,17 +248,24 @@ export default class Tool extends Vue {
 
   async mounted() {
     this.initLayout();
-    fileReader.addEventListener("load", this.parseFile, false);
+    fileReader.addEventListener("load", () => {
+       const res = fileReader.result;
+      if (!res || typeof res !== "string") return;
+      const data = (d3Dsv.csvParse(res, d3Dsv.autoType) as unknown) as Word[];
+      this.parseFile(data);
+    }, false);
     await Promise.all(
-      fileNames.map((f: string) => d3.json(`./dataset/layout/layout_${f}.json`))
+      fileNames.map((f: string) => d3.csv(`./dataset/${f}`))
     ).then((rawData: unknown[]) => {
       const data = rawData as Word[][];
       console.log(rawData, "??");
       data.forEach((instance, idx: number) => {
-        const style = (preprocessData(
-          instance
-        ) as unknown) as TextStyleConfig[];
-        this.collection.push({ data: style, tag: fileNames[idx] });
+        // const style = (preprocessData(
+        //   instance
+        // ) as unknown) as TextStyleConfig[];
+        // this.collection.push({ data: style, tag: fileNames[idx] });
+        uploadFilename = fileNames[idx].split('/')[1].split('.')[0];
+        this.parseFile(instance, false)
       });
       this.wordleData = this.collection[0];
       d3.select("#emordle-dataset")
@@ -337,27 +344,15 @@ export default class Tool extends Vue {
     const translateY = HEIGHT / 2 - center.y;
     anime({
       targets: ".text-node",
-      left: function(el: HTMLElement, i: number, l: number) {
+      left: function(el: HTMLElement) {
         const offsetL = parseInt(el.style.left.split("px")[0]);
         return `${offsetL + translateX}px`;
       },
-      top: function(el: HTMLElement, i: number, l: number) {
+      top: function(el: HTMLElement) {
         const offsetT = parseInt(el.style.top.split("px")[0]);
         return `${offsetT + translateY}px`;
       },
     });
-    // this.draggableTexts.forEach((draggableText) => {
-    //   const toCenterLeft = WIDTH / 2 - this.midPoint.x;
-    //   const toCenterTop = HEIGHT / 2 - this.midPoint.y;
-    //   const offsetLeft = parseInt(draggableText.elem.style.left.split("px")[0]);
-    //   const offsetTop = parseInt(draggableText.elem.style.top.split("px")[0]);
-    //   draggableText.elem.style.left = `${
-    //     offsetLeft + toCenterLeft - draggableText.elem.offsetWidth
-    //   }px`;
-    //   draggableText.elem.style.top = `${
-    //     offsetTop + toCenterTop - draggableText.elem.offsetHeight
-    //   }px`;
-    // });
   }
 
   restart() {
@@ -450,10 +445,7 @@ export default class Tool extends Vue {
     this.draggableTexts = initDraggableText(dataset.data);
     this.colorSchemeChanged();
   }
-  parseFile() {
-    const res = fileReader.result;
-    if (!res || typeof res !== "string") return;
-    const data = (d3Dsv.csvParse(res, d3Dsv.autoType) as unknown) as Word[];
+  parseFile(data: Word[], newFileFlag=true) {
     const sanity = sanityChecknFill(data);
     if (!sanity.data) {
       alert(`Wrong Data Format! Please use 'Text' and 'Frequency'!`);
@@ -470,7 +462,9 @@ export default class Tool extends Vue {
         .start();
     } else {
       this.insertDataset((data as unknown) as TextStyleConfig[]);
-      this.wordleData = this.collection[this.collection.length - 1];
+      if(newFileFlag) {
+        this.wordleData = this.collection[this.collection.length - 1];
+      }
     }
   }
   downloadConfig() {
