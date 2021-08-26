@@ -77,7 +77,7 @@
           </option>
         </select>
       </div>
-      <div style="margin: 0 auto;">
+      <div style="margin: 0 auto">
         <Slider
           :init="speed"
           step="0.05"
@@ -86,7 +86,7 @@
           :callback="speedCallback"
         ></Slider>
       </div>
-      <div style="margin: 0 auto;">
+      <div style="margin: 0 auto">
         <Slider
           :init="entropy"
           step="0.05"
@@ -175,7 +175,17 @@ import {
 const WIDTH = defaultStyleSheet.width;
 const HEIGHT = defaultStyleSheet.height;
 const divId = "emordle-container";
-const fileNames = ["emotive/happy-words.csv", "emotive/sad-words.csv", "emotive/tender-words.csv", "emotive/afraid-words.csv", "emotive/angry-words.csv"];
+const fileNames = [
+  "emotive/happy-words.csv",
+  "emotive/sad-words.csv",
+  "emotive/tender-words.csv",
+  "emotive/afraid-words.csv",
+  "emotive/angry-words.csv",
+  "reallife/2020_search.csv",
+  "reallife/creep.csv",
+  "reallife/thx.csv",
+  "reallife/ingredients.csv"
+];
 const fileReader = new FileReader();
 let uploadFilename = "a";
 interface Dataset {
@@ -247,20 +257,23 @@ export default class Tool extends Vue {
 
   async mounted() {
     this.initLayout();
-    fileReader.addEventListener("load", () => {
-       const res = fileReader.result;
-      if (!res || typeof res !== "string") return;
-      const data = (d3Dsv.csvParse(res, d3Dsv.autoType) as unknown) as Word[];
-      this.parseFile(data);
-    }, false);
+    fileReader.addEventListener(
+      "load",
+      () => {
+        const res = fileReader.result;
+        if (!res || typeof res !== "string") return;
+        const data = d3Dsv.csvParse(res, d3Dsv.autoType) as unknown as Word[];
+        this.parseFile(data);
+      },
+      false
+    );
     await Promise.all(
-      fileNames.map((f: string) => d3.csv(`./dataset/${f}`))
+      [fileNames[0]].map((f: string) => d3.csv(`./dataset/${f}`))
     ).then((rawData: unknown[]) => {
       const data = rawData as Word[][];
-      console.log(rawData, "??");
       data.forEach((instance, idx: number) => {
-        uploadFilename = fileNames[idx].split('/')[1].split('.')[0];
-        this.parseFile(instance, false)
+        uploadFilename = fileNames[idx].split("/")[1].split(".")[0];
+        this.parseFile(instance, false);
       });
       this.wordleData = this.collection[0];
       d3.select("#emordle-dataset")
@@ -271,8 +284,16 @@ export default class Tool extends Vue {
 
       this.initiateData(this.collection[0].data);
       this.relayout();
-      // testOnSvg(data[0]);
     });
+    Promise.all(
+      fileNames.slice(1).map((f: string) => d3.csv(`./dataset/${f}`))
+    ).then((rawData: unknown[]) => {
+      const data = rawData as Word[][];
+      data.forEach((instance, idx: number) => {
+        uploadFilename = fileNames[idx + 1].split("/")[1].split(".")[0];
+        this.parseFile(instance, false);
+      })
+      })
   }
   @Watch("wordleData")
   wordleDataChanged() {
@@ -339,11 +360,11 @@ export default class Tool extends Vue {
     const translateY = HEIGHT / 2 - center.y;
     anime({
       targets: ".text-node",
-      left: function(el: HTMLElement) {
+      left: function (el: HTMLElement) {
         const offsetL = parseInt(el.style.left.split("px")[0]);
         return `${offsetL + translateX}px`;
       },
-      top: function(el: HTMLElement) {
+      top: function (el: HTMLElement) {
         const offsetT = parseInt(el.style.top.split("px")[0]);
         return `${offsetT + translateY}px`;
       },
@@ -415,15 +436,10 @@ export default class Tool extends Vue {
     const file = files[0];
     if (!file) return;
     fileReader.readAsText(file);
-    uploadFilename = file.name
-      .split(".")
-      .slice(0, -1)
-      .join(".");
+    uploadFilename = file.name.split(".").slice(0, -1).join(".");
     for (const dataset of this.collection) {
       if (dataset.tag === uploadFilename) {
-        uploadFilename += Math.random()
-          .toString()
-          .substring(2, 4);
+        uploadFilename += Math.random().toString().substring(2, 4);
       }
     }
   }
@@ -440,7 +456,7 @@ export default class Tool extends Vue {
     this.draggableTexts = initDraggableText(dataset.data);
     this.colorSchemeChanged();
   }
-  parseFile(data: Word[], newFileFlag=true) {
+  parseFile(data: Word[], newFileFlag = true) {
     const sanity = sanityChecknFill(data);
     if (!sanity.data) {
       alert(`Wrong Data Format! Please use 'Text' and 'Frequency'!`);
@@ -456,8 +472,8 @@ export default class Tool extends Vue {
         })
         .start();
     } else {
-      this.insertDataset((data as unknown) as TextStyleConfig[]);
-      if(newFileFlag) {
+      this.insertDataset(data as unknown as TextStyleConfig[]);
+      if (newFileFlag) {
         this.wordleData = this.collection[this.collection.length - 1];
       }
     }
@@ -476,10 +492,9 @@ export default class Tool extends Vue {
         top: d.top,
         frequency: d.fontSize,
         offx: d.offx,
-        offy: d.offy
-      }
-    
-      });
+        offy: d.offy,
+      };
+    });
     const csvData = d3Dsv.csvFormat(jsonData);
     a.href = URL.createObjectURL(new Blob([csvData], { type: "text/csv" }));
     a.download = `layout_${this.wordleData.tag}.csv`;

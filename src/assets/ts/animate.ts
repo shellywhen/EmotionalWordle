@@ -116,8 +116,6 @@ const getAngrySchemeFrame: AnimationFrameScheme = function(
   });
   x /= Math.max(1, data.length);
   y /= Math.max(1, data.length);
-<<<<<<< HEAD
-  console.log(x, y, 'center of group')
   const theta = Math.atan2(y - defaultStyleSheet.height / 2, x - defaultStyleSheet.width /2);
   const d = Math.sqrt((y - defaultStyleSheet.height / 2)**2 + (x - defaultStyleSheet.width /2)**2)
   const params: AnimeAnimParams = { 
@@ -128,24 +126,6 @@ const getAngrySchemeFrame: AnimationFrameScheme = function(
       duration: duration,
       easing: `easeInElastic(1, ${period})`,
       direction: "alternate"
-=======
-  const theta = Math.atan2(
-    y - defaultStyleSheet.height / 2,
-    x - defaultStyleSheet.width / 2
-  );
-  const d = Math.sqrt(
-    (y - defaultStyleSheet.height / 2) ** 2 +
-      (x - defaultStyleSheet.width / 2) ** 2
-  );
-  const params: AnimeAnimParams = {
-    targets: `.group_${idx}`,
-    scale: [0.8, 1.25],
-    translateY: [0, (d * Math.sin(theta)) / 2],
-    translateX: [0, (d * Math.cos(theta)) / 2],
-    duration: duration,
-    easing: `easeInElastic(1, ${period})`,
-    direction: "alternate",
->>>>>>> fix-anim-change-bug
   };
   animationInstances.push(anime({ ...animeParams, ...params }));
   return animationInstances;
@@ -162,7 +142,6 @@ const getFearfulSchemeFrame: AnimationFrameScheme = function(
   const extent = (1 + entropy) * 15 + Math.random() * 15;
   const direction = Math.random() > 0.5 ? 0 : Math.random() > 0.5 ? -1 : 1;
   const params: AnimeAnimParams = {
-<<<<<<< HEAD
       targets: `.group_${idx}`,
       translateY: [0, -3 * extent],
       translateX: [direction * 5 * Math.random(), -direction * 5 * Math.random()],
@@ -170,14 +149,6 @@ const getFearfulSchemeFrame: AnimationFrameScheme = function(
       easing: 'easeOutQuad',
       loop: true,
       direction: "alternate"
-=======
-    targets: `.group_${idx}`,
-    translateY: [0, -extent],
-    translateX: [direction * 5 * Math.random(), -direction * 5 * Math.random()],
-    duration: duration,
-    easing: "easeOutQuad",
-    direction: "alternate",
->>>>>>> fix-anim-change-bug
   };
   animationInstances.push(anime({ ...animeParams, ...params }));
   return animationInstances;
@@ -279,7 +250,6 @@ const getNervousSchemeFrame: AnimationFrameScheme = function(
   const extent = (1 + entropy) * 15 + Math.random() * 15;
   const direction = Math.random() > 0.5 ? 0 : Math.random() > 0.5 ? -1 : 1;
   const params: AnimeAnimParams = {
-<<<<<<< HEAD
       targets: `.group_${idx}`,
       translateY: [0, -extent * 0.3],
       translateX: [direction * 5 * Math.random(), -direction * 5 * Math.random()],
@@ -287,15 +257,6 @@ const getNervousSchemeFrame: AnimationFrameScheme = function(
       duration: duration,
       easing: 'easeOutQuad',
       direction: "alternate"
-=======
-    targets: `.group_${idx}`,
-    translateY: [0, -extent * 0.3],
-    translateX: [direction * 5 * Math.random(), -direction * 5 * Math.random()],
-    rotate: [-Math.PI / 6, Math.PI / 6, 0, 0, -Math.PI / 4, 0, Math.PI / 4],
-    duration: duration,
-    easing: "easeOutQuad",
-    direction: "alternate",
->>>>>>> fix-anim-change-bug
   };
   animationInstances.push(anime({ ...animeParams, ...params }));
   return animationInstances;
