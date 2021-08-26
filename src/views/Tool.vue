@@ -268,7 +268,7 @@ export default class Tool extends Vue {
       false
     );
     await Promise.all(
-      [fileNames[0]].map((f: string) => d3.csv(`./dataset/${f}`))
+      fileNames.map((f: string) => d3.csv(`./dataset/${f}`))
     ).then((rawData: unknown[]) => {
       const data = rawData as Word[][];
       data.forEach((instance, idx: number) => {
@@ -285,15 +285,15 @@ export default class Tool extends Vue {
       this.initiateData(this.collection[0].data);
       this.relayout();
     });
-    Promise.all(
-      fileNames.slice(1).map((f: string) => d3.csv(`./dataset/${f}`))
-    ).then((rawData: unknown[]) => {
-      const data = rawData as Word[][];
-      data.forEach((instance, idx: number) => {
-        uploadFilename = fileNames[idx + 1].split("/")[1].split(".")[0];
-        this.parseFile(instance, false);
-      })
-      })
+    // Promise.all(
+    //   fileNames.slice(1).map((f: string) => d3.csv(`./dataset/${f}`))
+    // ).then((rawData: unknown[]) => {
+    //   const data = rawData as Word[][];
+    //   data.forEach((instance, idx: number) => {
+    //     uploadFilename = fileNames[idx + 1].split("/")[1].split(".")[0];
+    //     this.parseFile(instance, false);
+    //   })
+    //   })
   }
   @Watch("wordleData")
   wordleDataChanged() {
@@ -336,8 +336,6 @@ export default class Tool extends Vue {
       this.animationMode
     );
     this.animationInstances = animator.getAnimationScheme();
-    // console.log(this.animationInstances);
-    // console.log(this.animationInstances.length);
     this.play();
     setTimeout(() => {
       d3.select("#pauseButton").on("click");
@@ -446,15 +444,19 @@ export default class Tool extends Vue {
   openFile() {
     document.getElementById("wordleUpload")?.click();
   }
-  insertDataset(data: TextStyleConfig[]) {
+  insertDataset(data: TextStyleConfig[], changeData=true) {
     const dataset = {
       data: data,
       tag: uploadFilename,
     };
     this.collection.push(dataset);
-    d3.select("#emordle-dataset").property("value", dataset);
-    this.draggableTexts = initDraggableText(dataset.data);
-    this.colorSchemeChanged();
+    console.log(changeData, '???')
+    if (changeData) {
+      d3.select("#emordle-dataset").property("value", dataset);
+      this.draggableTexts = initDraggableText(dataset.data);
+      this.colorSchemeChanged();
+      this.wordleData = this.collection[this.collection.length - 1];
+    }
   }
   parseFile(data: Word[], newFileFlag = true) {
     const sanity = sanityChecknFill(data);
@@ -467,15 +469,12 @@ export default class Tool extends Vue {
         .on("end", (layout) => {
           const configs = word2Config(layout, WIDTH, HEIGHT);
           //testOnSvg((configs as unknown) as Word[]);
-          this.insertDataset(configs);
+          this.insertDataset(configs, newFileFlag);
           this.wordleData = this.collection[this.collection.length - 1];
         })
         .start();
     } else {
-      this.insertDataset(data as unknown as TextStyleConfig[]);
-      if (newFileFlag) {
-        this.wordleData = this.collection[this.collection.length - 1];
-      }
+      this.insertDataset(data as unknown as TextStyleConfig[], newFileFlag);
     }
   }
   downloadConfig() {
