@@ -47,7 +47,12 @@
       </div>
       <div class="wrapper">
         <span class="config-tag">Font</span>
-        <select name="FontFamily" id="FontFamily" v-model="fontFamily" :style="{ 'font-family': fontFamily }">
+        <select
+          name="FontFamily"
+          id="FontFamily"
+          v-model="fontFamily"
+          :style="{ 'font-family': fontFamily }"
+        >
           <option
             v-for="item in fontFamilies"
             :data-tag="item"
@@ -59,18 +64,18 @@
           </option>
         </select>
       </div>
-      <br>
+      <br />
       <div class="wrapper">
-      <span class="config-tag">Scheme</span>
-      <select v-model="animationMode" @change="animationModeChange">
-        <option
-          v-for="item in animationModes"
-          v-bind:key="item"
-          v-bind:value="item"
-        >
-          {{ item }}
-        </option>
-      </select>
+        <span class="config-tag">Scheme</span>
+        <select v-model="animationMode" @change="animationModeChange">
+          <option
+            v-for="item in animationModes"
+            v-bind:key="item"
+            v-bind:value="item"
+          >
+            {{ item }}
+          </option>
+        </select>
       </div>
       <div style="margin: 0 auto;">
         <Slider
@@ -95,22 +100,22 @@
       <div>
         <!-- <button @click="play">{{ "play" }}</button>
         <button @click="pause">{{ "pause" }}</button> -->
-         <div class="row">
-           <div class="col-6">
-              <i
-                id="playButton"
-                @click="play()"
-                class="fas fa-play-circle active lg light"
-              ></i>
-            </div>
-            <div class="col-6">
-              <i
-                id="pauseButton"
-                @click="pause()"
-                class="fas fa-pause-circle lg light"
-              ></i>
-            </div>
+        <div class="row">
+          <div class="col-6">
+            <i
+              id="playButton"
+              @click="play()"
+              class="fas fa-play-circle active lg light"
+            ></i>
           </div>
+          <div class="col-6">
+            <i
+              id="pauseButton"
+              @click="pause()"
+              class="fas fa-pause-circle lg light"
+            ></i>
+          </div>
+        </div>
       </div>
 
       <!-- <button id="reverse">reverse</button> -->
@@ -118,16 +123,20 @@
       <br />
       <!-- <button @click="center">center</button> -->
       <button @click="relayout">relayout</button>
-      <button @click="mask"> {{ ifMask? "unmask": "mask" }} </button>
+      <button @click="mask">{{ ifMask ? "unmask" : "mask" }}</button>
       <br />
       <br />
-      <button @click="downloadConfig"> <i class="fas fa-download light"></i> &nbsp; config</button>
-      <button @click="downloadGIF"> <i class="fas fa-download light"></i> &nbsp; gif </button>
+      <button @click="downloadConfig">
+        <i class="fas fa-download light"></i> &nbsp; config
+      </button>
+      <button @click="downloadGIF">
+        <i class="fas fa-download light"></i> &nbsp; gif
+      </button>
 
       <!-- <button @click="pressUpload">upload</button> -->
       <input type="file" accept=".csv" id="uploadId" @change="upload" hidden />
     </div>
-    <div class="right-column col-8">
+    <div class="right-column col-10">
       <div id="emordle-container"></div>
       <svg id="emordle-test-svg-container"></svg>
       <div id="emordle-test-div-container"></div>
@@ -150,24 +159,23 @@ import {
   applyStyle,
   initDraggableText,
   getTextCenter,
-  preprocessData,
   sanityChecknFill,
-  testSize,
+  // testSize,
   getRandomInt,
-  arrayToCSV
+  arrayToCSV,
 } from "@/assets/ts/utils";
 import * as d3Dsv from "d3-dsv";
 import {
   generateWordle,
   defaultStyleSheet,
-  testOnSvg,
+  // testOnSvg,
   word2Config,
-  config2Word
+  config2Word,
 } from "@/assets/ts/layout";
 const WIDTH = defaultStyleSheet.width;
 const HEIGHT = defaultStyleSheet.height;
 const divId = "emordle-container";
-const fileNames = ["thx", "2020_search", "xmas", "ingredients"];
+const fileNames = ["emotive/happy-words.csv", "emotive/sad-words.csv", "emotive/tender-words.csv", "emotive/afraid-words.csv", "emotive/angry-words.csv"];
 const fileReader = new FileReader();
 let uploadFilename = "a";
 interface Dataset {
@@ -176,8 +184,8 @@ interface Dataset {
 }
 @Options({
   components: {
-    Slider
-  }
+    Slider,
+  },
 })
 export default class Tool extends Vue {
   public collection: Dataset[] = [];
@@ -185,7 +193,7 @@ export default class Tool extends Vue {
   private wordleData: Dataset = { data: [], tag: "" };
   private animationInstances: AnimeInstance[] = [];
   private animationMode = "happy";
-  private ifMask =false;
+  private ifMask = false;
   private animationModes = [
     "still",
     "tender",
@@ -193,7 +201,7 @@ export default class Tool extends Vue {
     "angry",
     "sad",
     "fearful",
-    "nervous"
+    "nervous",
   ];
   private colorScheme = "black";
   private colorSchemes = [
@@ -205,7 +213,7 @@ export default class Tool extends Vue {
     "playful",
     "trustworthy",
     "rainbow",
-    "exciting"
+    "exciting",
   ];
   private speed = 0.5;
   private entropy = 0.5;
@@ -217,14 +225,14 @@ export default class Tool extends Vue {
     "Raleway",
     "Manrope",
     "Dreamwood",
-    "GT Flexa"
+    "GT Flexa",
   ];
-  public fontFamily = "NotoSans";
+  public fontFamily = "Arial";
 
   private readonly animeParams: anime.AnimeParams = {
     easing: "linear",
     // direction: "alternate",
-    loop: true
+    loop: true,
   };
   initLayout() {
     const container = document.querySelector("#" + divId) as HTMLDivElement;
@@ -239,17 +247,20 @@ export default class Tool extends Vue {
 
   async mounted() {
     this.initLayout();
-    fileReader.addEventListener("load", this.parseFile, false);
+    fileReader.addEventListener("load", () => {
+       const res = fileReader.result;
+      if (!res || typeof res !== "string") return;
+      const data = (d3Dsv.csvParse(res, d3Dsv.autoType) as unknown) as Word[];
+      this.parseFile(data);
+    }, false);
     await Promise.all(
-      fileNames.map((f: string) => d3.json(`./dataset/layout/layout_${f}.json`))
+      fileNames.map((f: string) => d3.csv(`./dataset/${f}`))
     ).then((rawData: unknown[]) => {
       const data = rawData as Word[][];
-      console.log(rawData, '??')
+      console.log(rawData, "??");
       data.forEach((instance, idx: number) => {
-        const style = (preprocessData(
-          instance
-        ) as unknown) as TextStyleConfig[];
-        this.collection.push({ data: style, tag: fileNames[idx] });
+        uploadFilename = fileNames[idx].split('/')[1].split('.')[0];
+        this.parseFile(instance, false)
       });
       this.wordleData = this.collection[0];
       d3.select("#emordle-dataset")
@@ -257,7 +268,7 @@ export default class Tool extends Vue {
         .property("selected", false)
         .filter((v: any) => v["data-tag"] === this.collection[0].tag)
         .property("selected", true);
-  
+
       this.initiateData(this.collection[0].data);
       this.relayout();
       // testOnSvg(data[0]);
@@ -274,7 +285,7 @@ export default class Tool extends Vue {
   colorSchemeChanged() {
     const colorSet = getColor(this.colorScheme);
     const n = colorSet.length;
-    this.draggableTexts.forEach(obj => {
+    this.draggableTexts.forEach((obj) => {
       const c = colorSet[getRandomInt(0, n - 1)];
       obj.initData.color = c;
       obj.elem.style.color = c;
@@ -282,7 +293,7 @@ export default class Tool extends Vue {
   }
   @Watch("fontFamily")
   fontFamilyChanged() {
-     this.draggableTexts.forEach(obj => {
+    this.draggableTexts.forEach((obj) => {
       obj.initData.fontFamily = this.fontFamily;
       obj.elem.style.fontFamily = this.fontFamily;
     });
@@ -296,7 +307,7 @@ export default class Tool extends Vue {
     this.animate();
   }
   animate() {
-    if(!this.draggableTexts || this.draggableTexts.length===0) return;
+    if (!this.draggableTexts || this.draggableTexts.length === 0) return;
     const animator = new Emordle.Animator(
       this.draggableTexts,
       this.entropy,
@@ -304,19 +315,21 @@ export default class Tool extends Vue {
       this.animationMode
     );
     this.animationInstances = animator.getAnimationScheme();
+    // console.log(this.animationInstances);
+    // console.log(this.animationInstances.length);
     this.play();
     setTimeout(() => {
-      d3.select("#pauseButton").on('click');
-    }, 60000)
+      d3.select("#pauseButton").on("click");
+    }, 60000);
   }
   play() {
     document.querySelector("#pauseButton")?.classList.remove("active");
-    this.animationInstances.forEach(i => i.play());
+    this.animationInstances.forEach((i) => i.play());
     document.querySelector("#playButton")?.classList.add("active");
   }
   pause() {
     document.querySelector("#playButton")?.classList.remove("active");
-    this.animationInstances.forEach(i => i.pause());
+    this.animationInstances.forEach((i) => i.pause());
     document.querySelector("#pauseButton")?.classList.add("active");
   }
 
@@ -326,27 +339,15 @@ export default class Tool extends Vue {
     const translateY = HEIGHT / 2 - center.y;
     anime({
       targets: ".text-node",
-      left: function(el: HTMLElement, i: number, l: number) {
+      left: function(el: HTMLElement) {
         const offsetL = parseInt(el.style.left.split("px")[0]);
         return `${offsetL + translateX}px`;
       },
-      top: function(el: HTMLElement, i: number, l: number) {
+      top: function(el: HTMLElement) {
         const offsetT = parseInt(el.style.top.split("px")[0]);
         return `${offsetT + translateY}px`;
-      }
+      },
     });
-    // this.draggableTexts.forEach((draggableText) => {
-    //   const toCenterLeft = WIDTH / 2 - this.midPoint.x;
-    //   const toCenterTop = HEIGHT / 2 - this.midPoint.y;
-    //   const offsetLeft = parseInt(draggableText.elem.style.left.split("px")[0]);
-    //   const offsetTop = parseInt(draggableText.elem.style.top.split("px")[0]);
-    //   draggableText.elem.style.left = `${
-    //     offsetLeft + toCenterLeft - draggableText.elem.offsetWidth
-    //   }px`;
-    //   draggableText.elem.style.top = `${
-    //     offsetTop + toCenterTop - draggableText.elem.offsetHeight
-    //   }px`;
-    // });
   }
 
   restart() {
@@ -361,34 +362,31 @@ export default class Tool extends Vue {
 
   relayout() {
     this.pause();
-    const words = config2Word(this.draggableTexts.map(v => v.initData));
-     generateWordle(words, { width: WIDTH, height: HEIGHT })
-        .on("end", layout => {
-          const configs = word2Config(layout, WIDTH, HEIGHT);
-          configs.forEach((config, i) => {
-            config.color = this.draggableTexts[i].initData.color;
-          })
-          this.draggableTexts = initDraggableText(configs);
-          this.animate();
-        })
-        .start();
-
+    const words = config2Word(this.draggableTexts.map((v) => v.initData));
+    generateWordle(words, { width: WIDTH, height: HEIGHT })
+      .on("end", (layout) => {
+        const configs = word2Config(layout, WIDTH, HEIGHT);
+        configs.forEach((config, i) => {
+          config.color = this.draggableTexts[i].initData.color;
+        });
+        this.draggableTexts = initDraggableText(configs);
+        this.animate();
+      })
+      .start();
   }
 
   mask() {
     this.ifMask = !this.ifMask;
-    if(this.ifMask) {
-        this.draggableTexts.forEach(v => {
+    if (this.ifMask) {
+      this.draggableTexts.forEach((v) => {
         v.elem.textContent = "x".repeat(v.initData.text.length);
-      })
+      });
     } else {
-    this.draggableTexts.forEach(v =>{
+      this.draggableTexts.forEach((v) => {
         v.elem.textContent = v.initData.text;
-      })
+      });
     }
-    
   }
-
 
   speedCallback(v: string) {
     this.speed = parseFloat(v);
@@ -401,7 +399,7 @@ export default class Tool extends Vue {
 
   animationModeChange(v: string) {
     // stops what ever animation
-    this.animationInstances.forEach(i => {
+    this.animationInstances.forEach((i) => {
       i.restart();
       i.pause();
     });
@@ -435,17 +433,14 @@ export default class Tool extends Vue {
   insertDataset(data: TextStyleConfig[]) {
     const dataset = {
       data: data,
-      tag: uploadFilename
+      tag: uploadFilename,
     };
     this.collection.push(dataset);
     d3.select("#emordle-dataset").property("value", dataset);
     this.draggableTexts = initDraggableText(dataset.data);
     this.colorSchemeChanged();
   }
-  parseFile() {
-    const res = fileReader.result;
-    if (!res || typeof res !== "string") return;
-    const data = (d3Dsv.csvParse(res, d3Dsv.autoType) as unknown) as Word[];
+  parseFile(data: Word[], newFileFlag=true) {
     const sanity = sanityChecknFill(data);
     if (!sanity.data) {
       alert(`Wrong Data Format! Please use 'Text' and 'Frequency'!`);
@@ -453,7 +448,7 @@ export default class Tool extends Vue {
     }
     if (sanity.compute) {
       generateWordle(data, { width: WIDTH, height: HEIGHT })
-        .on("end", layout => {
+        .on("end", (layout) => {
           const configs = word2Config(layout, WIDTH, HEIGHT);
           //testOnSvg((configs as unknown) as Word[]);
           this.insertDataset(configs);
@@ -462,13 +457,30 @@ export default class Tool extends Vue {
         .start();
     } else {
       this.insertDataset((data as unknown) as TextStyleConfig[]);
-      this.wordleData = this.collection[this.collection.length - 1];
+      if(newFileFlag) {
+        this.wordleData = this.collection[this.collection.length - 1];
+      }
     }
   }
   downloadConfig() {
     const a = document.createElement("a");
-    const jsonData =this.draggableTexts.map(v => v.initData);
-    const csvData = arrayToCSV(jsonData);
+    const jsonData = this.draggableTexts.map((v) => {
+      const d = v.initData;
+      return {
+        text: d.text,
+        color: d.color,
+        fontFamily: d.fontFamily,
+        fontSize: d.fontSize,
+        fontWeight: d.fontWeight,
+        left: d.left,
+        top: d.top,
+        frequency: d.fontSize,
+        offx: d.offx,
+        offy: d.offy
+      }
+    
+      });
+    const csvData = d3Dsv.csvFormat(jsonData);
     a.href = URL.createObjectURL(new Blob([csvData], { type: "text/csv" }));
     a.download = `layout_${this.wordleData.tag}.csv`;
     a.click();
@@ -478,7 +490,9 @@ export default class Tool extends Vue {
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob([new Blob()], { type: "gif" }));
     a.target = "_blank";
-    a.download = `${this.wordleData.tag}_E${this.entropy.toFixed(3)}_S${this.speed.toFixed(3)}.csv`;
+    a.download = `${this.wordleData.tag}_E${this.entropy.toFixed(
+      3
+    )}_S${this.speed.toFixed(3)}.csv`;
     a.click();
     a.remove();
     alert("NOT IMPLEMENTED!");
@@ -525,12 +539,12 @@ export default class Tool extends Vue {
 .right-column {
   position: relative;
   #emordle-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    // div {
-    //   opacity: 0.1;
-    // }
+    // position: eabsolut;
+    // top: 0;
+    // left: 0;
+    // // div {
+    // //   opacity: 0.1;
+    // // }
   }
   #emordle-test-svg-container {
     position: absolute;
