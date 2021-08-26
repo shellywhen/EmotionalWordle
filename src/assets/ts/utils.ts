@@ -126,6 +126,7 @@ function initDraggableText(data:TextStyleConfig[], divId="emordle-container") {
             if (topMouseDrag <= HEIGHT - elem.offsetHeight && topMouseDrag > 0) {
             elem.style.top = topMouseDrag + "px";
             }
+            console.log(elem.style.left)
         }
         };
         const mouseDownCallBack = function(e: MouseEvent) {

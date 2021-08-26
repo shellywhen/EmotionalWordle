@@ -116,7 +116,6 @@ const getAngrySchemeFrame: AnimationFrameScheme = function(
   });
   x /= Math.max(1, data.length);
   y /= Math.max(1, data.length);
-  console.log(x, y, "center of group");
   const theta = Math.atan2(
     y - defaultStyleSheet.height / 2,
     x - defaultStyleSheet.width / 2
@@ -410,7 +409,6 @@ class Animator {
         if (bag.length !== 0) results.push(bag);
       });
     }
-    console.log(numGroup, results.length, "??");
     return results;
   }
 }

@@ -136,7 +136,7 @@
       <!-- <button @click="pressUpload">upload</button> -->
       <input type="file" accept=".csv" id="uploadId" @change="upload" hidden />
     </div>
-    <div class="right-column col-8">
+    <div class="right-column col-10">
       <div id="emordle-container"></div>
       <svg id="emordle-test-svg-container"></svg>
       <div id="emordle-test-div-container"></div>
@@ -159,9 +159,8 @@ import {
   applyStyle,
   initDraggableText,
   getTextCenter,
-  preprocessData,
   sanityChecknFill,
-  testSize,
+  // testSize,
   getRandomInt,
   arrayToCSV,
 } from "@/assets/ts/utils";
@@ -169,7 +168,7 @@ import * as d3Dsv from "d3-dsv";
 import {
   generateWordle,
   defaultStyleSheet,
-  testOnSvg,
+  // testOnSvg,
   word2Config,
   config2Word,
 } from "@/assets/ts/layout";
@@ -260,10 +259,6 @@ export default class Tool extends Vue {
       const data = rawData as Word[][];
       console.log(rawData, "??");
       data.forEach((instance, idx: number) => {
-        // const style = (preprocessData(
-        //   instance
-        // ) as unknown) as TextStyleConfig[];
-        // this.collection.push({ data: style, tag: fileNames[idx] });
         uploadFilename = fileNames[idx].split('/')[1].split('.')[0];
         this.parseFile(instance, false)
       });
@@ -469,8 +464,23 @@ export default class Tool extends Vue {
   }
   downloadConfig() {
     const a = document.createElement("a");
-    const jsonData = this.draggableTexts.map((v) => v.initData);
-    const csvData = arrayToCSV(jsonData);
+    const jsonData = this.draggableTexts.map((v) => {
+      const d = v.initData;
+      return {
+        text: d.text,
+        color: d.color,
+        fontFamily: d.fontFamily,
+        fontSize: d.fontSize,
+        fontWeight: d.fontWeight,
+        left: d.left,
+        top: d.top,
+        frequency: d.fontSize,
+        offx: d.offx,
+        offy: d.offy
+      }
+    
+      });
+    const csvData = d3Dsv.csvFormat(jsonData);
     a.href = URL.createObjectURL(new Blob([csvData], { type: "text/csv" }));
     a.download = `layout_${this.wordleData.tag}.csv`;
     a.click();
@@ -529,12 +539,12 @@ export default class Tool extends Vue {
 .right-column {
   position: relative;
   #emordle-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    // div {
-    //   opacity: 0.1;
-    // }
+    // position: eabsolut;
+    // top: 0;
+    // left: 0;
+    // // div {
+    // //   opacity: 0.1;
+    // // }
   }
   #emordle-test-svg-container {
     position: absolute;

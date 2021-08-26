@@ -21,7 +21,7 @@ export const generateWordle = function (data: Word[], specStyleSheet: Partial<St
         const height = styleSheet.height
         const freqList = data.map(d => d.frequency);
         const sizeRange = [d3Array.min(freqList),  d3Array.max(freqList)] as [number, number];
-        const wordScale = d3Scale.scaleLinear()
+        const wordScale = d3Scale.scaleLog()
             .domain(sizeRange)  // !!!!!!!!!!!!!!!!!!!!!!!
             .range([20, 80]) // !!!!!!!!!!!!!!!!!!!!!!!
         return cloudGenerator()
