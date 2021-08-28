@@ -120,13 +120,13 @@ function initDraggableText(data:TextStyleConfig[], divId="emordle-container") {
             const topMouseDrag =
             draggableTextProp.mousePosition.y + draggableTextProp.offset.y;
 
-            if (leftMouseDrag <= WIDTH - elem.offsetWidth && leftMouseDrag > 0) {
+            if (leftMouseDrag <= WIDTH - elem.offsetWidth + 20 && leftMouseDrag > -20) {
             elem.style.left = leftMouseDrag + "px";
-            }
-            if (topMouseDrag <= HEIGHT - elem.offsetHeight && topMouseDrag > 0) {
+           }
+            if (topMouseDrag <= HEIGHT - elem.offsetHeight + 20 && topMouseDrag > -20) {
             elem.style.top = topMouseDrag + "px";
             }
-            console.log(elem.style.left)
+        
         }
         };
         const mouseDownCallBack = function(e: MouseEvent) {
@@ -266,6 +266,7 @@ function textToChars(textElem: Element) {
     for (let index = 0; index < text.length; index++) {
       const charEl = document.createElement("span");
       charEl.textContent = text[index];
+      charEl.style.fontVariant =  `"wght" 200, "ital" 0`;
       textElem.appendChild(charEl);
       charElems.push(charEl);
     }

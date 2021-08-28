@@ -8,7 +8,7 @@ const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 export const defaultStyleSheet: Style = {
     fontStyle: "",
     fontWeight: "500",
-    fontFamily: 'Arial',
+    fontFamily: 'GT Flexa',
     height: 600,
     width: 800,
     spiralType: 'rectangular',
@@ -21,9 +21,9 @@ export const generateWordle = function (data: Word[], specStyleSheet: Partial<St
         const height = styleSheet.height
         const freqList = data.map(d => d.frequency);
         const sizeRange = [d3Array.min(freqList),  d3Array.max(freqList)] as [number, number];
-        const wordScale = d3Scale.scaleLog()
-            .domain(sizeRange)  // !!!!!!!!!!!!!!!!!!!!!!!
-            .range([20, 80]) // !!!!!!!!!!!!!!!!!!!!!!!
+        const wordScale = d3Scale.scaleSqrt()
+            .domain(sizeRange)  // !!!!!!!!!!!!!!!!!!!!!
+            .range([30, 90]) // !!!!!!!!!!!!!!!!!!!!!!!
         return cloudGenerator()
             .size([width, height])
             .timeInterval(2000)

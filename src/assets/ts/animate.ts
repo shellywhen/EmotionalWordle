@@ -77,12 +77,13 @@ const getSadSchemeFrame: AnimationFrameScheme = function(
 ) {
   const animationInstances = [] as AnimeInstance[];
   const duration = getDuration(speed);
-  const stagger = duration / 3;
+  const stagger = idx * duration / 5;
   const params: AnimeAnimParams = {
     targets: `.group_${idx}`,
-    opacity: [0.8, 0.4, 0.25, 0.3, 0.4, 0.8, 1, 1],
-    translateY: [1, 2, 5, 8, 5, 2, 1, 0],
+    opacity: [0.8, 0.4, 0.4, 0.25, 0.3, 0.3, 0.3, 0.4, 0.8, 1, 1, 1],
+    translateY: [1, 2, 5, 8, 8, 8, 8, 6.5, 5, 2.5, 0],
     filter: [
+      "blur(0)",
       "blur(0)",
       "blur(0)",
       "blur(0.2px)",
@@ -91,9 +92,10 @@ const getSadSchemeFrame: AnimationFrameScheme = function(
       "blur(0)",
       "blur(0)",
     ],
-    duration: 4 * duration,
+    duration: duration * 5,
     easing: "linear",
     delay: anime.stagger(stagger),
+    endDelay: anime.stagger(duration + 1000 - stagger)
   };
   animationInstances.push(anime({ ...animeParams, ...params }));
   return animationInstances;
@@ -143,7 +145,7 @@ const getFearfulSchemeFrame: AnimationFrameScheme = function(
   const direction = Math.random() > 0.5 ? 0 : Math.random() > 0.5 ? -1 : 1;
   const params: AnimeAnimParams = {
       targets: `.group_${idx}`,
-      translateY: [0, -3 * extent],
+      translateY: [0, - extent],
       translateX: [direction * 5 * Math.random(), -direction * 5 * Math.random()],
       duration: duration,
       easing: 'easeOutQuad',
@@ -161,30 +163,36 @@ const getTenderSchemeFrame: AnimationFrameScheme = function(
   idx = 0
 ) {
   const animationInstances = [] as AnimeInstance[];
-  const textElems = document.querySelectorAll(".text-node");
+  const textElems = data.map(v => v.elem);
   textElems.forEach((textElem, i) => {
-    const selector = `char-node-${i}`;
+    const selector = `char-node-${idx}`;
     const charElems = textToChars(textElem);
     charElems.forEach((elem) => {
       elem.classList.add(selector);
       elem.style.filter = `saturate(80%)`;
+      elem.style.fontVariant =  `"wght" 200, "ital" 0`;
     });
 
-    const duration = getDuration(speed);
-    const stagger = (duration / charElems.length) * 0.6;
+    const duration = getDuration(speed) * 2;
+    const stagger = (duration / charElems.length) * .9;
     const params: AnimeAnimParams = {
       targets: `.${selector}`,
       keyframes: [
-        { fontVariationSettings: "'wght' 150", filter: "saturate(60%)" },
-        {
-          fontVariationSettings: "'wght' 700",
+        { fontVariationSettings: `'wght' ${entropy * 300 + 50},  'ital' 0`, 
+          filter: "saturate(60%)" ,
+          skew: '0deg',
+          translateY: 5
+        },{
+          fontVariationSettings: `'wght' 600, 'ital' 200`,
           filter: "saturate(50%)",
-          translateY: "-100",
-        },
-        {
-          fontVariationSettings: "'wght' 150",
+          translateY: -10 - 5 * entropy,
+          skew: '-5deg',
+        },{
+          fontVariationSettings: `'wght' ${entropy * 300 + 50}, 'ital' 0`,
           filter: "saturate(40%)",
-        },
+          translateY: 2,
+          skew: '0deg',
+        }
       ],
       delay: anime.stagger(stagger),
       duration: duration,
@@ -209,7 +217,7 @@ const getHappySchemeFrame: AnimationFrameScheme = function(
   idx = 0
 ) {
   const animationInstances = [] as AnimeInstance[];
-  const duration = getDuration(speed) * 0.5;
+  const duration = getDuration(speed);
   let x = 0,
     y = 0;
   data.forEach((d) => {
@@ -228,14 +236,30 @@ const getHappySchemeFrame: AnimationFrameScheme = function(
   );
   const params: AnimeAnimParams = {
     targets: `.group_${idx}`,
-    translateY: [(d * Math.sin(theta)) / 2, 0],
-    translateX: [(d * Math.cos(theta)) / 2, 0],
-    rotate: [0, 0, (-theta * Math.PI) / 2 + Math.PI, 0, 0],
-    duration: duration,
-    easing: `easeInOutQuint`,
+    translateY: [(d * Math.sin(theta)) / 2],
+    translateX: [(d * Math.cos(theta)) / 2],
+    duration: duration / 2,
+    easing: `easeInQuart`,
     direction: "alternate",
+    loop: true
   };
-  animationInstances.push(anime({ ...animeParams, ...params }));
+  const instance = anime.timeline(params);
+  instance.add({
+    targets: `.group_${idx}`,
+    rotate: [0, (-theta * Math.PI) / 2 + Math.PI/2, 0],
+    duration: duration / 10,
+    easing: `easeInOutQuart`
+  })
+  instance.add({
+    targets: `.group_${idx}`,
+    translateY: [0],
+    translateX: [0],
+    duration: duration / 2,
+    easing: `easeOutQuart`,
+    direction: "alternate"
+  })
+  // animationInstances.push(anime({ ...animeParams, ...params }));
+  animationInstances.push(instance)
   return animationInstances;
 };
 
@@ -246,7 +270,7 @@ const getNervousSchemeFrame: AnimationFrameScheme = function(
   idx
 ) {
   const animationInstances = [] as AnimeInstance[];
-  const duration = getDuration(speed) * 0.5;
+  const duration = getDuration(speed) * 1.5;
   const extent = (1 + entropy) * 15 + Math.random() * 15;
   const direction = Math.random() > 0.5 ? 0 : Math.random() > 0.5 ? -1 : 1;
   const params: AnimeAnimParams = {
@@ -334,9 +358,9 @@ class Animator {
         break;
       case "tender":
         this.scheme = SchemeType.tender;
-        this.split = DivideMode.x;
+        this.split = DivideMode.y;
         if (data[0].initData.fontFamily !== "GT Flexa") {
-          alert("You should use a variable font for this scheme.");
+          // alert("You should use a variable font for this scheme.");
         }
         break;
       default:

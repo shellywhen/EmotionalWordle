@@ -154,7 +154,7 @@ import * as d3 from "d3";
 import { Watch } from "vue-property-decorator";
 import { DraggableText, TextStyleConfig, Word } from "@/assets/types";
 import * as Emordle from "@/assets/ts/animate";
-import { getColor } from "@/assets/color-preset";
+import { getColor } from "@/assets/ts/color-preset";
 import {
   applyStyle,
   initDraggableText,
@@ -213,9 +213,10 @@ export default class Tool extends Vue {
     "fearful",
     "nervous",
   ];
-  private colorScheme = "black";
+  private colorScheme = "gray";
   private colorSchemes = [
     "black",
+    "gray",
     "red",
     "calm",
     "positive",
@@ -237,7 +238,7 @@ export default class Tool extends Vue {
     "Dreamwood",
     "GT Flexa",
   ];
-  public fontFamily = "Arial";
+  public fontFamily = "GT Flexa";
 
   private readonly animeParams: anime.AnimeParams = {
     easing: "linear",
@@ -413,6 +414,7 @@ export default class Tool extends Vue {
   }
   entropyCallback(v: string) {
     this.entropy = parseFloat(v);
+    if(this.animationMode == "tender") this.entropy = 1 - this.entropy;
     this.animate();
   }
 
@@ -524,6 +526,10 @@ export default class Tool extends Vue {
 .text-node {
   border-style: none;
   cursor: default;
+  span {
+    display: inline-block; 
+    margin-right: -2px;
+  }
   &.active {
     border: 0.5px dotted grey;
     border-radius: 5px;
@@ -552,6 +558,7 @@ export default class Tool extends Vue {
 }
 .right-column {
   position: relative;
+  padding-top: 120px;
   #emordle-container {
     // position: eabsolut;
     // top: 0;
