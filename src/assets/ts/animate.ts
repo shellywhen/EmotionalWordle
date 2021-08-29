@@ -236,29 +236,27 @@ const getHappySchemeFrame: AnimationFrameScheme = function(
   );
   const params: AnimeAnimParams = {
     targets: `.group_${idx}`,
-    translateY: [(d * Math.sin(theta)) / 2],
-    translateX: [(d * Math.cos(theta)) / 2],
-    duration: duration / 2,
-    easing: `easeInQuart`,
     direction: "alternate",
     loop: true
   };
   const instance = anime.timeline(params);
   instance.add({
-    targets: `.group_${idx}`,
-    rotate: [0, (-theta * Math.PI) / 2 + Math.PI/2, 0],
-    duration: duration / 10,
-    easing: `easeInOutQuart`
+    translateY: (d * Math.sin(theta)) / 2,
+    translateX: (d * Math.cos(theta)) / 2,
+    duration: duration / 2,
+    easing: `easeInQuart`,
   })
   instance.add({
-    targets: `.group_${idx}`,
-    translateY: [0],
-    translateX: [0],
-    duration: duration / 2,
-    easing: `easeOutQuart`,
-    direction: "alternate"
+    rotate:  theta * Math.PI * 0.8,
+    duration: duration * 0.4,
+    easing: 'linear'
   })
-  // animationInstances.push(anime({ ...animeParams, ...params }));
+  // instance.add({
+  //   translateY: 0,
+  //   translateX: 0,
+  //   duration: duration / 2,
+  //   easing: `easeInQuart`,
+  // })
   animationInstances.push(instance)
   return animationInstances;
 };
@@ -270,7 +268,7 @@ const getNervousSchemeFrame: AnimationFrameScheme = function(
   idx
 ) {
   const animationInstances = [] as AnimeInstance[];
-  const duration = getDuration(speed) * 1.5;
+  const duration = getDuration(speed) * 0.8;
   const extent = (1 + entropy) * 15 + Math.random() * 15;
   const direction = Math.random() > 0.5 ? 0 : Math.random() > 0.5 ? -1 : 1;
   const params: AnimeAnimParams = {
