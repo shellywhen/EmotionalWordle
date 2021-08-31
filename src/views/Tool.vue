@@ -98,7 +98,7 @@
         ></Slider>
       </div>
       <br />
-      <!-- <button @click="animate">animate</button> -->
+      <!-- <button @click="animate">animate</buttonf> -->
       <div>
         <!-- <button @click="play">{{ "play" }}</button>
         <button @click="pause">{{ "pause" }}</button> -->
@@ -303,7 +303,7 @@ export default class Tool extends Vue {
     if (!this.wordleData || this.wordleData.data.length === 0) return;
     this.ifMask = false;
     this.initiateData(this.wordleData.data);
-    this.relayout();
+    // this.relayout();
   }
   @Watch("colorScheme")
   colorSchemeChanged() {
@@ -454,7 +454,6 @@ export default class Tool extends Vue {
       tag: uploadFilename,
     };
     this.collection.push(dataset);
-    console.log(changeData, '???')
     if (changeData) {
       d3.select("#emordle-dataset").property("value", dataset);
       this.draggableTexts = initDraggableText(dataset.data);
@@ -468,6 +467,7 @@ export default class Tool extends Vue {
       alert(`Wrong Data Format! Please use 'Text' and 'Frequency'!`);
       return;
     }
+    console.log(sanity);
     if (sanity.compute) {
       generateWordle(data, { width: WIDTH, height: HEIGHT })
         .on("end", (layout) => {

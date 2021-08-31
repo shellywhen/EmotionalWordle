@@ -33,7 +33,7 @@ function arrayToCSV <T>(objArray: Array<T>) {
  */
 function sanityChecknFill (obj: Word[]) {
   if('frequency' in obj[0] && 'text' in obj[0]) {
-    if('x' in obj[0]) {
+    if('left' in obj[0]) {
       return  { data: true, compute: false };
     } else {
       return { data: true, compute: true };
