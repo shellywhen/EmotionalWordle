@@ -84,6 +84,7 @@
           label="Speed"
           className="speed"
           :callback="speedCallback"
+          :showValue="true"
         ></Slider>
       </div>
       <div style="margin: 0 auto">
@@ -93,6 +94,7 @@
           label="Entropy"
           className="entropy"
           :callback="entropyCallback"
+          :showValue="true"
         ></Slider>
       </div>
       <br />
