@@ -546,11 +546,12 @@ export default class Tool extends Vue {
         frequency: x.frequency,
       } as UploadData;
     });
-    const generateEmrodleButton = document.querySelector(
+    const generateEmordleButton = document.querySelector(
       "#generate-emordle-button"
     ) as HTMLButtonElement | null;
-    generateEmrodleButton!.style.display = "block";
-    generateEmrodleButton!.addEventListener("click", () => {
+    console.log('why', generateEmordleButton)
+    generateEmordleButton!.style.display = "block";
+    generateEmordleButton!.addEventListener("click", () => {
       if (sanity.compute) {
         generateWordle(data, { width: WIDTH, height: HEIGHT })
           .on("end", (layout) => {
