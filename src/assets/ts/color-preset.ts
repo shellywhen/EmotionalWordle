@@ -144,12 +144,19 @@ export const trustworthy = [
 
 export const black = ['#000000']
 
+export const gray = ['#6c757d']
+
+export const red = ['#F80F19']
+
 export let getColor = function (name: string) {
+    console.log(name, '???')
     if (name == "trustworthy") return trustworthy
     if (name == "positive") return positive
     if (name == "negative") return negative
     if (name == "calm") return calm
     if (name == "black") return black
+    if (name == "gray") return gray
+    if (name == "red") return red
     if (name == "playful") return playful
     if (name == "rainbow") return rainbow
     if (name == "serious") return serious
