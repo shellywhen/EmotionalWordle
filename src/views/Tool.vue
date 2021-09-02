@@ -176,7 +176,11 @@
         </table>
       </div>
       <div class="button-group">
-        <button class="button btn btn-success" @click="openFile">
+        <button
+          id="upload-csv-button"
+          class="button btn btn-success"
+          @click="openFile"
+        >
           Upload CSV
         </button>
         <button
@@ -559,23 +563,6 @@ export default class Tool extends Vue {
     } else {
       this.insertDataset((data as unknown) as TextStyleConfig[], newFileFlag);
     }
-    const generateEmrodleButton = document.querySelector(
-      "#generate-emordle-button"
-    ) as HTMLButtonElement | null;
-    if (generateEmrodleButton) {
-      generateEmrodleButton!.style.display = "block";
-      generateEmrodleButton!.addEventListener("click", () => {
-        generateWordle(data, { width: WIDTH, height: HEIGHT })
-          .on("end", (layout) => {
-            const configs = word2Config(layout, WIDTH, HEIGHT);
-            //testOnSvg((configs as unknown) as Word[]);
-            this.insertDataset(configs, newFileFlag);
-            this.wordleData = this.collection[this.collection.length - 1];
-          })
-          .start();
-        this.hideModal();
-      });
-    }
   }
 
   downloadConfig() {
@@ -760,5 +747,9 @@ export default class Tool extends Vue {
 .pop-leave-to {
   opacity: 0;
   transform: scale(0.3) translateY(-50%);
+}
+#upload-csv-button {
+  background-color: #42b983;
+  border-color: #42b983;
 }
 </style>

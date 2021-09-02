@@ -13,8 +13,7 @@
     <div class="steps">
       <h6>
         1️⃣ On <code>Tool</code> tab, upload a CSV file with only two columns,
-        named <code>text</code> and <code>frequency</code>. Review the data on
-        your csv and press <code>Generate Emordle</code> button.
+        named <code>text</code> and <code>frequency</code>. Review the emordle generateed based on the uploaded dataReview the data.
       </h6>
       <h6>
         2️⃣ Use the panel on the left to adjust the style of the wordle. You can
