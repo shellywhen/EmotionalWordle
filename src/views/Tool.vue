@@ -540,18 +540,31 @@ export default class Tool extends Vue {
       return;
     }
     // show user the loaded csv file first
-    this.uploadData = data.map(function(x) {
-      return {
-        text: x.text,
-        frequency: x.frequency,
-      } as UploadData;
-    });
+    this.uploadData = data.map(
+      (x) =>
+        ({
+          text: x.text,
+          frequency: x.frequency,
+        } as UploadData)
+    );
+    if (sanity.compute) {
+      generateWordle(data, { width: WIDTH, height: HEIGHT })
+        .on("end", (layout) => {
+          const configs = word2Config(layout, WIDTH, HEIGHT);
+          //testOnSvg((configs as unknown) as Word[]);
+          this.insertDataset(configs, newFileFlag);
+          this.wordleData = this.collection[this.collection.length - 1];
+        })
+        .start();
+    } else {
+      this.insertDataset((data as unknown) as TextStyleConfig[], newFileFlag);
+    }
     const generateEmrodleButton = document.querySelector(
       "#generate-emordle-button"
     ) as HTMLButtonElement | null;
-    generateEmrodleButton!.style.display = "block";
-    generateEmrodleButton!.addEventListener("click", () => {
-      if (sanity.compute) {
+    if (generateEmrodleButton) {
+      generateEmrodleButton!.style.display = "block";
+      generateEmrodleButton!.addEventListener("click", () => {
         generateWordle(data, { width: WIDTH, height: HEIGHT })
           .on("end", (layout) => {
             const configs = word2Config(layout, WIDTH, HEIGHT);
@@ -560,12 +573,11 @@ export default class Tool extends Vue {
             this.wordleData = this.collection[this.collection.length - 1];
           })
           .start();
-      } else {
-        this.insertDataset((data as unknown) as TextStyleConfig[]);
-      }
-      this.hideModal();
-    });
+        this.hideModal();
+      });
+    }
   }
+
   downloadConfig() {
     const a = document.createElement("a");
     const jsonData = this.draggableTexts.map((v) => {
