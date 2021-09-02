@@ -176,7 +176,11 @@
         </table>
       </div>
       <div class="button-group">
-        <button class="button btn btn-success" @click="openFile">
+        <button
+          id="upload-csv-button"
+          class="button btn btn-success"
+          @click="openFile"
+        >
           Upload CSV
         </button>
         <button
@@ -540,33 +544,27 @@ export default class Tool extends Vue {
       return;
     }
     // show user the loaded csv file first
-    this.uploadData = data.map(function(x) {
-      return {
-        text: x.text,
-        frequency: x.frequency,
-      } as UploadData;
-    });
-    const generateEmordleButton = document.querySelector(
-      "#generate-emordle-button"
-    ) as HTMLButtonElement | null;
-    console.log('why', generateEmordleButton)
-    generateEmordleButton!.style.display = "block";
-    generateEmordleButton!.addEventListener("click", () => {
-      if (sanity.compute) {
-        generateWordle(data, { width: WIDTH, height: HEIGHT })
-          .on("end", (layout) => {
-            const configs = word2Config(layout, WIDTH, HEIGHT);
-            //testOnSvg((configs as unknown) as Word[]);
-            this.insertDataset(configs, newFileFlag);
-            this.wordleData = this.collection[this.collection.length - 1];
-          })
-          .start();
-      } else {
-        this.insertDataset((data as unknown) as TextStyleConfig[]);
-      }
-      this.hideModal();
-    });
+    this.uploadData = data.map(
+      (x) =>
+        ({
+          text: x.text,
+          frequency: x.frequency,
+        } as UploadData)
+    );
+    if (sanity.compute) {
+      generateWordle(data, { width: WIDTH, height: HEIGHT })
+        .on("end", (layout) => {
+          const configs = word2Config(layout, WIDTH, HEIGHT);
+          //testOnSvg((configs as unknown) as Word[]);
+          this.insertDataset(configs, newFileFlag);
+          this.wordleData = this.collection[this.collection.length - 1];
+        })
+        .start();
+    } else {
+      this.insertDataset((data as unknown) as TextStyleConfig[], newFileFlag);
+    }
   }
+
   downloadConfig() {
     const a = document.createElement("a");
     const jsonData = this.draggableTexts.map((v) => {
@@ -749,5 +747,9 @@ export default class Tool extends Vue {
 .pop-leave-to {
   opacity: 0;
   transform: scale(0.3) translateY(-50%);
+}
+#upload-csv-button {
+  background-color: #42b983;
+  border-color: #42b983;
 }
 </style>
