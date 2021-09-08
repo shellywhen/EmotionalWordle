@@ -1,20 +1,22 @@
-text,frequency,country
-hello,20,英
-你好,18,中
-hej,5,danish
-Γεια σας,7,greek
-bună ziua,6,romanian
-здравствуйте,12,俄
-こんにちわ,7,日
-ciao,9,意
-hola,15,西
-witam,7,polish
-bonjour,13,法
-hallo,10,dutch
-olá,3,port
-tere,4,Estonia
-pozdravljeni,3,Slovenian
-sveiki,7,slovak
-hei,4,Finnish
-안녕하세요,8,韩
-أهلا,10,阿拉伯
+text,frequency
+hello,20
+hi, 40
+你好,50
+hej,5
+Γεια σας,7
+bună ziua,6
+здравствуйте,2
+こんにちわ,7
+ciao,25
+hola,10
+witam,7
+bonjour,6
+hallo,10
+olá,30
+tere,4
+pozdravljeni,3
+sveiki,7
+hei,4
+안녕하세요,8
+سلام, 10
+أهلا, 30

@@ -125,7 +125,7 @@
       <br />
       <!-- <button @click="center">center</button> -->
       <button @click="relayout">relayout</button>
-      <button @click="mask">{{ ifMask ? "unmask" : "mask" }}</button>
+      <!-- <button @click="mask">{{ ifMask ? "unmask" : "mask" }}</button> -->
       <br />
       <br />
       <button @click="downloadConfig">
@@ -227,15 +227,18 @@ const WIDTH = defaultStyleSheet.width;
 const HEIGHT = defaultStyleSheet.height;
 const divId = "emordle-container";
 const fileNames = [
+  "reallife/welcome.csv",
+      "reallife/hello.csv",
+  "reallife/2020_search.csv",
+  "reallife/creep.csv",
+  "layout/thx.csv",
+  "reallife/ingredients.csv",
+  "reallife/xmas.csv",
   "emotive/happy-words.csv",
   "emotive/sad-words.csv",
   "emotive/tender-words.csv",
   "emotive/afraid-words.csv",
   "emotive/angry-words.csv",
-  "reallife/2020_search.csv",
-  "reallife/creep.csv",
-  "reallife/thx.csv",
-  "reallife/ingredients.csv",
 ];
 const fileReader = new FileReader();
 let uploadFilename = "a";
@@ -257,7 +260,7 @@ export default class Tool extends Vue {
   private draggableTexts: DraggableText[] = [];
   private wordleData: Dataset = { data: [], tag: "" };
   private animationInstances: AnimeInstance[] = [];
-  private animationMode = "happy";
+  private animationMode = "tender";
   private ifMask = false;
   private isShowModal = false;
   private uploadData: UploadData[] = [];
@@ -270,18 +273,18 @@ export default class Tool extends Vue {
     "fearful",
     "nervous",
   ];
-  private colorScheme = "gray";
+  private colorScheme = "calm";
   private colorSchemes = [
     "black",
-    "gray",
-    "red",
     "calm",
-    "positive",
-    "negative",
     "playful",
     "trustworthy",
-    "rainbow",
     "exciting",
+    "positive",
+    "negative",
+    "disturbing",
+    "rainbow",
+
   ];
   private speed = 0.5;
   private entropy = 0.5;
@@ -330,7 +333,7 @@ export default class Tool extends Vue {
       false
     );
     await Promise.all(
-      fileNames.map((f: string) => d3.csv(`./dataset/${f}`))
+      fileNames.map((f: string) => d3.csv(`./dataset/${f}`, d3Dsv.autoType))
     ).then((rawData: unknown[]) => {
       const data = rawData as Word[][];
       data.forEach((instance, idx: number) => {
@@ -529,6 +532,7 @@ export default class Tool extends Vue {
       data: data,
       tag: uploadFilename,
     };
+    console.log(uploadFilename)
     this.collection.push(dataset);
     if (changeData) {
       d3.select("#emordle-dataset").property("value", dataset);
