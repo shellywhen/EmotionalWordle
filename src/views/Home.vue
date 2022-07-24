@@ -9,15 +9,15 @@
       <div class="preview"
         :style="{
         backgroundImage: 'url(' + image + ')',
-        width: '390px',
-        height: '260px'
+        width: '420px',
+        height: '300px'
       }"></div>
-      <div class="poem">
+      <!-- <div class="poem">
         <h3>{{ poems[imageIndex] }}</h3>
         <h6>{{ poemAuthors[imageIndex] }}</h6>
         <a :href="poemUrls[imageIndex]">{{poemUrls[imageIndex]}}</a>
 
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
@@ -38,17 +38,15 @@ export default class Home extends Vue {
   //       require('@/assets/gifs/poem10.gif'),
   //     ];
   public images: string[] = [
-    "./gallery/poem1.gif",
-    "./gallery/poem2.gif",
-    "./gallery/poem3.gif",
-    "./gallery/poem4.gif",
-    // "./gallery/poem5.gif",
-    "./gallery/poem6.gif",
-    "./gallery/poem7.gif",
-    "./gallery/poem8.gif",
-    "./gallery/poem9.gif",
-    // "./gallery/poem10.gif",
-
+      "./gallery/dance-hello.gif",
+    "./gallery/dance-thx.gif",
+    "./gallery/fade-one_art.gif",
+     "./gallery/fade-raven.gif",
+    "./gallery/fist-anger.gif",
+    "./gallery/explosion-bad_blood.gif",
+    "./gallery/shake-fear.gif",
+    "./gallery/shake-raven.gif",
+    "./gallery/shake-creep.gif"
   ];
   public poems:string[] = [
     'The Waste Land',
@@ -93,11 +91,11 @@ export default class Home extends Vue {
   background-position: center center;
   border: 1px solid #ebebeb;
   margin: 5px;
-  display: inline-block;
+  /* display: inline-block; */
   text-align: left;
 }
 .instance {
-  display: flex;
+  /* display: flex; */
   text-align: middle;
 }
 .poem {
@@ -107,7 +105,10 @@ export default class Home extends Vue {
 }
 .gallery {
   text-align: middle;
-  padding: 0 10vw;
+  padding: 0 0vw;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
 }
 
 </style>

@@ -1,5 +1,5 @@
 import cloudGenerator from 'd3-cloud';
-import { Word, Style, TextStyleConfig } from "@/assets/types";
+import { Word, Style, TextStyleConfig, NewWord } from "@/assets/types";
 import * as d3Scale from 'd3-scale';
 import * as d3Array from 'd3-array';
 import * as d3Select from 'd3-selection';
@@ -8,7 +8,7 @@ const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 export const defaultStyleSheet: Style = {
     fontStyle: "",
     fontWeight: "500",
-    fontFamily: 'GT Flexa',
+    fontFamily: 'Arial', //'GT Flexa',
     height: 600,
     width: 800,
     spiralType: 'rectangular',
@@ -21,9 +21,9 @@ export const generateWordle = function (data: Word[], specStyleSheet: Partial<St
         const height = styleSheet.height
         const freqList = data.map(d => d.frequency);
         const sizeRange = [d3Array.min(freqList),  d3Array.max(freqList)] as [number, number];
-        const wordScale = d3Scale.scaleSqrt()
+        const wordScale = d3Scale.scaleLinear()
             .domain(sizeRange)  // !!!!!!!!!!!!!!!!!!!!!
-            .range([30, 90]) // !!!!!!!!!!!!!!!!!!!!!!!
+            .range([25, 160]) // !!!!!!!!!!!!!!!!!!!!!!! 【20， 120】
         return cloudGenerator()
             .size([width, height])
             .timeInterval(2000)
@@ -58,7 +58,9 @@ export const config2Word = function (data: TextStyleConfig[]) {
     return result;
 }
 
-export const word2Config = function (layout: d3.layout.cloud.Word[], WIDTH: number, HEIGHT: number) {
+
+
+export const word2Config = function (layout: Array<NewWord>, WIDTH: number, HEIGHT: number) {
     const configs = [] as TextStyleConfig[];
     layout.forEach(w => {
         const config = {
@@ -73,7 +75,8 @@ export const word2Config = function (layout: d3.layout.cloud.Word[], WIDTH: numb
           y: w.y!,
           size: w.size!,
           offx: 0,
-          offy: 0
+          offy: 0,
+          frequency: w.frequency
         };
         const bbox = testSize(config);
         config.offx = bbox.width * 0.55;

@@ -32,6 +32,7 @@ function arrayToCSV<T>(objArray: Array<T>) {
  * @param obj raw csv string
  */
 function sanityChecknFill(obj: Word[]) {
+  
   if ('frequency' in obj[0] && 'text' in obj[0]) {
     if ('left' in obj[0]) {
       return { data: true, compute: false };
@@ -83,7 +84,13 @@ function initDraggableText(data: TextStyleConfig[], divId = "emordle-container")
     const elem: HTMLDivElement = document.createElement("div");
     elem.classList.add("text-node");
     applyStyle(elem, style);
-
+    // d3.select(`#${divId}`)
+    //   .append('div')
+    //   .text(style.text)
+    //   .style('position', 'absolute')
+    //   .style('left', style.left + style.offx!/0.55*0.56 + 'px')
+    //   .style('top', style.top + style.offy!/1.2*.55 + 'px')
+    //   .style('color', 'red')
     // assign properties to enable draggablity
     const draggableTextProp: DraggableTextProp = {
       mousePosition: { x: 0, y: 0 },

@@ -56,7 +56,8 @@ interface KeyframeConfig {
   duration: number;
 }
 
-interface Word extends cloudGenerator.Word {
+interface NewWord extends d3.layout.cloud.Word { frequency: number } 
+interface Word extends NewWord {
   frequency: number;
   width?: number;
   height?: number;
@@ -95,6 +96,7 @@ interface TextStyleConfig {
   text: string;
   offx?: number;
   offy?: number;
+  frequency?: number
 }
 
 interface Style {
@@ -114,7 +116,7 @@ interface Style {
   font?: any;
 }
 
-interface MetaConfig extends Word {
+interface MetaConfig extends NewWord {
   truex: number;
   truey: number;
   trues: number;
@@ -128,6 +130,7 @@ interface MetaConfig extends Word {
   direction: Direction;
   update: (tx: number, ty: number, ts: number, tc: number) => void;
   setframe: (tx: number, ty: number, ts: number, tc: string) => void;
+  fontString?: string
 }
 
 enum Direction {
@@ -161,11 +164,14 @@ enum Mode {
   swing = "Swing",
 }
 
+
+
 export {
   SimulationData,
   Dataset,
   KeyframeConfig,
   Word,
+  NewWord,
   Style,
   GroupingMode,
   Mode,

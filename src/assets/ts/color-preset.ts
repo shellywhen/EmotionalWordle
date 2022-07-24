@@ -22,6 +22,14 @@ export const rainbow = [
 'rgba(255, 193, 7, 1)'
 ]
 
+export const blue = [
+    "#000000",
+    '#30355F',
+    '#335671',
+    '#83B3E3',
+    'rgba(63, 81, 181, 0.8)'
+]
+
 export const calm = [
     '#6E746A',
     '#478F8D',
@@ -161,5 +169,6 @@ export let getColor = function (name: string) {
     if (name == "rainbow") return rainbow
     if (name == "serious") return serious
     if (name == "disturbing") return disturbing
+    if(name == "blue") return blue
     return calm
 }

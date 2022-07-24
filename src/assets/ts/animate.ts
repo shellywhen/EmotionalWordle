@@ -110,11 +110,12 @@ const getAngrySchemeFrame: AnimationFrameScheme = function(
   const animationInstances = [] as AnimeInstance[];
   const duration = getDuration(speed);
   const period = 0.6 + Math.random() * 1;
+  const stagger = (idx * duration) * 0.005
   let x = 0,
     y = 0;
   data.forEach((d) => {
-    x += d.initData.left + (d.initData.offx || 0);
-    y += d.initData.top + (d.initData.offy || 0);
+    x += (d.initData.left + (d.initData.offx || 0));
+    y += (d.initData.top + (d.initData.offy || 0));
   });
   x /= Math.max(1, data.length);
   y /= Math.max(1, data.length);
@@ -128,13 +129,36 @@ const getAngrySchemeFrame: AnimationFrameScheme = function(
   );
   const params: AnimeAnimParams = {
     targets: `.group_${idx}`,
-    scale: [0.75, 1.25],
-    translateY: [d * Math.sin(theta) * 0.75],
-    translateX: [d * Math.cos(theta) * 0.75],
+    scale: [0.85, 2],
+    translateY: [d * Math.sin(theta) * 4],
+    translateX: [d * Math.cos(theta) * 4],
     duration: duration,
-    easing: `easeInElastic(1, ${period})`,
-    direction: "alternate",
+    // direction: "alternate",
+    easing: 'easeInElastic(0.5, 2)', //`easeInElastic(1, ${period})`,
+    loop: true,
+    delay: duration * 0.01
   };
+  // const params: AnimeAnimParams = {
+  //   targets: `.group_${idx}`,
+  //   loop: true
+  // };
+  // const instance = anime.timeline(params)
+  // instance.add({
+  //   scale: 0.75,
+  //   duration: 0.15 * duration
+  // })
+  // .add({
+  //   translateY: (d * Math.sin(theta)) / 2,
+  //   translateX: (d * Math.cos(theta)) / 2,
+  //   scale: 1.25,
+  //   duration: 0.4 * duration,
+  //   easing: 'easeInExpo'
+  // })
+  // .add({
+  //   duration: 0.4* duration
+  // })
+
+  // animationInstances.push(instance)
   animationInstances.push(anime({ ...animeParams, ...params }));
   return animationInstances;
 };
@@ -147,7 +171,7 @@ const getFearfulSchemeFrame: AnimationFrameScheme = function(
 ) {
   const animationInstances = [] as AnimeInstance[];
   const duration = getDuration(speed);
-  const extent = (1 + entropy) * 15 + Math.random() * 15;
+  const extent = (1 + entropy) * 15 + 15 + Math.random() * 2 //Math.random() * 15;
   const direction = Math.random() > 0.5 ? 0 : Math.random() > 0.5 ? -1 : 1;
   const params: AnimeAnimParams = {
     targets: `.group_${idx}`,
@@ -230,8 +254,8 @@ const getHappySchemeFrame: AnimationFrameScheme = function(
   let x = 0,
     y = 0;
   data.forEach((d) => {
-    x += d.initData.left + (d.initData.offx || 0);
-    y += d.initData.top + (d.initData.offy || 0);
+    x += d.initData.left + (d.initData.offx || 0)/0.55*0.56;
+    y += d.initData.top + (d.initData.offy || 0)/1.2*0.55;
   });
   x /= Math.max(1, data.length);
   y /= Math.max(1, data.length);
@@ -252,12 +276,12 @@ const getHappySchemeFrame: AnimationFrameScheme = function(
   instance.add({
     translateY: (d * Math.sin(theta)) / 2,
     translateX: (d * Math.cos(theta)) / 2,
-    duration: duration / 2,
+    duration: duration * 0.4,
     easing: `easeInQuart`,
   });
   instance.add({
-    rotate: theta * Math.PI * 0.8,
-    duration: duration * 0.4,
+    rotate: theta * Math.PI ,
+    duration: duration * 0.55,
     easing: "linear",
   });
   // instance.add({
@@ -278,7 +302,7 @@ const getNervousSchemeFrame: AnimationFrameScheme = function(
 ) {
   const animationInstances = [] as AnimeInstance[];
   const duration = getDuration(speed) * 0.8;
-  const extent = (1 + entropy) * 15 + Math.random() * 15;
+  const extent = (1 + entropy) * 15 + Math.random() * 25;
   const direction = Math.random() > 0.5 ? 0 : Math.random() > 0.5 ? -1 : 1;
   const params: AnimeAnimParams = {
     targets: `.group_${idx}`,
@@ -335,13 +359,13 @@ class Animator {
     switch (this.scheme) {
       case SchemeType.happy:
         return getHappySchemeFrame; // bump
-      case SchemeType.nervous:
+      case SchemeType.fearful:
         return getNervousSchemeFrame; // drip
       case SchemeType.sad:
         return getSadSchemeFrame; // fade
       case SchemeType.angry:
         return getAngrySchemeFrame; // scale
-      case SchemeType.fearful:
+      case SchemeType.nervous:
         return getFearfulSchemeFrame; // shake
       case SchemeType.tender:
         return getTenderSchemeFrame; // wave
@@ -436,8 +460,8 @@ class Animator {
     } else {
       // divide by xy
       const positions = assignedWords.map((obj) => [
-        obj.initData.left + (obj.initData.offx || 0),
-        obj.initData.top + (obj.initData.offy || 0),
+        (obj.initData.left + (obj.initData.offx || 0)),
+        (obj.initData.top + (obj.initData.offy || 0)),
       ]);
       const centers = this.splitCenters;
       const alias = this.split === DivideMode.xy ? "kmeans" : centers;
@@ -450,6 +474,7 @@ class Animator {
         if (bag.length !== 0) results.push(bag);
       });
     }
+    console.log('word group', results.map(v => v.map(k => k.initData.text||0)))
     return results;
   }
 }

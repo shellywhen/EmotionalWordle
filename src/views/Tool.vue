@@ -73,7 +73,7 @@
             v-bind:key="item"
             v-bind:value="item"
           >
-            {{ item }}
+            {{ schemeNameMap[item] }}
           </option>
         </select>
       </div>
@@ -124,12 +124,13 @@
       <!-- <button @click="restart">restart</button> -->
       <br />
       <!-- <button @click="center">center</button> -->
-      <button @click="relayout">relayout</button>
+      <button @click="relayout">
+        <i class="fas fa-smile light"></i> &nbsp; Relayout</button>
       <!-- <button @click="mask">{{ ifMask ? "unmask" : "mask" }}</button> -->
       <br />
       <br />
       <button @click="downloadConfig">
-        <i class="fas fa-download light"></i> &nbsp; config
+        <i class="fas fa-download light"></i> &nbsp; Config
       </button>
       <!-- <button @click="downloadGIF">
         <i class="fas fa-download light"></i> &nbsp; gif
@@ -203,7 +204,7 @@ import Slider from "@/components/ui/Slider.vue";
 
 import * as d3 from "d3";
 import { Watch } from "vue-property-decorator";
-import { DraggableText, TextStyleConfig, Word } from "@/assets/types";
+import { DraggableText, TextStyleConfig, Word, NewWord } from "@/assets/types";
 import * as Emordle from "@/assets/ts/animate";
 import { getColor } from "@/assets/ts/color-preset";
 import {
@@ -227,18 +228,21 @@ const WIDTH = defaultStyleSheet.width;
 const HEIGHT = defaultStyleSheet.height;
 const divId = "emordle-container";
 const fileNames = [
-  "reallife/welcome.csv",
-      "reallife/hello.csv",
+   "reallife/welcome.csv",
+     "reallife/hello.csv",
   "reallife/2020_search.csv",
   "reallife/creep.csv",
+   "reallife/raven.csv",
   "layout/thx.csv",
-  "reallife/ingredients.csv",
-  "reallife/xmas.csv",
-  "emotive/happy-words.csv",
-  "emotive/sad-words.csv",
-  "emotive/tender-words.csv",
-  "emotive/afraid-words.csv",
-  "emotive/angry-words.csv",
+   "reallife/xmas.csv",
+   "reallife/one_art.csv",
+   "reallife/bad_blood.csv",
+   "reallife/dream.csv",
+  "emotive/layout_happy-words.csv",
+   "emotive/layout_sad-words.csv",
+ "emotive/layout_fearful-words.csv",
+  "emotive/layout_angry-words.csv",
+  "emotive/layout_lorem-ipsum-words.csv",
 ];
 const fileReader = new FileReader();
 let uploadFilename = "a";
@@ -260,7 +264,7 @@ export default class Tool extends Vue {
   private draggableTexts: DraggableText[] = [];
   private wordleData: Dataset = { data: [], tag: "" };
   private animationInstances: AnimeInstance[] = [];
-  private animationMode = "tender";
+  private animationMode = "still";
   private ifMask = false;
   private isShowModal = false;
   private uploadData: UploadData[] = [];
@@ -268,14 +272,24 @@ export default class Tool extends Vue {
     "still",
     "tender",
     "happy",
-    "angry",
+   "angry",
     "sad",
-    "fearful",
+     "fearful",
     "nervous",
   ];
-  private colorScheme = "calm";
+  private schemeNameMap = {
+   "still": "base-still",
+  "tender": "tender-swing",
+  "happy": "happy-dance",
+  "angry": "angry-explosion",
+  "sad": "sad-fade",
+  "nervous": "fear-pace",
+  "fearful": "fear-shiver",
+}
+  private colorScheme = "black";
   private colorSchemes = [
     "black",
+    "blue",
     "calm",
     "playful",
     "trustworthy",
@@ -297,21 +311,28 @@ export default class Tool extends Vue {
     "Manrope",
     "Dreamwood",
     "GT Flexa",
+    "Barrio",
+    "Frijole",
+    "GloriaHallelujah",
+    "RubikGlitch",
+    "Rye"
   ];
-  public fontFamily = "GT Flexa";
+  public fontFamily = "Arial";
 
   private readonly animeParams: anime.AnimeParams = {
     easing: "linear",
     // direction: "alternate",
     loop: true,
   };
-
+  // get schemeName () {
+  //   return (schemeNameMap as any)[this.animationMode]
+  // }
   printisShowModal() {
     console.log(this.isShowModal);
   }
   initLayout() {
     const container = document.querySelector("#" + divId) as HTMLDivElement;
-    container.style.width = `${WIDTH}px`;
+    container.style.width = `${WIDTH + 50}px`;
     container.style.height = `${HEIGHT}px`;
     const test = document.querySelector(
       "#emordle-test-svg-container"
@@ -337,7 +358,9 @@ export default class Tool extends Vue {
     ).then((rawData: unknown[]) => {
       const data = rawData as Word[][];
       data.forEach((instance, idx: number) => {
-        uploadFilename = fileNames[idx].split("/")[1].split(".")[0];
+        const list = fileNames[idx].split("/")
+        const f = list[list.length - 1]
+        uploadFilename = f.split(".")[0];
         this.parseFile(instance, false);
       });
       this.wordleData = this.collection[0];
@@ -444,12 +467,14 @@ export default class Tool extends Vue {
     this.center();
   }
 
+
   relayout() {
     this.pause();
     const words = config2Word(this.draggableTexts.map((v) => v.initData));
     generateWordle(words, { width: WIDTH, height: HEIGHT })
       .on("end", (layout) => {
-        const configs = word2Config(layout, WIDTH, HEIGHT);
+        const lo = layout as unknown as NewWord[]
+        const configs = word2Config(lo, WIDTH, HEIGHT);
         configs.forEach((config, i) => {
           config.color = this.draggableTexts[i].initData.color;
         });
@@ -558,7 +583,8 @@ export default class Tool extends Vue {
     if (sanity.compute) {
       generateWordle(data, { width: WIDTH, height: HEIGHT })
         .on("end", (layout) => {
-          const configs = word2Config(layout, WIDTH, HEIGHT);
+          const lo = layout as unknown as NewWord[]
+          const configs = word2Config(lo, WIDTH, HEIGHT);
           //testOnSvg((configs as unknown) as Word[]);
           this.insertDataset(configs, newFileFlag);
           this.wordleData = this.collection[this.collection.length - 1];
@@ -581,7 +607,7 @@ export default class Tool extends Vue {
         fontWeight: d.fontWeight,
         left: d.left,
         top: d.top,
-        frequency: d.fontSize,
+        frequency: d.frequency,
         offx: d.offx,
         offy: d.offy,
       };
@@ -612,8 +638,12 @@ export default class Tool extends Vue {
   // border: 1px solid black;
   margin: 0 auto;
   position: relative;
+  margin-top: 50px;
 }
 .text-node {
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
   border-style: none;
   cursor: default;
   span {
@@ -648,14 +678,7 @@ export default class Tool extends Vue {
 }
 .right-column {
   position: relative;
-  // #emordle-container {
-  //   position: absolute;
-  //   top: 0;
-  //   left: 0;
-  // div {
-  //   opacity: 0.1;
-  // }
-  // }
+  margin-top:5vh;
   #emordle-test-svg-container {
     position: absolute;
     top: 0;

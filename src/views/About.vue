@@ -33,18 +33,15 @@
             the emordle.
           </li>
           <li>
-            <code>mask</code>: replace the characters of the words in the
-            worldle to a series of character "x" of equal length.
-          </li>
-          <li>
             play and pause: resumes or stops the animation. Can be used to fine tune the position of the words in the wordle.
           </li>
         </ul>
         </p>
       </h6>
       <h6>
-        4️⃣ Use a screen recording tool in your computer
+        4️⃣ Export
         <ul>
+          <p>We have not implemented the module to export as GIF yet. However, you may use a screen recording tool in your computer.</p>
           <li>
             <a
               href="https://support.apple.com/guide/quicktime-player/record-your-screen-qtp97b08e666/mac"
